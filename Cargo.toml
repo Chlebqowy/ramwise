@@ -1,0 +1,49 @@
+[package]
+name = "ramwise"
+version = "0.1.0"
+edition = "2024"
+description = "Intelligent RAM usage visualizer for Arch Linux"
+license = "MIT"
+authors = ["ramwise contributors"]
+repository = "https://github.com/ramwise/ramwise"
+keywords = ["memory", "ram", "monitor", "tui", "linux"]
+categories = ["command-line-utilities", "development-tools::profiling"]
+
+[dependencies]
+# TUI framework
+ratatui = "0.29"
+crossterm = "0.28"
+
+# Async runtime
+tokio = { version = "1", features = ["rt-multi-thread", "time", "sync", "macros", "signal"] }
+
+# System info - procfs for Linux /proc parsing
+procfs = "0.17"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# CLI argument parsing
+clap = { version = "4", features = ["derive"] }
+
+# Serialization for config
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+# Config file location
+directories = "6"
+
+# Logging (optional, for debugging)
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+opt-level = 3
+
+[profile.dev]
+opt-level = 1

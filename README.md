@@ -1,0 +1,144 @@
+# ramwise
+
+> Your memory's wise advisor - Intelligent RAM usage visualizer for Arch Linux
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)
+
+**ramwise** is a terminal-based RAM usage visualizer that goes beyond basic memory monitoring. It provides deep memory introspection, intelligent leak detection, and beautiful visualization all in a lightweight TUI application.
+
+## Features
+
+- **Deep Memory Introspection** - See RSS, PSS, USS, shared/private breakdown per process
+- **Intelligent Insights** - Rule-based analysis detects memory leaks, hogs, and anomalies
+- **Beautiful TUI** - Modern interface with graphs, colors, and intuitive navigation
+- **Minimal Footprint** - Written in Rust for maximum efficiency
+- **Real-time Updates** - Live monitoring with configurable refresh rate
+
+## Screenshots
+
+```
+┌─ ramwise v0.1.0 ─────── RAM: ██████████░░ 12.4G/32G (38%) ─── [?]Help [q]Quit ─┐
+├────────────────────────────────┬──────────────────────────────────────────────┤
+│ PROCESSES (by RSS)             │ DETAILS: firefox (PID: 12847)                │
+│ ────────────────────────────── │ ─────────────────────────────────────────    │
+│ > firefox           2.1G ████  │ State: Running (R)  PPID: 1  UID: 1000       │
+│   chromium          1.8G ███▌  │                                              │
+│   code              892M ██    │ --- Memory Breakdown ---                     │
+│   spotify           456M █     │ RSS: 2.1G      VSS: 4.2G                     │
+│   slack             234M ▌     │ Shared: 1.2G   Private: 923M                 │
+│                                │ PSS: 1.5G      USS: 890M                     │
+│ SERVICES                       │                                              │
+│ ────────────────────────────── │ --- By Region Type ---                       │
+│   systemd-journald   124M      │ Heap: 512M     Stack: 8M                     │
+│   NetworkManager      45M      │ Libs: 380M     Anon: 45M                     │
+├────────────────────────────────┼──────────────────────────────────────────────┤
+│ MEMORY TREND                   │ INSIGHTS                                     │
+│ 2.2G ┤      ╭────              │ ! firefox: RSS grew 15% in 3 min            │
+│ 2.0G ┤──────╯                  │   -> Possible leak, consider restart         │
+│ 1.8G ┤                         │ i System: Page cache using 4.2GB             │
+└────────────────────────────────┴──────────────────────────────────────────────┘
+```
+
+## Installation
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/ramwise/ramwise.git
+cd ramwise
+
+# Build release binary
+cargo build --release
+
+# Install (optional)
+sudo cp target/release/ramwise /usr/local/bin/
+```
+
+### Arch Linux (AUR)
+
+```bash
+# Coming soon
+yay -S ramwise
+```
+
+## Usage
+
+```bash
+# Run with default settings (1s refresh, 1MB minimum RSS)
+ramwise
+
+# Custom refresh interval (500ms)
+ramwise --interval 500
+
+# Show all processes (including small ones)
+ramwise --min-rss 0
+
+# Disable smaps collection (faster but less detailed)
+ramwise --no-smaps
+
+# Enable debug logging
+ramwise --debug
+```
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `j/k` or `↑/↓` | Navigate process list |
+| `Tab` | Cycle focus between panels |
+| `Shift+Tab` | Reverse cycle focus |
+| `s` | Cycle sort mode (RSS/PSS/Private/Name/PID) |
+| `g` | Go to top of list |
+| `G` | Go to bottom of list |
+| `?` | Toggle help overlay |
+| `q` | Quit |
+
+## Insight Rules
+
+ramwise includes intelligent analysis rules:
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| Memory Leak Detector | Warning/Critical | Detects consistent RSS growth patterns |
+| Memory Hog | Warning | Flags processes using >30% of total RAM |
+| Sudden Spike | Warning | Alerts on rapid memory increases (>100MB in 10s) |
+| OOM Risk | Critical | Warns when system is at risk of OOM |
+| Swap Pressure | Warning | Detects excessive swap usage |
+| Fragmentation | Info | Identifies high VSS/RSS ratios |
+| Cache Info | Info | Explains high page cache usage |
+
+## Architecture
+
+```
+ramwise/
+├── src/
+│   ├── main.rs              # Entry point, async event loop
+│   ├── app.rs               # Application state
+│   ├── collector/           # Memory data collection from /proc
+│   ├── analyzer/            # Rule engine and insights
+│   ├── history/             # Time-series data buffer
+│   ├── ui/                  # Ratatui TUI components
+│   └── utils/               # Formatting utilities
+```
+
+## Requirements
+
+- Linux kernel 2.6.28+ (for `/proc/[pid]/smaps_rollup`)
+- Terminal with color support
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Credits
+
+Built with:
+- [Ratatui](https://github.com/ratatui/ratatui) - TUI framework
+- [procfs](https://github.com/eminence/procfs) - /proc filesystem parser
+- [Tokio](https://tokio.rs/) - Async runtime
