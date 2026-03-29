@@ -43,10 +43,10 @@ impl Layout {
                 let vertical = RatatuiLayout::default() 
                     .direction(Direction::Vertical) 
                     .constraints([
-                    
-            This will feel scuffed if you want to change some stuff outside this section though.
-            put_insights_on_top: false, */
-            
+
+            This will feel scuffed if you want to change some stuff outside this section though.*/
+
+            put_insights_on_top: false, 
         }
     }
 

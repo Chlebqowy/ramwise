@@ -127,6 +127,67 @@ impl Theme {
             rank_normal: Color::Rgb(160, 160, 175),    // Dim for rest
         }
     }
+    // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
+    pub fn light() -> Self {
+        Self {
+            // Base - Very light gray with a yellow tint
+            bg: Color::Rgb(0xfb, 0xf1, 0xc7),
+            bg_elevated: Color::Rgb(0xf9, 0xf5, 0xd7),
+            bg_card: Color::Rgb(0xf2, 0xe5, 0xbc),
+            fg: Color::Rgb(0x28, 0x28, 0x28),
+            fg_dim: Color::Rgb(0x3c, 0x38, 0x36),
+            fg_muted: Color::Rgb(0x3c, 0x38, 0x36),
+
+            // Primary - GruvBox's aqua (Mix between both color schemes. Actually a slightly blue-ish green)
+            primary: Color::Rgb(0x8e, 0xc0, 0x7c),
+            primary_dim: Color::Rgb(0x68, 0x9d, 0x6a),
+            primary_container: Color::Rgb(0x42, 0x7b, 0x58),
+
+            // Secondary - GruvBox Dark's blue
+            secondary: Color::Rgb(0x45, 0x85, 0x88),
+            secondary_dim: Color::Rgb(0x83, 0xa5, 0x98),
+
+            // Tertiary - Teal, not from Gruvbox
+            tertiary: Color::Rgb(0x10, 0xc9, 0xa7),
+
+            // Semantic - All gruvbox light colors. Main is light, container is dark.
+            error: Color::Rgb(0xcc, 0x24, 0x1d),
+            error_container: Color::Rgb(0x9d, 0x24, 0x1d),
+            warning: Color::Rgb(0xd7, 0x99, 0x21),
+            warning_container: Color::Rgb(0xb5, 0x76, 0x21),
+            success: Color::Rgb(0x98, 0x97, 0x1a),
+            success_container: Color::Rgb(0x79, 0x74, 0x0e),
+            info: Color::Rgb(0xbd, 0xae, 0x93),
+
+            // Memory gradient - Smooth color progression
+            mem_excellent: Color::Rgb(100, 230, 140),   // Fresh green - not gruvbox, their green is too lime
+            mem_good: Color::Rgb(0x98, 0x97, 0x1a),     // Lime
+            mem_moderate: Color::Rgb(0xf7, 0x99, 0x21),     // Middle yellow
+            mem_high: Color::Rgb(0xfe, 0x80, 0x19),         // Light orange
+            mem_critical: Color::Rgb(0xaf, 0x3a, 0x03),      // Dark orange
+
+            // UI elements - GruvBox purple and fg/bg, taken from both themes.
+            border: Color::Rgb(0x7c, 0x6f, 0x64),
+            border_focused: Color::Rgb(0xb1, 0x62, 0x86),
+            border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
+            selection_bg: Color::Rgb(0xb1, 0x62, 0x86),
+            selection_fg: Color::Rgb(0x28, 0x28, 0x28),
+            header_bg: Color::Rgb(0xeb, 0xdb, 0xb2),
+            header_fg: Color::Rgb(0x3c, 0x38, 0x36), 
+
+            // Graph - Green from progress bar, dark from gruvbox
+            graph_line: Color::Rgb(100, 230, 140),
+            graph_fill: Color::Rgb(0x3c, 0x38, 0x36),
+            graph_axis: Color::Rgb(0x3c, 0x38, 0x36),
+            graph_grid: Color::Rgb(0x3c, 0x38, 0x36),
+
+            // Process list
+            row_alt_bg: Color::Rgb(22, 22, 30),       // Broken, so unthemed
+            rank_top: Color::Rgb(0xfa, 0xbd, 0x2f),        // Light yellow for top 1
+            rank_high: Color::Rgb(0xd6, 0x5d, 0x0e),      // Middle orange for top 3
+            rank_normal: Color::Rgb(0x28, 0x28, 0x28),    // fg0 for rest
+        }
+    }
 
     /// Get memory color based on percentage (0-100) with smooth gradient
     pub fn mem_color(&self, percent: f64) -> Color {
@@ -338,5 +399,6 @@ fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
 impl Default for Theme {
     fn default() -> Self {
         Self::dark()
+        // TODO Add an easy way to set theme through command arg or config file. 
     }
 }
