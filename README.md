@@ -81,6 +81,9 @@ ramwise --no-smaps
 
 # Enable debug logging
 ramwise --debug
+
+# Use light mode
+ramwise -t light
 ```
 
 ## Keyboard Shortcuts
