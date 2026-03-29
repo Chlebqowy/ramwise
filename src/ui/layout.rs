@@ -33,6 +33,7 @@ impl Layout {
         let vertical = RatatuiLayout::default()
             .direction(Direction::Vertical)
             .constraints([
+                /// Constraints for header, main, and bottom panels. You can use either Length or Min for either. Length will give a fixed size, while Min will take up remaining space after Length constraints are applied. If there are multiple Min constraints, the space will be split between them as close to equal as possible while respecting the minimum sizes.
                 Constraint::Length(self.header_height),
                 Constraint::Min(self.main_height),
                 Constraint::Length(self.bottom_height),
@@ -47,6 +48,9 @@ impl Layout {
         let horizontal = RatatuiLayout::default()
             .direction(Direction::Horizontal)
             .constraints([
+                /// You can make this use lenght and min as well and you can do it the same way as the vertical split. The variables are not created though. Here's an example of how you could do it:
+                /// Constraint::Length(10),
+                /// Constraint::Min(5),
                 Constraint::Percentage(self.left_width_percent),
                 Constraint::Percentage(100 - self.left_width_percent),
             ])
@@ -59,6 +63,7 @@ impl Layout {
         let right_split = RatatuiLayout::default()
             .direction(Direction::Vertical)
             .constraints([
+                /// Same as for horizontal 
                 Constraint::Percentage(self.side_vertical_split_percent),
                 Constraint::Percentage(100 - self.side_vertical_split_percent),
             ])
