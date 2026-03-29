@@ -188,66 +188,6 @@ impl Theme {
             rank_normal: Color::Rgb(0x28, 0x28, 0x28),    // fg0 for rest
         }
     }
-pub fn dark() -> Self {
-        Self {
-            // Base - Lightly green colors
-            bg: Color::Rgb(18, 24, 18),
-            bg_elevated: Color::Rgb(28, 36, 28),
-            bg_card: Color::Rgb(35, 45, 35),
-            fg: Color::Rgb(230, 240, 230),
-            fg_dim: Color::Rgb(160, 175, 160),
-            fg_muted: Color::Rgb(100, 115, 100),
-
-            // Primary - Blue-Green
-            primary: Color::Rgb(58, 252, 174),
-            primary_dim: Color::Rgb(5, 186, 113),
-            primary_container: Color::Rgb(24, 221, 142),
-
-            // Secondary - Vibrant teal
-            secondary: Color::Rgb(80, 220, 200),
-            secondary_dim: Color::Rgb(50, 160, 145),
-
-            // Tertiary - Green
-            tertiary: Color::Rgb(255, 140, 120),
-
-            // Semantic
-            error: Color::Rgb(255, 100, 100),
-            error_container: Color::Rgb(80, 30, 30),
-            warning: Color::Rgb(255, 190, 70),
-            warning_container: Color::Rgb(80, 60, 20),
-            success: Color::Rgb(100, 230, 140),
-            success_container: Color::Rgb(30, 70, 40),
-            info: Color::Rgb(100, 180, 255),
-
-            // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(100, 230, 140),   // Fresh green
-            mem_good: Color::Rgb(140, 220, 100),        // Lime
-            mem_moderate: Color::Rgb(255, 210, 80),     // Golden yellow
-            mem_high: Color::Rgb(255, 150, 80),         // Orange
-            mem_critical: Color::Rgb(255, 90, 90),      // Coral red
-
-            // UI elements
-            border: Color::Rgb(50, 160, 145),
-            border_focused: Color::Rgb(58, 252, 174),
-            border_subtle: Color::Rgb(40, 40, 52),
-            selection_bg: Color::Rgb(40, 90, 60),
-            selection_fg: Color::Rgb(255, 255, 255),
-            header_bg: Color::Rgb(28, 36, 32),
-            header_fg: Color::Rgb(230, 240, 230),
-
-            // Graph
-            graph_line: Color::Rgb(180, 130, 255),
-            graph_fill: Color::Rgb(5, 186, 113),
-            graph_axis: Color::Rgb(80, 80, 100),
-            graph_grid: Color::Rgb(40, 40, 55),
-
-            // Process list
-            row_alt_bg: Color::Rgb(22, 22, 30),
-            rank_top: Color::Rgb(70, 255, 190),        // Green for #1
-            rank_high: Color::Rgb(130, 255, 180),      // Less vibrant green for top 5
-            rank_normal: Color::Rgb(160, 180, 170),    // Dim for rest
-        }
-    }
     pub fn green() -> Self {
         Self {
             // Base - Lightly green colors

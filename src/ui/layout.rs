@@ -111,11 +111,11 @@ impl Layout {
             ])
             .split(right_panel);
         let mut detail_panel = right_split[0];
-        let mut bottom_panel = right_split[1];
+        let mut bottom = right_split[1];
         if self.invert_side_vertical_split {
             // This is a bit confusing because I don't want to change the variable names, but when it's inverted, the top panel is actually the bottom panel and the bottom panel is actually the top panel.
             detail_panel = right_split[1];
-            bottom_panel = right_split[0]; 
+            bottom = right_split[0]; 
         }
 
         LayoutAreas {
