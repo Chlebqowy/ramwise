@@ -125,11 +125,11 @@ pub fn dark() -> Self {
         Self {
 You can also copy that object and rename it to use another theme.
 To set it, change dark to your theme name in
-impl Default for Theme {
-    fn default() -> Self {
-        Self::dark()
-    }
-}
+impl App {
+    /// Create a new application
+    pub fn new() -> Self {
+        Self {
+            theme: Theme::dark(),
 
 
 ## Insight Rules
