@@ -25,18 +25,18 @@ impl Focus {
     pub fn next(&self) -> Self {
         match self {
             Focus::ProcessList => Focus::DetailPanel,
-            Focus::DetailPanel => Focus::GraphPanel,
-            Focus::GraphPanel => Focus::InsightsPanel,
-            Focus::InsightsPanel => Focus::ProcessList,
+            Focus::DetailPanel => Focus::InsightsPanel,
+            Focus::InsightsPanel => Focus::GraphPanel,
+            Focus::GraphPanel => Focus::ProcessList,
         }
     }
 
     pub fn prev(&self) -> Self {
         match self {
-            Focus::ProcessList => Focus::InsightsPanel,
+            Focus::ProcessList => Focus::GraphPanel,
             Focus::DetailPanel => Focus::ProcessList,
-            Focus::GraphPanel => Focus::DetailPanel,
-            Focus::InsightsPanel => Focus::GraphPanel,
+            Focus::GraphPanel => Focus::InsightsPanel,
+            Focus::InsightsPanel => Focus::DetailPanel,
         }
     }
 }
