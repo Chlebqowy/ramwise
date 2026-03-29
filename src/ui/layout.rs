@@ -6,18 +6,24 @@ use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
 pub struct Layout {
     /// Header height
     pub header_height: u16,
+    /// Main panel height
+    pub main_height: u16,
     /// Bottom panel height
     pub bottom_height: u16,
     /// Left panel width percentage
     pub left_width_percent: u16,
+    /// Percentage of the top panel for the right side split (by default contains details and graph)
+    pub side_vertical_split_percent: u16,
 }
 
 impl Layout {
     pub fn new() -> Self {
         Self {
             header_height: 1,
+            main_height: 0, // Will be remaining space unless constraint types are changed
             bottom_height: 4,
             left_width_percent: 40,
+            side_vertical_split_percent: 60,
         }
     }
 
@@ -28,7 +34,7 @@ impl Layout {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(self.header_height),
-                Constraint::Min(10),
+                Constraint::Min(self.main_height),
                 Constraint::Length(self.bottom_height),
             ])
             .split(area);
@@ -53,8 +59,8 @@ impl Layout {
         let right_split = RatatuiLayout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Percentage(60),
-                Constraint::Percentage(40),
+                Constraint::Percentage(self.side_vertical_split_percent),
+                Constraint::Percentage(100 - self.side_vertical_split_percent),
             ])
             .split(right_panel);
 
