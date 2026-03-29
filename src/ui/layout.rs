@@ -26,10 +26,10 @@ impl Layout {
     pub fn new() -> Self {
         Self {
             header_height: 1,
-            center_height: 5, // Will be remaining space unless constraint types are changed
+            center_height: 7, // Will be remaining space unless constraint types are changed
             bottom_height: 0,
             left_width_percent: 40,
-            side_vertical_split_percent: 60,
+            side_vertical_split_percent: 45,
              
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
