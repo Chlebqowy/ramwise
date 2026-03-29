@@ -7,7 +7,7 @@ pub struct Layout {
     /// Header height
     pub header_height: u16,
     /// Main panel height
-    pub main_height: u16,
+    pub center_height: u16,
     /// Bottom panel height
     pub bottom_height: u16,
     /// Left panel width percentage
@@ -26,13 +26,27 @@ impl Layout {
     pub fn new() -> Self {
         Self {
             header_height: 1,
-            main_height: 0, // Will be remaining space unless constraint types are changed
+            center_height: 0, // Will be remaining space unless constraint types are changed
             bottom_height: 4,
             left_width_percent: 40,
             side_vertical_split_percent: 60,
+             
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
-            put_insights_on_top: false,
+            /* IF YOU WANT TO CHANGE THIS, YOU ALSO SHOULD CHANGE center_height and bottom_height. The main part becomes bottom, the right part becomes center.
+            If you want to make it similar to the default, you can do 
+            Constraint::Length(self.header_height),
+            Constraint::Lenght(self.bottom_height),
+            Constraint::Min(self.center_height)
+            
+            in 
+                let vertical = RatatuiLayout::default() 
+                    .direction(Direction::Vertical) 
+                    .constraints([
+                    
+            This will feel scuffed if you want to change some stuff outside this section though.
+            put_insights_on_top: false, */
+            
         }
     }
 
@@ -45,9 +59,11 @@ impl Layout {
         let vertical = RatatuiLayout::default()
             .direction(Direction::Vertical)
             .constraints([
+                // TODO Make these depend on layout. Right now it's top center bottom, should be top main bottom. Always, even if the panels are inverted. So default inverted layout is weird.
                 Constraint::Length(self.header_height),
-                Constraint::Min(self.main_height),
+                Constraint::Min(self.center_height),
                 Constraint::Length(self.bottom_height)
+                
             ])
             .split(area);
 
