@@ -58,6 +58,10 @@ struct Args {
     /// Enable debug logging
     #[arg(short, long)]
     debug: bool,
+
+    /// Theme (by default light or dark)
+    #[arg(long, default_value = "dark")]
+    theme: String,
 }
 
 #[tokio::main]
@@ -80,7 +84,7 @@ async fn main() -> Result<()> {
     let mut terminal = Terminal::new(backend).context("Failed to create terminal")?;
 
     // Create app
-    let mut app = App::new();
+    let mut app = App::new(&args.theme);
 
     // Create collector
     let collector = Collector::new()

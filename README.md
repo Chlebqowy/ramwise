@@ -124,12 +124,12 @@ To modify the theme, go to src/ui/theme.rs
 pub fn dark() -> Self {
         Self {
 You can also copy that object and rename it to use another theme.
-To set it, change dark to your theme name in
+You can set a theme with --theme.
+If the theme is custom, you have to add it to
 impl App {
     /// Create a new application
-    pub fn new() -> Self {
-        Self {
-            theme: Theme::dark(),
+    pub fn new(theme: str) -> Self {
+in app.rs 
 
 
 ## Insight Rules

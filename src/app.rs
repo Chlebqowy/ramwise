@@ -87,11 +87,19 @@ pub struct App {
 
 impl App {
     /// Create a new application
-    pub fn new() -> Self {
+    pub fn new(theme_name: &str) -> Self {
+        let mut theme = Theme::dark();
+        if theme_name == "light" {
+            theme = Theme::light();
+        } else if theme_name == "dark" {
+            theme = Theme::dark();
+        } else {
+            eprintln!("Invalid theme: {theme_name}. Did you add it to app.rs? Using dark as fallback.");
+        }
         Self {
             should_quit: false,
             focus: Focus::ProcessList,
-            theme: Theme::dark(),
+            theme,
             snapshot: None,
             history: HistoryBuffer::default_5min(),
             analyzer: Analyzer::new(),
@@ -383,7 +391,7 @@ impl App {
 
 impl Default for App {
     fn default() -> Self {
-        Self::new()
+        Self::new("dark")
     }
 }
 

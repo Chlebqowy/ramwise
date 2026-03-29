@@ -399,6 +399,6 @@ fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
 impl Default for Theme {
     fn default() -> Self {
         Self::dark()
-        // TODO Add an easy way to set theme through command arg or config file. 
+        // weird and not really necessary, the theme is set in app.rs
     }
 }
