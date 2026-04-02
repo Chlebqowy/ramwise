@@ -2,25 +2,7 @@
 
 use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
 
-/// Main layout manager
-pub struct Layout {
-    /// Header height
-    pub header_height: u16,
-    /// Bottom panel height
-    pub bottom_height: u16,
-    /// Left panel width percentage
-    pub left_width_percent: u16,
-}
-
 impl Layout {
-    pub fn new() -> Self {
-        Self {
-            header_height: 1,
-            bottom_height: 4,
-            left_width_percent: 40,
-        }
-    }
-
     /// Calculate all layout areas from the terminal size
     pub fn calculate(&self, area: Rect) -> LayoutAreas {
         // Split into header, main, and bottom
@@ -68,12 +50,6 @@ impl Layout {
             graph_panel,
             bottom,
         }
-    }
-}
-
-impl Default for Layout {
-    fn default() -> Self {
-        Self::new()
     }
 }
 
