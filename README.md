@@ -18,28 +18,7 @@
 
 ## Screenshots
 
-```
-┌─ ramwise v0.1.0 ─────── RAM: ██████████░░ 12.4G/32G (38%) ─── [?]Help [q]Quit ─┐
-├────────────────────────────────┬──────────────────────────────────────────────┤
-│ PROCESSES (by RSS)             │ DETAILS: firefox (PID: 12847)                │
-│ ────────────────────────────── │ ─────────────────────────────────────────    │
-│ > firefox           2.1G ████  │ State: Running (R)  PPID: 1  UID: 1000       │
-│   chromium          1.8G ███▌  │                                              │
-│   code              892M ██    │ --- Memory Breakdown ---                     │
-│   spotify           456M █     │ RSS: 2.1G      VSS: 4.2G                     │
-│   slack             234M ▌     │ Shared: 1.2G   Private: 923M                 │
-│                                │ PSS: 1.5G      USS: 890M                     │
-│ SERVICES                       │                                              │
-│ ────────────────────────────── │ --- By Region Type ---                       │
-│   systemd-journald   124M      │ Heap: 512M     Stack: 8M                     │
-│   NetworkManager      45M      │ Libs: 380M     Anon: 45M                     │
-├────────────────────────────────┼──────────────────────────────────────────────┤
-│ MEMORY TREND                   │ INSIGHTS                                     │
-│ 2.2G ┤      ╭────              │ ! firefox: RSS grew 15% in 3 min            │
-│ 2.0G ┤──────╯                  │   -> Possible leak, consider restart         │
-│ 1.8G ┤                         │ i System: Page cache using 4.2GB             │
-└────────────────────────────────┴──────────────────────────────────────────────┘
-```
+![Screenshot](Screenshot.png)
 
 ## Installation
 
