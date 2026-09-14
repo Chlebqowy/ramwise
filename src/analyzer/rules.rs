@@ -15,11 +15,7 @@ pub trait Rule: Send + Sync {
     fn name(&self) -> &'static str;
 
     /// Evaluate the rule and return an insight if triggered
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        history: &HistoryBuffer,
-    ) -> Option<Insight>;
+    fn evaluate(&self, snapshot: &MemorySnapshot, history: &HistoryBuffer) -> Option<Insight>;
 }
 
 /// Detect potential memory leaks based on consistent growth
@@ -37,7 +33,7 @@ impl Default for MemoryLeakDetector {
         Self {
             threshold_percent: 20.0,
             duration: Duration::from_secs(180), // 3 minutes
-            min_rss: 50 * 1024 * 1024, // 50 MB
+            min_rss: 50 * 1024 * 1024,          // 50 MB
         }
     }
 }
@@ -47,47 +43,42 @@ impl Rule for MemoryLeakDetector {
         "memory_leak_detector"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, history: &HistoryBuffer) -> Option<Insight> {
         for proc in &snapshot.processes {
             if proc.rss < self.min_rss {
                 continue;
             }
 
-            if let Some(stats) = history.growth_stats(proc.pid, self.duration) {
-                if stats.percent_change >= self.threshold_percent
-                    && history.is_consistently_growing(proc.pid, self.threshold_percent / 2.0)
-                {
-                    let rate_mb_per_min = (stats.rate_per_sec * 60.0) / (1024.0 * 1024.0);
+            if let Some(stats) = history.growth_stats(proc.pid, self.duration)
+                && stats.percent_change >= self.threshold_percent
+                && history.is_consistently_growing(proc.pid, self.threshold_percent / 2.0)
+            {
+                let rate_mb_per_min = (stats.rate_per_sec * 60.0) / (1024.0 * 1024.0);
 
-                    return Some(
-                        Insight::new(
-                            format!("leak_{}_{}", proc.pid, proc.name),
-                            if stats.percent_change > 50.0 {
-                                Severity::Critical
-                            } else {
-                                Severity::Warning
-                            },
-                            format!(
-                                "RSS grew {:.1}% in {:.0}s",
-                                stats.percent_change,
-                                stats.duration.as_secs_f64()
-                            ),
-                            format!(
-                                "Memory increased from {} to {} ({:+.1} MB/min)",
-                                format_bytes(stats.start_value),
-                                format_bytes(stats.end_value),
-                                rate_mb_per_min
-                            ),
-                            "Possible memory leak. Consider restarting or investigating allocations."
-                                .to_string(),
-                        )
-                        .with_process(proc.pid, proc.insight_name()),
-                    );
-                }
+                return Some(
+                    Insight::new(
+                        format!("leak_{}_{}", proc.pid, proc.name),
+                        if stats.percent_change > 50.0 {
+                            Severity::Critical
+                        } else {
+                            Severity::Warning
+                        },
+                        format!(
+                            "RSS grew {:.1}% in {:.0}s",
+                            stats.percent_change,
+                            stats.duration.as_secs_f64()
+                        ),
+                        format!(
+                            "Memory increased from {} to {} ({:+.1} MB/min)",
+                            format_bytes(stats.start_value),
+                            format_bytes(stats.end_value),
+                            rate_mb_per_min
+                        ),
+                        "Possible memory leak. Consider restarting or investigating allocations."
+                            .to_string(),
+                    )
+                    .with_process(proc.pid, proc.insight_name()),
+                );
             }
         }
         None
@@ -113,11 +104,7 @@ impl Rule for MemoryHogDetector {
         "memory_hog_detector"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        _history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, _history: &HistoryBuffer) -> Option<Insight> {
         let total = snapshot.system.total;
         if total == 0 {
             return None;
@@ -168,11 +155,7 @@ impl Rule for SuddenSpikeDetector {
         "sudden_spike_detector"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, history: &HistoryBuffer) -> Option<Insight> {
         for proc in &snapshot.processes {
             if let Some(stats) = history.growth_stats(proc.pid, self.window) {
                 let growth = stats.end_value.saturating_sub(stats.start_value);
@@ -181,7 +164,11 @@ impl Rule for SuddenSpikeDetector {
                         Insight::new(
                             format!("spike_{}_{}", proc.pid, proc.name),
                             Severity::Warning,
-                            format!("Sudden +{} in {}s", format_bytes(growth), self.window.as_secs()),
+                            format!(
+                                "Sudden +{} in {}s",
+                                format_bytes(growth),
+                                self.window.as_secs()
+                            ),
                             format!(
                                 "Memory jumped from {} to {} very quickly",
                                 format_bytes(stats.start_value),
@@ -220,11 +207,7 @@ impl Rule for OomRiskDetector {
         "oom_risk_detector"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        _history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, _history: &HistoryBuffer) -> Option<Insight> {
         let sys = &snapshot.system;
         let available_percent = if sys.total > 0 {
             (sys.available as f64 / sys.total as f64) * 100.0
@@ -273,11 +256,7 @@ impl Rule for SwapPressureDetector {
         "swap_pressure_detector"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        _history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, _history: &HistoryBuffer) -> Option<Insight> {
         let sys = &snapshot.system;
         let swap_percent = sys.swap_percent();
 
@@ -320,11 +299,7 @@ impl Rule for FragmentationDetector {
         "fragmentation_detector"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        _history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, _history: &HistoryBuffer) -> Option<Insight> {
         for proc in &snapshot.processes {
             if proc.rss < self.min_rss {
                 continue;
@@ -361,11 +336,7 @@ impl Rule for CacheInfoRule {
         "cache_info"
     }
 
-    fn evaluate(
-        &self,
-        snapshot: &MemorySnapshot,
-        _history: &HistoryBuffer,
-    ) -> Option<Insight> {
+    fn evaluate(&self, snapshot: &MemorySnapshot, _history: &HistoryBuffer) -> Option<Insight> {
         let sys = &snapshot.system;
         let cache_percent = if sys.total > 0 {
             (sys.cached as f64 / sys.total as f64) * 100.0

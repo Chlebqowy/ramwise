@@ -56,7 +56,7 @@ pub struct HistoryBuffer {
 
 impl HistoryBuffer {
     /// Create a new history buffer
-    /// 
+    ///
     /// # Arguments
     /// * `capacity` - Maximum number of snapshots to keep
     /// * `max_age` - Maximum age of snapshots before pruning
@@ -201,9 +201,7 @@ impl HistoryBuffer {
         let cutoff = now - duration;
 
         // Find the oldest point within the duration
-        let start_point = history
-            .iter()
-            .find(|p| p.timestamp >= cutoff)?;
+        let start_point = history.iter().find(|p| p.timestamp >= cutoff)?;
         let end_point = history.back()?;
 
         let actual_duration = end_point.timestamp.duration_since(start_point.timestamp);
@@ -292,10 +290,7 @@ impl HistoryBuffer {
 
     /// Get latest RSS for a process
     pub fn latest_rss(&self, pid: i32) -> Option<u64> {
-        self.process_history
-            .get(&pid)?
-            .back()
-            .map(|p| p.rss)
+        self.process_history.get(&pid)?.back().map(|p| p.rss)
     }
 }
 
@@ -345,7 +340,7 @@ mod tests {
                 processes: vec![ProcessMemory {
                     pid: 1234,
                     name: "leaky".to_string(),
-                    rss: 100_000_000 + (i as u64 * 10_000_000), // Growing by 10MB/sec
+                    rss: 100_000_000 + (i * 10_000_000), // Growing by 10MB/sec
                     ..Default::default()
                 }],
                 total_processes: 1,

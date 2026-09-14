@@ -135,20 +135,22 @@ impl App {
 
         match self.process_list_state.sort_mode {
             SortMode::Rss => {
-                self.sorted_processes.sort_by(|a, b| b.rss.cmp(&a.rss));
+                self.sorted_processes
+                    .sort_by_key(|a| std::cmp::Reverse(a.rss));
             }
             SortMode::Pss => {
-                self.sorted_processes.sort_by(|a, b| b.pss.cmp(&a.pss));
+                self.sorted_processes
+                    .sort_by_key(|a| std::cmp::Reverse(a.pss));
             }
             SortMode::Private => {
                 self.sorted_processes
-                    .sort_by(|a, b| b.private.cmp(&a.private));
+                    .sort_by_key(|a| std::cmp::Reverse(a.private));
             }
             SortMode::Name => {
                 self.sorted_processes.sort_by(|a, b| a.name.cmp(&b.name));
             }
             SortMode::Pid => {
-                self.sorted_processes.sort_by(|a, b| a.pid.cmp(&b.pid));
+                self.sorted_processes.sort_by_key(|a| a.pid);
             }
         }
     }
@@ -156,22 +158,22 @@ impl App {
     /// Update selection after sort change
     fn update_selection(&mut self) {
         // Try to keep the same process selected
-        if let Some(selected_pid) = self.process_list_state.selected_pid {
-            if let Some(idx) = self
+        if let Some(selected_pid) = self.process_list_state.selected_pid
+            && let Some(idx) = self
                 .sorted_processes
                 .iter()
                 .position(|p| p.pid == selected_pid)
-            {
-                self.process_list_state.list_state.select(Some(idx));
-                return;
-            }
+        {
+            self.process_list_state.list_state.select(Some(idx));
+            return;
         }
 
         // Otherwise, ensure selection is valid
-        if let Some(selected) = self.process_list_state.list_state.selected() {
-            if selected >= self.sorted_processes.len() && !self.sorted_processes.is_empty() {
-                self.process_list_state.list_state.select(Some(0));
-            }
+        if let Some(selected) = self.process_list_state.list_state.selected()
+            && selected >= self.sorted_processes.len()
+            && !self.sorted_processes.is_empty()
+        {
+            self.process_list_state.list_state.select(Some(0));
         }
     }
 
@@ -179,20 +181,22 @@ impl App {
     fn resort_processes(&mut self) {
         match self.process_list_state.sort_mode {
             SortMode::Rss => {
-                self.sorted_processes.sort_by(|a, b| b.rss.cmp(&a.rss));
+                self.sorted_processes
+                    .sort_by_key(|a| std::cmp::Reverse(a.rss));
             }
             SortMode::Pss => {
-                self.sorted_processes.sort_by(|a, b| b.pss.cmp(&a.pss));
+                self.sorted_processes
+                    .sort_by_key(|a| std::cmp::Reverse(a.pss));
             }
             SortMode::Private => {
                 self.sorted_processes
-                    .sort_by(|a, b| b.private.cmp(&a.private));
+                    .sort_by_key(|a| std::cmp::Reverse(a.private));
             }
             SortMode::Name => {
                 self.sorted_processes.sort_by(|a, b| a.name.cmp(&b.name));
             }
             SortMode::Pid => {
-                self.sorted_processes.sort_by(|a, b| a.pid.cmp(&b.pid));
+                self.sorted_processes.sort_by_key(|a| a.pid);
             }
         }
         self.update_selection();
@@ -297,19 +301,19 @@ impl App {
     }
 
     fn update_selected_pid(&mut self) {
-        if let Some(idx) = self.process_list_state.list_state.selected() {
-            if let Some(proc) = self.sorted_processes.get(idx) {
-                self.process_list_state.selected_pid = Some(proc.pid);
-            }
+        if let Some(idx) = self.process_list_state.list_state.selected()
+            && let Some(proc) = self.sorted_processes.get(idx)
+        {
+            self.process_list_state.selected_pid = Some(proc.pid);
         }
     }
 
     /// Remove expired transient messages.
     pub fn prune_transient_state(&mut self) {
-        if let Some(status) = &self.action_status {
-            if Instant::now() >= status.expires_at {
-                self.action_status = None;
-            }
+        if let Some(status) = &self.action_status
+            && Instant::now() >= status.expires_at
+        {
+            self.action_status = None;
         }
     }
 
@@ -415,8 +419,10 @@ mod tests {
 
     #[test]
     fn kill_confirm_esc_cancels_modal() {
-        let mut app = App::default();
-        app.show_kill_confirm = true;
+        let mut app = App {
+            show_kill_confirm: true,
+            ..Default::default()
+        };
 
         app.handle_key(KeyCode::Esc, KeyModifiers::NONE);
 

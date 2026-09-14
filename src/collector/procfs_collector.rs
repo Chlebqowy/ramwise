@@ -1,9 +1,9 @@
 //! Procfs-based memory data collector
 
-use std::time::{Duration, Instant};
 use anyhow::{Context, Result};
 use procfs::process::all_processes;
 use procfs::{Current, Meminfo};
+use std::time::{Duration, Instant};
 use tokio::sync::mpsc;
 use tokio::time::interval;
 
@@ -170,26 +170,26 @@ impl Collector {
             };
 
             // Collect smaps_rollup for PSS/USS if enabled (requires read permission)
-            if self.collect_smaps {
-                if let Ok(smaps) = proc.smaps_rollup() {
-                    // SmapsRollup contains a MemoryMaps which is Vec<MemoryMap>
-                    if let Some(rollup) = smaps.memory_map_rollup.0.first() {
-                        let ext = &rollup.extension.map;
-                        
-                        // Get values from the HashMap
-                        process.pss = ext.get("Pss").copied().unwrap_or(0);
-                        
-                        let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
-                        let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
-                        process.uss = private_clean + private_dirty;
-                        
-                        process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
+            if self.collect_smaps
+                && let Ok(smaps) = proc.smaps_rollup()
+            {
+                // SmapsRollup contains a MemoryMaps which is Vec<MemoryMap>
+                if let Some(rollup) = smaps.memory_map_rollup.0.first() {
+                    let ext = &rollup.extension.map;
 
-                        let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
-                        let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
-                        process.shared = shared_clean + shared_dirty;
-                        process.private = private_clean + private_dirty;
-                    }
+                    // Get values from the HashMap
+                    process.pss = ext.get("Pss").copied().unwrap_or(0);
+
+                    let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
+                    let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
+                    process.uss = private_clean + private_dirty;
+
+                    process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
+
+                    let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
+                    let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
+                    process.shared = shared_clean + shared_dirty;
+                    process.private = private_clean + private_dirty;
                 }
             }
 
@@ -197,7 +197,7 @@ impl Collector {
         }
 
         // Sort by RSS descending
-        processes.sort_by(|a, b| b.rss.cmp(&a.rss));
+        processes.sort_by_key(|a| std::cmp::Reverse(a.rss));
 
         Ok((processes, total_count, running_count))
     }
@@ -244,7 +244,7 @@ mod tests {
         assert!(snapshot.system.total > 0);
         // Should have at least the current process
         assert!(!snapshot.processes.is_empty(), "No processes found!");
-        
+
         // Print some debug info
         eprintln!("Found {} processes", snapshot.processes.len());
         for p in snapshot.processes.iter().take(5) {
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn test_system_memory_calculations() {
         let mem = SystemMemory {
-            total: 16 * 1024 * 1024 * 1024, // 16 GB
+            total: 16 * 1024 * 1024 * 1024,    // 16 GB
             available: 8 * 1024 * 1024 * 1024, // 8 GB
             ..Default::default()
         };

@@ -137,7 +137,10 @@ mod tests {
         assert_eq!(areas.header.height, 1);
         assert_eq!(areas.bottom.height, 4);
         assert_eq!(areas.bottom.y, 50 - 4);
-        assert!(areas.left_panel.width < areas.detail_panel.width || areas.left_panel.x < areas.detail_panel.x);
+        assert!(
+            areas.left_panel.width < areas.detail_panel.width
+                || areas.left_panel.x < areas.detail_panel.x
+        );
     }
 
     #[test]

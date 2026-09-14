@@ -187,7 +187,11 @@ impl ProcessMemory {
         // First, try to get a meaningful name from cmdline
         if !self.cmdline.is_empty() && self.cmdline != self.name {
             // Get the first argument (the executable path)
-            let first_arg = self.cmdline.split_whitespace().next().unwrap_or(&self.cmdline);
+            let first_arg = self
+                .cmdline
+                .split_whitespace()
+                .next()
+                .unwrap_or(&self.cmdline);
             // Get the base name from the path
             let base = first_arg.rsplit('/').next().unwrap_or(first_arg);
             // Return it if it's meaningful

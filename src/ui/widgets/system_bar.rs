@@ -2,12 +2,7 @@
 
 #![allow(dead_code)]
 
-use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::Style,
-    widgets::Widget,
-};
+use ratatui::{buffer::Buffer, layout::Rect, style::Style, widgets::Widget};
 
 use crate::collector::SystemMemory;
 use crate::ui::Theme;

@@ -4,8 +4,9 @@ version = "0.1.0"
 edition = "2024"
 description = "Intelligent RAM usage visualizer for Arch Linux"
 license = "MIT"
-authors = ["ramwise contributors"]
-repository = "https://github.com/ramwise/ramwise"
+authors = ["Paras Sharma <parascodes247@gmail.com>", "ramwise contributors"]
+repository = "https://github.com/Duckaet/ramwise"
+homepage = "https://github.com/Duckaet/ramwise"
 keywords = ["memory", "ram", "monitor", "tui", "linux"]
 categories = ["command-line-utilities", "development-tools::profiling"]
 

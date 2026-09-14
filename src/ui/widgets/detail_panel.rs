@@ -40,9 +40,17 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         let title = match &self.process {
             Some(p) => Line::from(vec![
                 Span::styled(" ◆ ", Style::default().fg(self.theme.primary)),
-                Span::styled(&p.name, Style::default().fg(self.theme.fg).add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    &p.name,
+                    Style::default()
+                        .fg(self.theme.fg)
+                        .add_modifier(Modifier::BOLD),
+                ),
                 Span::styled(" · ", self.theme.muted_style()),
-                Span::styled(format!("PID {}", p.pid), Style::default().fg(self.theme.secondary)),
+                Span::styled(
+                    format!("PID {}", p.pid),
+                    Style::default().fg(self.theme.secondary),
+                ),
                 Span::styled(" ", Style::default()),
             ]),
             None => Line::from(vec![
@@ -90,12 +98,15 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             'Z' => Style::default().fg(self.theme.error),
             _ => Style::default().fg(self.theme.fg_dim),
         };
-        
+
         lines.push(Line::from(vec![
             Span::styled(state_chip(proc.state), state_style),
             Span::styled("  ", Style::default()),
             Span::styled("PPID ", self.theme.muted_style()),
-            Span::styled(proc.ppid.to_string(), Style::default().fg(self.theme.fg_dim)),
+            Span::styled(
+                proc.ppid.to_string(),
+                Style::default().fg(self.theme.fg_dim),
+            ),
             Span::styled("  UID ", self.theme.muted_style()),
             Span::styled(proc.uid.to_string(), Style::default().fg(self.theme.fg_dim)),
         ]));
@@ -107,9 +118,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         } else {
             proc.cmdline.clone()
         };
-        lines.push(Line::from(vec![
-            Span::styled(cmdline, Style::default().fg(self.theme.fg_muted)),
-        ]));
+        lines.push(Line::from(vec![Span::styled(
+            cmdline,
+            Style::default().fg(self.theme.fg_muted),
+        )]));
 
         lines.push(Line::from(""));
 
@@ -118,7 +130,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
 
         // Main memory stats with visual bars
         let total_for_bar = proc.vss.max(proc.rss);
-        
+
         lines.push(create_memory_row(
             "RSS",
             proc.rss,
@@ -127,7 +139,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             self.theme,
             true,
         ));
-        
+
         lines.push(create_memory_row(
             "VSS",
             proc.vss,
@@ -150,12 +162,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
 
         if proc.uss > 0 {
             lines.push(create_memory_row(
-                "USS",
-                proc.uss,
-                proc.rss,
-                "Unique",
-                self.theme,
-                false,
+                "USS", proc.uss, proc.rss, "Unique", self.theme, false,
             ));
         }
 
@@ -170,7 +177,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             ("Private", proc.private),
             self.theme,
         ));
-        
+
         lines.push(create_two_col(
             ("Heap", proc.heap),
             ("Stack", proc.stack),
@@ -189,17 +196,21 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             lines.push(Line::from(vec![
                 Span::styled("▲ ", Style::default().fg(self.theme.warning)),
                 Span::styled("Swap: ", self.theme.dim_style()),
-                Span::styled(
-                    format_bytes(proc.swap),
-                    self.theme.warning_style(),
-                ),
+                Span::styled(format_bytes(proc.swap), self.theme.warning_style()),
             ]));
         }
 
         // Page faults with severity indication
         if proc.major_faults > 100 {
             lines.push(Line::from(vec![
-                Span::styled("● ", Style::default().fg(if proc.major_faults > 1000 { self.theme.warning } else { self.theme.fg_muted })),
+                Span::styled(
+                    "● ",
+                    Style::default().fg(if proc.major_faults > 1000 {
+                        self.theme.warning
+                    } else {
+                        self.theme.fg_muted
+                    }),
+                ),
                 Span::styled("Page faults: ", self.theme.dim_style()),
                 Span::styled(
                     format!("{} major", proc.major_faults),
@@ -216,7 +227,14 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         let frag_ratio = proc.fragmentation_ratio();
         if frag_ratio > 5.0 {
             lines.push(Line::from(vec![
-                Span::styled("◐ ", Style::default().fg(if frag_ratio > 15.0 { self.theme.warning } else { self.theme.info })),
+                Span::styled(
+                    "◐ ",
+                    Style::default().fg(if frag_ratio > 15.0 {
+                        self.theme.warning
+                    } else {
+                        self.theme.info
+                    }),
+                ),
                 Span::styled("Fragmentation: ", self.theme.dim_style()),
                 Span::styled(
                     format!("{:.0}x", frag_ratio),
@@ -237,9 +255,12 @@ impl<'a> Widget for DetailPanelWidget<'a> {
 
 /// Create a section header with modern styling
 fn section_header<'a>(label: &'a str, theme: &'a Theme) -> Line<'a> {
-    Line::from(vec![
-        Span::styled(label, Style::default().fg(theme.primary).add_modifier(Modifier::BOLD)),
-    ])
+    Line::from(vec![Span::styled(
+        label,
+        Style::default()
+            .fg(theme.primary)
+            .add_modifier(Modifier::BOLD),
+    )])
 }
 
 /// Create a memory row with mini bar
@@ -257,14 +278,14 @@ fn create_memory_row<'a>(
     } else {
         0.0
     };
-    
+
     let bar = create_mini_bar(percent.min(100.0), bar_width);
     let color = if is_primary {
         theme.primary
     } else {
         theme.fg_dim
     };
-    
+
     Line::from(vec![
         Span::styled(format!("{:<4}", label), Style::default().fg(color)),
         Span::styled(bar, Style::default().fg(color)),
@@ -281,17 +302,19 @@ fn create_memory_row<'a>(
 }
 
 /// Create a two-column stat row
-fn create_two_col<'a>(
-    left: (&'a str, u64),
-    right: (&'a str, u64),
-    theme: &'a Theme,
-) -> Line<'a> {
+fn create_two_col<'a>(left: (&'a str, u64), right: (&'a str, u64), theme: &'a Theme) -> Line<'a> {
     Line::from(vec![
         Span::styled(format!("{:<9}", left.0), theme.muted_style()),
-        Span::styled(format!("{:>9}", format_bytes(left.1)), Style::default().fg(theme.fg_dim)),
+        Span::styled(
+            format!("{:>9}", format_bytes(left.1)),
+            Style::default().fg(theme.fg_dim),
+        ),
         Span::styled("   ", Style::default()),
         Span::styled(format!("{:<9}", right.0), theme.muted_style()),
-        Span::styled(format!("{:>9}", format_bytes(right.1)), Style::default().fg(theme.fg_dim)),
+        Span::styled(
+            format!("{:>9}", format_bytes(right.1)),
+            Style::default().fg(theme.fg_dim),
+        ),
     ])
 }
 
@@ -301,16 +324,16 @@ fn create_mini_bar(percent: f64, width: usize) -> String {
     let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
     let full_blocks = total_eighths / 8;
     let partial = total_eighths % 8;
-    
+
     let mut bar = "█".repeat(full_blocks.min(width));
-    
+
     if partial > 0 && bar.chars().count() < width {
         bar.push(chars[partial]);
     }
-    
+
     let remaining = width.saturating_sub(bar.chars().count());
     bar.push_str(&"░".repeat(remaining));
-    
+
     bar
 }
 

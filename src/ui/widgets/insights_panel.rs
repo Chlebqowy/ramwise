@@ -42,7 +42,12 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
         let title = if self.insights.is_empty() {
             Line::from(vec![
                 Span::styled(" ", Style::default()),
-                Span::styled("Insights", Style::default().fg(self.theme.fg).add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    "Insights",
+                    Style::default()
+                        .fg(self.theme.fg)
+                        .add_modifier(Modifier::BOLD),
+                ),
                 Span::styled(" · ", self.theme.muted_style()),
                 Span::styled("All clear", Style::default().fg(self.theme.success)),
                 Span::styled(" ", Style::default()),
@@ -50,32 +55,46 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
         } else {
             let mut spans = vec![
                 Span::styled(" ", Style::default()),
-                Span::styled("Insights", Style::default().fg(self.theme.fg).add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    "Insights",
+                    Style::default()
+                        .fg(self.theme.fg)
+                        .add_modifier(Modifier::BOLD),
+                ),
                 Span::styled(" ", Style::default()),
             ];
-            
+
             if crit > 0 {
                 spans.push(Span::styled(
                     format!(" {} ", crit),
-                    Style::default().fg(self.theme.bg).bg(self.theme.error).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(self.theme.bg)
+                        .bg(self.theme.error)
+                        .add_modifier(Modifier::BOLD),
                 ));
                 spans.push(Span::styled(" ", Style::default()));
             }
             if warn > 0 {
                 spans.push(Span::styled(
                     format!(" {} ", warn),
-                    Style::default().fg(self.theme.bg).bg(self.theme.warning).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(self.theme.bg)
+                        .bg(self.theme.warning)
+                        .add_modifier(Modifier::BOLD),
                 ));
                 spans.push(Span::styled(" ", Style::default()));
             }
             if info > 0 {
                 spans.push(Span::styled(
                     format!(" {} ", info),
-                    Style::default().fg(self.theme.bg).bg(self.theme.info).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(self.theme.bg)
+                        .bg(self.theme.info)
+                        .add_modifier(Modifier::BOLD),
                 ));
             }
             spans.push(Span::styled(" ", Style::default()));
-            
+
             Line::from(spans)
         };
 
@@ -90,12 +109,13 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
 
         if self.insights.is_empty() {
             // Show success state with icon
-            let lines = vec![
-                Line::from(vec![
-                    Span::styled("  ✓ ", Style::default().fg(self.theme.success)),
-                    Span::styled("System looks healthy", Style::default().fg(self.theme.fg_dim)),
-                ]),
-            ];
+            let lines = vec![Line::from(vec![
+                Span::styled("  ✓ ", Style::default().fg(self.theme.success)),
+                Span::styled(
+                    "System looks healthy",
+                    Style::default().fg(self.theme.fg_dim),
+                ),
+            ])];
             let paragraph = Paragraph::new(lines);
             paragraph.render(inner, buf);
             return;
@@ -109,7 +129,12 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
             .map(|insight| {
                 // Severity icon with color
                 let (icon, icon_style) = match insight.severity {
-                    Severity::Critical => ("▲", Style::default().fg(self.theme.error).add_modifier(Modifier::BOLD)),
+                    Severity::Critical => (
+                        "▲",
+                        Style::default()
+                            .fg(self.theme.error)
+                            .add_modifier(Modifier::BOLD),
+                    ),
                     Severity::Warning => ("●", Style::default().fg(self.theme.warning)),
                     Severity::Info => ("○", Style::default().fg(self.theme.info)),
                 };
@@ -130,7 +155,7 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
                 // Truncate suggestion to fit
                 let used_width = 4 + target.len() + pid_str.len() + title.len() + 4;
                 let remaining = (inner.width as usize).saturating_sub(used_width);
-                
+
                 let suggestion = if remaining > 10 {
                     let sug = &insight.suggestion;
                     if sug.len() > remaining {

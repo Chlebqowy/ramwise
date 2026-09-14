@@ -208,13 +208,11 @@ async fn run_app(
 
             // Keyboard/mouse events
             _ = async {
-                if event::poll(Duration::from_millis(50)).unwrap_or(false) {
-                    if let Ok(Event::Key(key)) = event::read() {
-                        if key.kind == KeyEventKind::Press {
+                if event::poll(Duration::from_millis(50)).unwrap_or(false)
+                    && let Ok(Event::Key(key)) = event::read()
+                        && key.kind == KeyEventKind::Press {
                             app.handle_key(key.code, key.modifiers);
                         }
-                    }
-                }
             } => {}
         }
 

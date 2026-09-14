@@ -34,7 +34,7 @@ impl<'a> Widget for HeaderWidget<'a> {
         let sys = self.system;
 
         // Build the header line with modern styling
-        
+
         // App title with icon
         let title = Span::styled(
             format!(" ramwise v{}", self.version),
@@ -49,16 +49,12 @@ impl<'a> Widget for HeaderWidget<'a> {
         let ram_percent = sys.usage_percent();
         let ram_color = self.theme.mem_color_interpolated(ram_percent);
         let ram_bar = create_sleek_bar(ram_percent, 12);
-        
+
         let ram = vec![
             Span::styled("RAM ", Style::default().fg(self.theme.fg_dim)),
             Span::styled(ram_bar, Style::default().fg(ram_color)),
             Span::styled(
-                format!(
-                    " {}/{} ",
-                    format_bytes(sys.used()),
-                    format_bytes(sys.total),
-                ),
+                format!(" {}/{} ", format_bytes(sys.used()), format_bytes(sys.total),),
                 Style::default().fg(self.theme.fg),
             ),
             Span::styled(
@@ -77,7 +73,7 @@ impl<'a> Widget for HeaderWidget<'a> {
             } else {
                 self.theme.fg_dim
             };
-            
+
             let status_icon = if swap_percent > 80.0 {
                 "▲"
             } else if swap_percent > 50.0 {
@@ -85,7 +81,7 @@ impl<'a> Widget for HeaderWidget<'a> {
             } else {
                 "○"
             };
-            
+
             vec![
                 dot.clone(),
                 Span::styled("Swap ", Style::default().fg(self.theme.fg_dim)),
@@ -109,9 +105,19 @@ impl<'a> Widget for HeaderWidget<'a> {
 
         // Help hint with modern styling (right-aligned)
         let help = vec![
-            Span::styled("?", Style::default().fg(self.theme.secondary).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                "?",
+                Style::default()
+                    .fg(self.theme.secondary)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled(" Help  ", self.theme.muted_style()),
-            Span::styled("q", Style::default().fg(self.theme.tertiary).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                "q",
+                Style::default()
+                    .fg(self.theme.tertiary)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled(" Quit ", self.theme.muted_style()),
         ];
 
@@ -130,10 +136,7 @@ impl<'a> Widget for HeaderWidget<'a> {
         spans.extend(help);
 
         let line = Line::from(spans);
-        let paragraph = Paragraph::new(line).style(
-            Style::default()
-                .bg(self.theme.bg_elevated)
-        );
+        let paragraph = Paragraph::new(line).style(Style::default().bg(self.theme.bg_elevated));
 
         paragraph.render(area, buf);
     }
@@ -145,15 +148,15 @@ fn create_sleek_bar(percent: f64, width: usize) -> String {
     let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
     let full_blocks = total_eighths / 8;
     let partial = total_eighths % 8;
-    
+
     let mut bar = "█".repeat(full_blocks);
-    
+
     if partial > 0 && full_blocks < width {
         bar.push(chars[partial]);
     }
-    
+
     let remaining = width.saturating_sub(bar.chars().count());
     bar.push_str(&"░".repeat(remaining));
-    
+
     bar
 }

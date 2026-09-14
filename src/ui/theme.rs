@@ -37,11 +37,11 @@ pub struct Theme {
     pub info: Color,
 
     // Memory usage gradient (smooth transitions)
-    pub mem_excellent: Color,  // < 30%
-    pub mem_good: Color,       // 30-50%
-    pub mem_moderate: Color,   // 50-70%
-    pub mem_high: Color,       // 70-85%
-    pub mem_critical: Color,   // > 85%
+    pub mem_excellent: Color, // < 30%
+    pub mem_good: Color,      // 30-50%
+    pub mem_moderate: Color,  // 50-70%
+    pub mem_high: Color,      // 70-85%
+    pub mem_critical: Color,  // > 85%
 
     // UI elements
     pub border: Color,
@@ -99,11 +99,11 @@ impl Theme {
             info: Color::Rgb(100, 180, 255),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(100, 230, 140),   // Fresh green
-            mem_good: Color::Rgb(140, 220, 100),        // Lime
-            mem_moderate: Color::Rgb(255, 210, 80),     // Golden yellow
-            mem_high: Color::Rgb(255, 150, 80),         // Orange
-            mem_critical: Color::Rgb(255, 90, 90),      // Coral red
+            mem_excellent: Color::Rgb(100, 230, 140), // Fresh green
+            mem_good: Color::Rgb(140, 220, 100),      // Lime
+            mem_moderate: Color::Rgb(255, 210, 80),   // Golden yellow
+            mem_high: Color::Rgb(255, 150, 80),       // Orange
+            mem_critical: Color::Rgb(255, 90, 90),    // Coral red
 
             // UI elements
             border: Color::Rgb(55, 55, 70),
@@ -122,9 +122,9 @@ impl Theme {
 
             // Process list
             row_alt_bg: Color::Rgb(22, 22, 30),
-            rank_top: Color::Rgb(255, 190, 70),        // Gold for #1
-            rank_high: Color::Rgb(180, 130, 255),      // Purple for top 5
-            rank_normal: Color::Rgb(160, 160, 175),    // Dim for rest
+            rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
+            rank_high: Color::Rgb(180, 130, 255),   // Purple for top 5
+            rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -160,11 +160,11 @@ impl Theme {
             info: Color::Rgb(0xbd, 0xae, 0x93),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(100, 230, 140),   // Fresh green - not gruvbox, their green is too lime
-            mem_good: Color::Rgb(0x98, 0x97, 0x1a),     // Lime
-            mem_moderate: Color::Rgb(0xf7, 0x99, 0x21),     // Middle yellow
-            mem_high: Color::Rgb(0xfe, 0x80, 0x19),         // Light orange
-            mem_critical: Color::Rgb(0xaf, 0x3a, 0x03),      // Dark orange
+            mem_excellent: Color::Rgb(100, 230, 140), // Fresh green - not gruvbox, their green is too lime
+            mem_good: Color::Rgb(0x98, 0x97, 0x1a),   // Lime
+            mem_moderate: Color::Rgb(0xf7, 0x99, 0x21), // Middle yellow
+            mem_high: Color::Rgb(0xfe, 0x80, 0x19),   // Light orange
+            mem_critical: Color::Rgb(0xaf, 0x3a, 0x03), // Dark orange
 
             // UI elements - GruvBox purple and fg/bg, taken from both themes.
             border: Color::Rgb(0x7c, 0x6f, 0x64),
@@ -173,7 +173,7 @@ impl Theme {
             selection_bg: Color::Rgb(0xb1, 0x62, 0x86),
             selection_fg: Color::Rgb(0x28, 0x28, 0x28),
             header_bg: Color::Rgb(0xeb, 0xdb, 0xb2),
-            header_fg: Color::Rgb(0x3c, 0x38, 0x36), 
+            header_fg: Color::Rgb(0x3c, 0x38, 0x36),
 
             // Graph - Green from progress bar, dark from gruvbox
             graph_line: Color::Rgb(100, 230, 140),
@@ -183,9 +183,9 @@ impl Theme {
 
             // Process list
             row_alt_bg: Color::Rgb(0xf2, 0xe5, 0xbc),
-            rank_top: Color::Rgb(0xfa, 0xbd, 0x2f),        // Light yellow for top 1
-            rank_high: Color::Rgb(0xd6, 0x5d, 0x0e),      // Middle orange for top 3
-            rank_normal: Color::Rgb(0x28, 0x28, 0x28),    // fg0 for rest
+            rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
+            rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
+            rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
         }
     }
 
@@ -208,7 +208,7 @@ impl Theme {
     pub fn mem_color_interpolated(&self, percent: f64) -> Color {
         // Clamp to 0-100
         let p = percent.clamp(0.0, 100.0);
-        
+
         // Define color stops
         let (r, g, b) = if p < 30.0 {
             // Excellent zone: fresh green
@@ -229,7 +229,7 @@ impl Theme {
             // Critical: red
             (255, 90, 90)
         };
-        
+
         Color::Rgb(r, g, b)
     }
 
@@ -345,13 +345,9 @@ impl Theme {
     pub fn progress_bar(&self, percent: f64, width: usize) -> (String, Style) {
         let filled = ((percent / 100.0) * width as f64).round() as usize;
         let empty = width.saturating_sub(filled);
-        
-        let bar = format!(
-            "{}{}",
-            "█".repeat(filled),
-            "░".repeat(empty)
-        );
-        
+
+        let bar = format!("{}{}", "█".repeat(filled), "░".repeat(empty));
+
         let color = self.mem_color_interpolated(percent);
         (bar, Style::default().fg(color))
     }
@@ -362,26 +358,29 @@ impl Theme {
         let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
         let full_blocks = total_eighths / 8;
         let partial = total_eighths % 8;
-        
+
         let mut result = Vec::new();
         let color = self.mem_color_interpolated(percent);
-        
+
         // Full blocks
         if full_blocks > 0 {
             result.push(("█".repeat(full_blocks), Style::default().fg(color)));
         }
-        
+
         // Partial block
         if partial > 0 && full_blocks < width {
             result.push((chars[partial].to_string(), Style::default().fg(color)));
         }
-        
+
         // Empty space
         let remaining = width.saturating_sub(full_blocks + if partial > 0 { 1 } else { 0 });
         if remaining > 0 {
-            result.push((" ".repeat(remaining), Style::default().fg(self.border_subtle)));
+            result.push((
+                " ".repeat(remaining),
+                Style::default().fg(self.border_subtle),
+            ));
         }
-        
+
         result
     }
 }

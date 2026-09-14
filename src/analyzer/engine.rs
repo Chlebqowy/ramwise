@@ -10,8 +10,8 @@ use crate::history::HistoryBuffer;
 
 use super::insights::Insight;
 use super::rules::{
-    CacheInfoRule, FragmentationDetector, MemoryHogDetector, MemoryLeakDetector,
-    OomRiskDetector, Rule, SuddenSpikeDetector, SwapPressureDetector,
+    CacheInfoRule, FragmentationDetector, MemoryHogDetector, MemoryLeakDetector, OomRiskDetector,
+    Rule, SuddenSpikeDetector, SwapPressureDetector,
 };
 
 /// The main analyzer that runs all rules
@@ -66,10 +66,10 @@ impl Analyzer {
         for rule in &self.rules {
             if let Some(insight) = rule.evaluate(snapshot, history) {
                 // Check cooldown
-                if let Some(last) = self.last_triggered.get(&insight.id) {
-                    if now.duration_since(*last) < self.cooldown {
-                        continue; // Still in cooldown
-                    }
+                if let Some(last) = self.last_triggered.get(&insight.id)
+                    && now.duration_since(*last) < self.cooldown
+                {
+                    continue; // Still in cooldown
                 }
 
                 // Add or update insight
@@ -81,7 +81,7 @@ impl Analyzer {
         // Prune old insights (keep only the most recent)
         if self.active_insights.len() > self.max_insights {
             let mut insights: Vec<_> = self.active_insights.drain().collect();
-            insights.sort_by(|a, b| b.1.timestamp.cmp(&a.1.timestamp));
+            insights.sort_by_key(|a| std::cmp::Reverse(a.1.timestamp));
             insights.truncate(self.max_insights);
             self.active_insights = insights.into_iter().collect();
         }
@@ -90,7 +90,7 @@ impl Analyzer {
     /// Get all active insights, sorted by severity (critical first)
     pub fn insights(&self) -> Vec<&Insight> {
         let mut insights: Vec<_> = self.active_insights.values().collect();
-        insights.sort_by(|a, b| b.severity.cmp(&a.severity));
+        insights.sort_by_key(|a| std::cmp::Reverse(a.severity));
         insights
     }
 

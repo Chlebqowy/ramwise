@@ -111,11 +111,7 @@ pub struct ProcessListWidget<'a> {
 }
 
 impl<'a> ProcessListWidget<'a> {
-    pub fn new(
-        processes: &'a [ProcessMemory],
-        theme: &'a Theme,
-        total_memory: u64,
-    ) -> Self {
+    pub fn new(processes: &'a [ProcessMemory], theme: &'a Theme, total_memory: u64) -> Self {
         Self {
             processes,
             theme,
@@ -172,7 +168,9 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Name styling - brighter for selected, dimmer for lower ranks
                 let name_style = if is_selected {
-                    Style::default().fg(self.theme.selection_fg).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .fg(self.theme.selection_fg)
+                        .add_modifier(Modifier::BOLD)
                 } else {
                     match idx {
                         0..=2 => Style::default().fg(self.theme.fg),
@@ -185,7 +183,9 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 let mem_str = format!("{:>8}", format_bytes(proc.rss));
                 let mem_color = self.theme.mem_color_interpolated(mem_percent);
                 let mem_style = if is_selected {
-                    Style::default().fg(self.theme.selection_fg).add_modifier(Modifier::BOLD)
+                    Style::default()
+                        .fg(self.theme.selection_fg)
+                        .add_modifier(Modifier::BOLD)
                 } else {
                     Style::default().fg(mem_color)
                 };
@@ -212,18 +212,28 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
             .collect();
 
         // Update selected_pid based on current selection
-        if let Some(idx) = state.list_state.selected() {
-            if idx < self.processes.len() {
-                state.selected_pid = Some(self.processes[idx].pid);
-            }
+        if let Some(idx) = state.list_state.selected()
+            && idx < self.processes.len()
+        {
+            state.selected_pid = Some(self.processes[idx].pid);
         }
 
         // Modern title with sort indicator
         let title_spans = vec![
             Span::styled(" ", Style::default()),
-            Span::styled("Processes", Style::default().fg(self.theme.fg).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                "Processes",
+                Style::default()
+                    .fg(self.theme.fg)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled(" sorted by ", self.theme.muted_style()),
-            Span::styled(state.sort_mode.label(), Style::default().fg(self.theme.secondary).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                state.sort_mode.label(),
+                Style::default()
+                    .fg(self.theme.secondary)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled(" ", Style::default()),
         ];
         let title = Line::from(title_spans);
@@ -250,20 +260,20 @@ fn create_sleek_bar(percent: f64, width: usize) -> String {
     if width == 0 {
         return String::new();
     }
-    
+
     let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
     let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
     let full_blocks = total_eighths / 8;
     let partial = total_eighths % 8;
-    
+
     let mut bar = "█".repeat(full_blocks.min(width));
-    
+
     if partial > 0 && bar.chars().count() < width {
         bar.push(chars[partial]);
     }
-    
+
     let remaining = width.saturating_sub(bar.chars().count());
     bar.push_str(&"░".repeat(remaining));
-    
+
     bar
 }

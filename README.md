@@ -38,9 +38,14 @@ sudo cp target/release/ramwise /usr/local/bin/
 
 ### Arch Linux (AUR)
 
+Install `ramwise` from the AUR using your preferred helper (e.g. `yay` or `paru`):
+
 ```bash
-# Coming soon
+# Build from source
 yay -S ramwise
+
+# Or prebuilt binary
+yay -S ramwise-bin
 ```
 
 ## Usage
