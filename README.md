@@ -26,7 +26,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/ramwise/ramwise.git
+git clone https://github.com/Duckaet/ramwise
 cd ramwise
 
 # Build release binary
@@ -60,6 +60,9 @@ ramwise --no-smaps
 
 # Enable debug logging
 ramwise --debug
+
+# Use light mode
+ramwise -t light
 ```
 
 ## Keyboard Shortcuts
@@ -92,6 +95,32 @@ ramwise now supports direct process signaling from the process list:
    - `Esc` to cancel
 
 Action results are shown as in-app status messages (success, warning, or error).
+
+## Configuration
+
+### Themes
+ramwise includes built-in themes selectable via `--theme` or `-t`:
+```bash
+# Launch with dark theme (default)
+ramwise -t dark
+
+# Launch with light theme (Gruvbox Light)
+ramwise -t light
+```
+
+Custom themes can be added to `src/ui/theme.rs` and registered in `App::new` (`src/app.rs`).
+
+### Layout Customization
+Layout dimensions and panel splits can be customized in `src/ui/layout.rs` (`Layout::new`):
+- `header_height`: Height of the top status bar.
+- `center_height`: Minimum height of the main process/detail panels.
+- `bottom_height`: Height of the insights panel.
+- `left_width_percent`: Width percentage allocated to the process list.
+- `side_vertical_split_percent`: Height percentage allocated to process details vs memory graph.
+- `invert_horizontal_split`: Swap process list and side panels.
+- `invert_side_vertical_split`: Swap detail view and trend graph.
+- `put_insights_on_top`: Place the insights panel below the header instead of at the bottom.
+
 
 ## Insight Rules
 
