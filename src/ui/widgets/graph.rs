@@ -130,8 +130,8 @@ impl<'a> Widget for GraphWidget<'a> {
 
         // Modern time labels
         let x_labels = vec![
-            Span::styled("now", Style::default().fg(self.theme.fg_dim)),
             Span::styled(format!("-{}s", time_span), Style::default().fg(self.theme.fg_muted)),
+            Span::styled("now", Style::default().fg(self.theme.fg_dim)),
         ];
 
         // Modern title
