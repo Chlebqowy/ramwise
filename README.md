@@ -119,21 +119,28 @@ Action results are shown as in-app status messages (success, warning, or error).
 
 ## Configuration
 
-Sadly, there is no one single easy-to-use config. You have to make changes to the code itself but it's fairly easy and a lot is explained in comments. 
+### Themes
+ramwise includes built-in themes selectable via `--theme` or `-t`:
+```bash
+# Launch with dark theme (default)
+ramwise -t dark
 
-To modify the layout, go to src/ui/layout.rs. If you are not very experienced with coding, just modify the values in pub fn new() -> Self { Self {. If you can code, you can also modify the rest of the file. The layout and library is fairly simple. 
-If you changed the layout by changing the rest of the file, make sure to modify impl Focus { to reflect those changes.
+# Launch with light theme (Gruvbox Light)
+ramwise -t light
+```
 
-To modify the theme, go to src/ui/theme.rs
-pub fn dark() -> Self {
-        Self {
-You can also copy that object and rename it to use another theme.
-You can set a theme with --theme.
-If the theme is custom, you have to add it to
-impl App {
-    /// Create a new application
-    pub fn new(theme: str) -> Self {
-in app.rs
+Custom themes can be added to `src/ui/theme.rs` and registered in `App::new` (`src/app.rs`).
+
+### Layout Customization
+Layout dimensions and panel splits can be customized in `src/ui/layout.rs` (`Layout::new`):
+- `header_height`: Height of the top status bar.
+- `center_height`: Minimum height of the main process/detail panels.
+- `bottom_height`: Height of the insights panel.
+- `left_width_percent`: Width percentage allocated to the process list.
+- `side_vertical_split_percent`: Height percentage allocated to process details vs memory graph.
+- `invert_horizontal_split`: Swap process list and side panels.
+- `invert_side_vertical_split`: Swap detail view and trend graph.
+- `put_insights_on_top`: Place the insights panel below the header instead of at the bottom.
 
 
 ## Insight Rules

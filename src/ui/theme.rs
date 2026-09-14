@@ -182,7 +182,7 @@ impl Theme {
             graph_grid: Color::Rgb(0x3c, 0x38, 0x36),
 
             // Process list
-            row_alt_bg: Color::Rgb(22, 22, 30),       // Broken, so unthemed
+            row_alt_bg: Color::Rgb(0xf2, 0xe5, 0xbc),
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f),        // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e),      // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28),    // fg0 for rest
@@ -399,6 +399,5 @@ fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
 impl Default for Theme {
     fn default() -> Self {
         Self::dark()
-        // weird and not really necessary, the theme is set in app.rs
     }
 }

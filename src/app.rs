@@ -88,14 +88,14 @@ pub struct App {
 impl App {
     /// Create a new application
     pub fn new(theme_name: &str) -> Self {
-        let mut theme = Theme::dark();
-        if theme_name == "light" {
-            theme = Theme::light();
-        } else if theme_name == "dark" {
-            theme = Theme::dark();
-        } else {
-            eprintln!("Invalid theme: {theme_name}. Did you add it to app.rs? Using dark as fallback.");
-        }
+        let theme = match theme_name.trim().to_lowercase().as_str() {
+            "light" => Theme::light(),
+            "dark" => Theme::dark(),
+            other => {
+                tracing::warn!("Invalid theme: {other}. Using dark as fallback.");
+                Theme::dark()
+            }
+        };
         Self {
             should_quit: false,
             focus: Focus::ProcessList,
@@ -401,7 +401,7 @@ mod tests {
 
     #[test]
     fn kill_confirm_toggles_on_selection() {
-        let mut app = App::new();
+        let mut app = App::default();
         app.sorted_processes.push(ProcessMemory {
             pid: 4242,
             name: "worker".to_string(),
@@ -415,7 +415,7 @@ mod tests {
 
     #[test]
     fn kill_confirm_esc_cancels_modal() {
-        let mut app = App::new();
+        let mut app = App::default();
         app.show_kill_confirm = true;
 
         app.handle_key(KeyCode::Esc, KeyModifiers::NONE);
@@ -426,12 +426,24 @@ mod tests {
 
     #[test]
     fn kill_key_without_selection_sets_warning() {
-        let mut app = App::new();
+        let mut app = App::default();
         app.handle_key(KeyCode::Char('x'), KeyModifiers::NONE);
 
         assert!(matches!(
             app.action_status.as_ref().map(|s| s.kind),
             Some(ActionStatusKind::Warning)
         ));
+    }
+
+    #[test]
+    fn app_theme_selection() {
+        let app_light = App::new("light");
+        assert_eq!(app_light.theme.bg, Theme::light().bg);
+
+        let app_dark = App::new("dark");
+        assert_eq!(app_dark.theme.bg, Theme::dark().bg);
+
+        let app_fallback = App::new("unknown-theme");
+        assert_eq!(app_fallback.theme.bg, Theme::dark().bg);
     }
 }
