@@ -6,6 +6,7 @@ use ratatui::{
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Paragraph, Widget},
+    symbols::merge::MergeStrategy,
 };
 
 use crate::collector::ProcessMemory;
@@ -64,7 +65,8 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             .title(title)
             .borders(Borders::ALL)
             .border_style(self.theme.border_style(self.focused))
-            .style(Style::default().bg(self.theme.bg));
+            .style(Style::default().bg(self.theme.bg))
+            .merge_borders(MergeStrategy::Exact);
 
         let inner = block.inner(area);
         block.render(area, buf);

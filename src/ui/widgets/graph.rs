@@ -7,6 +7,7 @@ use ratatui::{
     symbols::Marker,
     text::{Line, Span},
     widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Widget},
+    symbols::merge::MergeStrategy,
 };
 
 use crate::history::HistoryBuffer;
@@ -208,7 +209,8 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
         .title(title)
         .borders(Borders::ALL)
         .border_style(theme.border_style(focused))
-        .style(Style::default().bg(theme.bg));
+        .style(Style::default().bg(theme.bg))
+        .merge_borders(MergeStrategy::Exact);
 
     let inner = block.inner(area);
     block.render(area, buf);
