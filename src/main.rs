@@ -11,6 +11,9 @@ mod process_control;
 mod ui;
 mod utils;
 
+#[cfg(test)]
+mod test_support;
+
 use std::io::{self, stdout};
 use std::time::Duration;
 

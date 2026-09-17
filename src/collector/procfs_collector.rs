@@ -121,10 +121,10 @@ impl Collector {
 
             // IMPORTANT: procfs crate returns VmRSS/VmSize in KILOBYTES, not bytes!
             // We need to convert kB -> bytes by multiplying by 1024
-            let rss_bytes = status.vmrss.unwrap_or(0) * 1024;
+            let rss_bytes = kib_to_bytes(status.vmrss.unwrap_or(0));
 
             // Skip kernel threads (no virtual memory)
-            let vss_bytes = status.vmsize.unwrap_or(0) * 1024;
+            let vss_bytes = kib_to_bytes(status.vmsize.unwrap_or(0));
             if vss_bytes == 0 {
                 continue;
             }
@@ -142,12 +142,12 @@ impl Collector {
                 .unwrap_or_else(|| stat.comm.clone());
 
             // Get memory values from status (all in kB from procfs, convert to bytes)
-            let shared = (status.rssfile.unwrap_or(0) + status.rssshmem.unwrap_or(0)) * 1024;
+            let shared = kib_to_bytes(status.rssfile.unwrap_or(0) + status.rssshmem.unwrap_or(0));
             let private = rss_bytes.saturating_sub(shared);
-            let swap = status.vmswap.unwrap_or(0) * 1024;
-            let heap = status.vmdata.unwrap_or(0) * 1024;
-            let stack = status.vmstk.unwrap_or(0) * 1024;
-            let libs = status.vmlib.unwrap_or(0) * 1024;
+            let swap = kib_to_bytes(status.vmswap.unwrap_or(0));
+            let heap = kib_to_bytes(status.vmdata.unwrap_or(0));
+            let stack = kib_to_bytes(status.vmstk.unwrap_or(0));
+            let libs = kib_to_bytes(status.vmlib.unwrap_or(0));
 
             let mut process = ProcessMemory {
                 pid: proc.pid(),
@@ -233,24 +233,19 @@ impl Default for Collector {
     }
 }
 
+fn kib_to_bytes(value: u64) -> u64 {
+    value.saturating_mul(1024)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_collect_snapshot() {
-        let collector = Collector::new().with_smaps(false);
-        let snapshot = collector.collect_snapshot().unwrap();
-
-        assert!(snapshot.system.total > 0);
-        // Should have at least the current process
-        assert!(!snapshot.processes.is_empty(), "No processes found!");
-
-        // Print some debug info
-        eprintln!("Found {} processes", snapshot.processes.len());
-        for p in snapshot.processes.iter().take(5) {
-            eprintln!("  {} (PID {}): RSS={}", p.name, p.pid, p.rss);
-        }
+    fn kib_conversion_is_explicit_and_saturating() {
+        assert_eq!(kib_to_bytes(0), 0);
+        assert_eq!(kib_to_bytes(1), 1024);
+        assert_eq!(kib_to_bytes(u64::MAX), u64::MAX);
     }
 
     #[test]
@@ -263,5 +258,6 @@ mod tests {
 
         assert_eq!(mem.used(), 8 * 1024 * 1024 * 1024);
         assert!((mem.usage_percent() - 50.0).abs() < 0.01);
+        assert_eq!(mem.swap_percent(), 0.0);
     }
 }

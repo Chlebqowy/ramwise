@@ -127,3 +127,27 @@ impl Insight {
         lines.join("\n")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn stable_text_surfaces_include_severity_and_target() {
+        let insight = Insight::new(
+            "fixture",
+            Severity::Warning,
+            "High memory",
+            "RSS increased",
+            "Inspect the process",
+        )
+        .with_process(42, "worker");
+        assert_eq!(insight.one_line(), "! worker: High memory");
+        assert_eq!(
+            insight.detailed(),
+            "[WARN] (worker): High memory\n  RSS increased\n  -> Inspect the process"
+        );
+        assert_eq!(Severity::Critical.as_str(), "CRIT");
+        assert_eq!(Severity::Critical.icon(), "X");
+    }
+}

@@ -299,4 +299,46 @@ mod tests {
     fn fixture_is_deterministic() {
         assert_eq!(ExportSnapshot::fixture(), ExportSnapshot::fixture());
     }
+
+    #[test]
+    fn runtime_conversion_preserves_bytes_and_region_capabilities() {
+        let mut snapshot = MemorySnapshot::default();
+        snapshot.system.total = 4096;
+        snapshot.system.available = 1024;
+        snapshot.processes = vec![ProcessMemory {
+            pid: 7,
+            name: "worker".into(),
+            rss: 2048,
+            pss: 1536,
+            uss: 1024,
+            regions: Some(vec![RegionMemory {
+                region_type: Some(MemoryRegion::Heap),
+                path: Some("[heap]".into()),
+                size: 4096,
+                rss: 2048,
+                ..Default::default()
+            }]),
+            ..Default::default()
+        }];
+
+        let export = ExportSnapshot::from_runtime(&snapshot);
+        assert_eq!(export.system.total_bytes, 4096);
+        assert_eq!(export.processes[0].rss_bytes, 2048);
+        assert_eq!(
+            export.processes[0].regions.as_ref().unwrap()[0].kind,
+            Some(MemoryRegionKind::Heap)
+        );
+        assert_eq!(export.capabilities["smaps_rollup"], Capability::Available);
+        assert_eq!(export.capabilities["regions"], Capability::Available);
+        assert!(export.validate().is_ok());
+    }
+
+    #[test]
+    fn json_contract_has_stable_field_names() {
+        let json = serde_json::to_value(ExportSnapshot::fixture()).unwrap();
+        assert_eq!(json["schema_version"], SNAPSHOT_SCHEMA_VERSION);
+        assert!(json["system"]["total_bytes"].is_number());
+        assert!(json["processes"].is_array());
+        assert_eq!(json["capabilities"]["processes"], "available");
+    }
 }
