@@ -178,6 +178,7 @@ impl Collector {
                     let ext = &rollup.extension.map;
 
                     // Get values from the HashMap
+                    // procfs parses smaps values with their `kB` suffix into bytes.
                     process.pss = ext.get("Pss").copied().unwrap_or(0);
 
                     let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);

@@ -16,6 +16,14 @@
 - **Real-time Updates** - Live monitoring with configurable refresh rate
 - **Process Control** - Stop (`SIGTERM`) or kill (`SIGKILL`) selected processes directly from the TUI
 
+### Snapshot exports
+
+The collector exposes a versioned `ExportSnapshot` contract for integrations and
+future export formats. It uses wall-clock Unix milliseconds, explicit byte/count
+units, collector metadata, and capability markers. Runtime-only monotonic
+`Instant` values are intentionally not serialized; unavailable features remain
+explicit in the exported capability map.
+
 ## Screenshots
 
 ![Screenshot](screenshot.png)

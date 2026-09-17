@@ -61,7 +61,7 @@ impl SystemMemory {
 }
 
 /// Memory region types from /proc/[pid]/maps
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MemoryRegion {
     Heap,
     Stack,
@@ -234,6 +234,11 @@ pub struct MemorySnapshot {
 }
 
 impl MemorySnapshot {
+    /// Create a portable export without serializing the runtime-only `Instant`.
+    pub fn to_export(&self) -> super::export::ExportSnapshot {
+        super::export::ExportSnapshot::from_runtime(self)
+    }
+
     /// Create a new empty snapshot
     pub fn new() -> Self {
         Self {
