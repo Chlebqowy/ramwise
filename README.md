@@ -1,4 +1,3 @@
-# TODO add a way to change the border type
 Also add a new screenshot with light mode and another font
 # TODO render focused on top
 

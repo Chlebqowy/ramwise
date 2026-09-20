@@ -66,6 +66,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             .title(title)
             .borders(Borders::ALL)
             .border_style(self.theme.border_style(self.focused))
+            .border_type(self.theme.border_type())
             .style(Style::default().bg(self.theme.bg));
 
         let inner = block.inner(area);

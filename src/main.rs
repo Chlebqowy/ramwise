@@ -166,6 +166,7 @@ async fn run_app(
                     .merge_borders(MergeStrategy::Exact)
                     .title(" PROCESSES ")
                     .borders(Borders::ALL)
+                    .border_type(app.theme.border_type())
                     .border_style(app.theme.border_style(app.focus == Focus::ProcessList));
                 frame.render_widget(block, areas.left_panel);
             }
@@ -268,6 +269,7 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
             Block::default()
                 .title(" Help ")
                 .borders(Borders::ALL)
+                .border_type(theme.border_type())
                 .border_style(theme.border_style(true))
                 .style(theme.base_style()),
         )
@@ -302,6 +304,7 @@ fn render_kill_confirm_overlay(frame: &mut ratatui::Frame, app: &App) {
         Block::default()
             .title(" Confirm Kill ")
             .borders(Borders::ALL)
+            .border_type(app.theme.border_type())
             .border_style(app.theme.border_style(true))
             .style(app.theme.base_style()),
     );
@@ -338,6 +341,7 @@ fn render_action_status(frame: &mut ratatui::Frame, theme: &ui::Theme, status: &
     let paragraph = Paragraph::new(line).alignment(Alignment::Left).block(
         Block::default()
             .borders(Borders::ALL)
+            .border_type(theme.border_type())
             .border_style(Style::default().fg(color))
             .style(theme.base_style()),
     );

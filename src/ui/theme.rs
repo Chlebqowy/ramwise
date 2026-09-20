@@ -3,6 +3,7 @@
 #![allow(dead_code)]
 
 use ratatui::style::{Color, Modifier, Style};
+use ratatui::widgets::{BorderType};
 
 /// Modern color theme - Material Design 3 inspired
 #[derive(Debug, Clone)]
@@ -63,6 +64,9 @@ pub struct Theme {
     pub rank_top: Color,
     pub rank_high: Color,
     pub rank_normal: Color,
+
+    // Non-colors
+    pub border_type: String, // rounded, thick, double or square
 }
 
 impl Theme {
@@ -125,6 +129,8 @@ impl Theme {
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
             rank_high: Color::Rgb(180, 130, 255),   // Purple for top 5
             rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
+
+            border_type: "square".to_string(),
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -186,6 +192,8 @@ impl Theme {
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
+
+            border_type: "thick".to_string(),
         }
     }
 
@@ -298,6 +306,16 @@ impl Theme {
         } else {
             Style::default().fg(self.border)
         }
+    }
+
+    pub fn border_type(&self) -> BorderType {
+        if self.border_type == "rounded" { BorderType::Rounded }
+        else if self.border_type == "thick" { BorderType::Thick }
+        else if self.border_type == "square" { BorderType::Plain }
+        else if self.border_type == "double" { BorderType::Double }
+        else { BorderType::Plain }//fallback
+
+        
     }
 
     pub fn subtle_border_style(&self) -> Style {

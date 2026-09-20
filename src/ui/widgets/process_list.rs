@@ -245,6 +245,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
             .title(title)
             .borders(Borders::ALL)
             .border_style(self.theme.border_style(self.focused))
+            .border_type(self.theme.border_type())
             .style(Style::default().bg(self.theme.bg));
 
         // Create list widget
