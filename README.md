@@ -1,8 +1,6 @@
-# TODO fix characters not merging in the right part (maybe assert_eq)
-https://docs.rs/ratatui/latest/ratatui/symbols/merge/enum.MergeStrategy.html#synthetic-implementations
-also does not work with fuzzy
-maybe did something wrong in https://ratatui.rs/recipes/layout/collapse-borders/, probably .merge_borders is wrong.
 # TODO add a way to change the border type
+
+Also add a new screenshot with light mode and another font if collapsing borders is working
 
 
 
