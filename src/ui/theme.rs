@@ -3,6 +3,7 @@
 #![allow(dead_code)]
 
 use ratatui::style::{Color, Modifier, Style};
+use ratatui::symbols::Marker;
 
 /// Modern color theme - Material Design 3 inspired
 #[derive(Debug, Clone)]
@@ -54,9 +55,9 @@ pub struct Theme {
 
     // Graph colors
     pub graph_line: Color,
-    pub graph_fill: Color,
-    pub graph_axis: Color,
-    pub graph_grid: Color,
+    //pub graph_bg: Color, // not implemented in the library, thus unused https://docs.rs/ratatui/latest/ratatui/widgets/struct.Dataset.html#method.style
+    pub graph_border: Color,
+    pub graph_marker: Marker,
 
     // Process list specific
     pub row_alt_bg: Color,
@@ -115,11 +116,10 @@ impl Theme {
             header_fg: Color::Rgb(230, 230, 240),
 
             // Graph
-            graph_line: Color::Rgb(180, 130, 255),
-            graph_fill: Color::Rgb(80, 60, 120),
-            graph_axis: Color::Rgb(80, 80, 100),
-            graph_grid: Color::Rgb(40, 40, 55),
-
+            graph_line: Color::Rgb(0, 0, 255),
+            //graph_bg: Color::Rgb(255,0,0),
+            graph_border: Color::Rgb(255,255,255),//not actually border
+            graph_marker: Marker::Braille,
             // Process list
             row_alt_bg: Color::Rgb(22, 22, 30),
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
@@ -177,9 +177,9 @@ impl Theme {
 
             // Graph - Green from progress bar, dark from gruvbox
             graph_line: Color::Rgb(100, 230, 140),
-            graph_fill: Color::Rgb(0x3c, 0x38, 0x36),
-            graph_axis: Color::Rgb(0x3c, 0x38, 0x36),
-            graph_grid: Color::Rgb(0x3c, 0x38, 0x36),
+            //graph_bg: Color::Rgb(0x3c, 0x38, 0x36), 
+            graph_border: Color::Rgb(255,255,255),//not actually border
+            graph_marker: Marker::Braille,
 
             // Process list
             row_alt_bg: Color::Rgb(0xf2, 0xe5, 0xbc),
