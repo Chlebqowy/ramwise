@@ -172,7 +172,7 @@ impl<'a> Widget for GraphWidget<'a> {
         let chart = Chart::new(datasets)
             .block(
                 Block::default()
-                    .merge_borders(MergeStrategy::Exact)
+                    .merge_borders(MergeStrategy::Fuzzy)
                     .title(title_line)
                     .borders(Borders::ALL)
                     .border_style(self.theme.border_style(self.focused))
@@ -208,7 +208,7 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
     ]);
 
     let block = Block::default()
-        .merge_borders(MergeStrategy::Exact)
+        .merge_borders(MergeStrategy::Fuzzy)
         .title(title)
         .borders(Borders::ALL)
         .border_type(theme.border_type(focused))

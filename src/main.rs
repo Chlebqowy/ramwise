@@ -167,7 +167,7 @@ async fn run_app(
                     );
                 } else {
                     let block = Block::default()
-                        .merge_borders(MergeStrategy::Exact)
+                        .merge_borders(MergeStrategy::Fuzzy)
                         .title(" PROCESSES ")
                         .borders(Borders::ALL)
                         .border_type(app.theme.border_type(false))
@@ -214,7 +214,7 @@ async fn run_app(
                     );
                 } else {
                     let block = Block::default()
-                        .merge_borders(MergeStrategy::Exact)
+                        .merge_borders(MergeStrategy::Fuzzy)
                         .title(" PROCESSES ")
                         .borders(Borders::ALL)
                         .border_type(app.theme.border_type(true))
