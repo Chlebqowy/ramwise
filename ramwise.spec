@@ -17,6 +17,7 @@
 
 
 Name:           ramwise
+# CHANGE THIS WHEN BUILDING A NEW VERSION
 Version:        0.1.0
 Release:        1%{?dist}
 Summary:        a modern memory visualiser tui
