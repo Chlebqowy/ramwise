@@ -2,7 +2,7 @@
 
 # ramwise
 
-> Your memory's wise advisor - Intelligent RAM usage visualizer for Arch Linux
+> Your memory's wise advisor - Intelligent RAM usage visualizer for Linux
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)
@@ -32,6 +32,20 @@ explicit in the exported capability map.
 
 ## Installation
 
+### From a binary
+
+**Arch**
+
+The package is available on the aur.
+
+**Opensuse**
+
+Download the .rpm from Releases and run `sudo zypper in filename.rpm`
+
+**Fedora**
+
+Download the .rpm from Releases and run `sudo dnf install filename.rpm` (untested)
+
 ### From Source
 
 ```bash
@@ -40,10 +54,11 @@ git clone https://github.com/Duckaet/ramwise
 cd ramwise
 
 # Build release binary
-cargo build --release
+make
 
 # Install (optional)
-sudo cp target/release/ramwise /usr/local/bin/
+sudo make install
+make clean
 ```
 
 ## Usage
