@@ -1,6 +1,3 @@
-# THIS RPM BUILD IS KINDA BROKEN
-NewRPMBuild works correctly though
-
 # ramwise
 
 > Your memory's wise advisor - Intelligent RAM usage visualizer for Linux
