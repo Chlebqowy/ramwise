@@ -30,13 +30,13 @@ impl Layout {
         Self {
             header_height: 1,
             center_height: 10,
-            bottom_height: 4,
-            left_width_percent: 40,
-            side_vertical_split_percent: 60,
+            bottom_height: 5,
+            left_width_percent: 30,
+            side_vertical_split_percent: 50,
 
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
-            put_insights_on_top: false,
+            put_insights_on_top: true,
 
             collapse_borders: true,
         }
