@@ -154,8 +154,14 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Rank indicator for top processes
                 let rank_indicator = match idx {
-                    0 => Span::styled("● ", Style::default().fg(self.theme.rank_top)),
-                    1..=2 => Span::styled("○ ", Style::default().fg(self.theme.rank_high)),
+                    0 => Span::styled(
+                        self.theme.rank_top_symbol.clone(),
+                        Style::default().fg(self.theme.rank_top),
+                    ),
+                    1..=2 => Span::styled(
+                        self.theme.rank_high_symbol.clone(),
+                        Style::default().fg(self.theme.rank_high),
+                    ),
                     _ => Span::styled("  ", Style::default()),
                 };
 
@@ -191,7 +197,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 };
 
                 // Sleek usage bar with gradient
-                let bar = create_sleek_bar(mem_percent, bar_width);
+                let bar = Theme::create_sleek_bar(&self.theme, mem_percent, bar_width);
                 let bar_style = if is_selected {
                     Style::default().fg(self.theme.selection_fg)
                 } else {
@@ -253,27 +259,4 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
         StatefulWidget::render(list, area, buf, &mut state.list_state);
     }
-}
-
-/// Create a sleek usage bar with partial blocks
-fn create_sleek_bar(percent: f64, width: usize) -> String {
-    if width == 0 {
-        return String::new();
-    }
-
-    let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-    let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-    let full_blocks = total_eighths / 8;
-    let partial = total_eighths % 8;
-
-    let mut bar = "█".repeat(full_blocks.min(width));
-
-    if partial > 0 && bar.chars().count() < width {
-        bar.push(chars[partial]);
-    }
-
-    let remaining = width.saturating_sub(bar.chars().count());
-    bar.push_str(&"░".repeat(remaining));
-
-    bar
 }

@@ -279,7 +279,7 @@ fn create_memory_row<'a>(
         0.0
     };
 
-    let bar = create_mini_bar(percent.min(100.0), bar_width);
+    let bar = Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width);
     let color = if is_primary {
         theme.primary
     } else {
@@ -316,25 +316,6 @@ fn create_two_col<'a>(left: (&'a str, u64), right: (&'a str, u64), theme: &'a Th
             Style::default().fg(theme.fg_dim),
         ),
     ])
-}
-
-/// Create a mini progress bar
-fn create_mini_bar(percent: f64, width: usize) -> String {
-    let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-    let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-    let full_blocks = total_eighths / 8;
-    let partial = total_eighths % 8;
-
-    let mut bar = "█".repeat(full_blocks.min(width));
-
-    if partial > 0 && bar.chars().count() < width {
-        bar.push(chars[partial]);
-    }
-
-    let remaining = width.saturating_sub(bar.chars().count());
-    bar.push_str(&"░".repeat(remaining));
-
-    bar
 }
 
 /// State chip with icon
