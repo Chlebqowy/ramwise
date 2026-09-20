@@ -194,6 +194,9 @@ jobs:
           commit_message: "Update to ${{ env.RELEASE_VERSION }}"
           updpkgsums: true
   
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Update to ${{ env.RELEASE_VERSION }}"
+          updpkgsums: true
 
             
         
