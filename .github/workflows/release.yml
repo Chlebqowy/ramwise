@@ -87,7 +87,7 @@ jobs:
           sudo apt-get install -y rpm      
       - name: Build RPM package
         id: rpm_build
-        uses: naveenrajm7/rpmbuild@master
+        uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
         with:
           spec_file: "ramwise.spec"
 
