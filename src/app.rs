@@ -17,26 +17,26 @@ pub enum Focus {
     #[default]
     ProcessList,
     DetailPanel,
-    GraphPanel,
     InsightsPanel,
+    GraphPanel,
 }
 
 impl Focus {
     pub fn next(&self) -> Self {
         match self {
             Focus::ProcessList => Focus::DetailPanel,
-            Focus::DetailPanel => Focus::GraphPanel,
-            Focus::GraphPanel => Focus::InsightsPanel,
-            Focus::InsightsPanel => Focus::ProcessList,
+            Focus::DetailPanel => Focus::InsightsPanel,
+            Focus::InsightsPanel => Focus::GraphPanel,
+            Focus::GraphPanel => Focus::ProcessList,
         }
     }
 
     pub fn prev(&self) -> Self {
         match self {
-            Focus::ProcessList => Focus::InsightsPanel,
+            Focus::ProcessList => Focus::GraphPanel,
             Focus::DetailPanel => Focus::ProcessList,
-            Focus::GraphPanel => Focus::DetailPanel,
-            Focus::InsightsPanel => Focus::GraphPanel,
+            Focus::GraphPanel => Focus::InsightsPanel,
+            Focus::InsightsPanel => Focus::DetailPanel,
         }
     }
 }
@@ -88,14 +88,16 @@ pub struct App {
 impl App {
     /// Create a new application
     pub fn new(theme_name: &str) -> Self {
-        let theme = match theme_name.trim().to_lowercase().as_str() {
-            "light" => Theme::light(),
-            "dark" => Theme::dark(),
-            other => {
-                tracing::warn!("Invalid theme: {other}. Using dark as fallback.");
-                Theme::dark()
-            }
-        };
+        let mut theme = Theme::dark();
+        if theme_name == "light" {
+            theme = Theme::light();
+        } else if theme_name == "dark" {
+            theme = Theme::dark();
+        } else if theme_name == "green" {
+            theme = Theme::green();
+        } else {
+            eprintln!("Invalid theme: {theme_name}. Did you add it to app.rs? Using dark as fallback.");
+        }
         Self {
             should_quit: false,
             focus: Focus::ProcessList,

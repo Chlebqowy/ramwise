@@ -11,6 +11,9 @@ mod process_control;
 mod ui;
 mod utils;
 
+#[cfg(test)]
+mod test_support;
+
 use std::io::{self, stdout};
 use std::time::Duration;
 
@@ -61,7 +64,7 @@ struct Args {
     debug: bool,
 
     /// Theme (by default light or dark)
-    #[arg(short, long, default_value = "dark")]
+    #[arg(short, long, default_value = "green")]
     theme: String,
 }
 

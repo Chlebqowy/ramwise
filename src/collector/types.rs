@@ -61,7 +61,7 @@ impl SystemMemory {
 }
 
 /// Memory region types from /proc/[pid]/maps
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MemoryRegion {
     Heap,
     Stack,
@@ -234,6 +234,11 @@ pub struct MemorySnapshot {
 }
 
 impl MemorySnapshot {
+    /// Create a portable export without serializing the runtime-only `Instant`.
+    pub fn to_export(&self) -> super::export::ExportSnapshot {
+        super::export::ExportSnapshot::from_runtime(self)
+    }
+
     /// Create a new empty snapshot
     pub fn new() -> Self {
         Self {
@@ -270,5 +275,40 @@ impl MemorySnapshot {
 impl Default for MemorySnapshot {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_support;
+
+    #[test]
+    fn process_helpers_cover_display_and_memory_semantics() {
+        let mut process = test_support::process(100 * 1024 * 1024);
+        assert_eq!(process.insight_name(), "fixture-worker");
+        assert_eq!(process.display_name(8), "fixtu...");
+        assert_eq!(process.fragmentation_ratio(), 2.0);
+        assert!(!process.is_kernel_thread());
+
+        process.cmdline.clear();
+        assert_eq!(process.insight_name(), "fixture-worker");
+        process.rss = 0;
+        process.vss = 0;
+        assert!(process.is_kernel_thread());
+    }
+
+    #[test]
+    fn snapshot_queries_are_sorted_and_non_mutating() {
+        let mut snapshot = test_support::snapshot_at(Instant::now(), 100);
+        snapshot.processes.push(ProcessMemory {
+            pid: 7,
+            rss: 20,
+            ..Default::default()
+        });
+        assert_eq!(snapshot.top_by_rss(1)[0].pid, test_support::FIXTURE_PID);
+        assert_eq!(snapshot.find_process(7).unwrap().rss, 20);
+        assert_eq!(snapshot.total_process_rss(), 120);
+        assert_eq!(snapshot.total_process_pss(), 75);
     }
 }

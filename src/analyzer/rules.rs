@@ -377,3 +377,54 @@ fn format_bytes(bytes: u64) -> String {
         format!("{}B", bytes)
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use crate::test_support;
+
+    #[test]
+    fn memory_hog_and_swap_rules_use_fixture_units() {
+        let mut snapshot =
+            test_support::snapshot_at(std::time::Instant::now(), 6 * 1024 * 1024 * 1024);
+        snapshot.system.total = 16 * 1024 * 1024 * 1024;
+        snapshot.system.swap_total = 4 * 1024 * 1024 * 1024;
+        snapshot.system.swap_used = 2 * 1024 * 1024 * 1024;
+        let history = HistoryBuffer::new(4, Duration::from_secs(60));
+
+        let hog = MemoryHogDetector::default()
+            .evaluate(&snapshot, &history)
+            .unwrap();
+        assert_eq!(hog.pid, Some(test_support::FIXTURE_PID));
+        assert_eq!(hog.severity, Severity::Warning);
+        assert_eq!(
+            SwapPressureDetector::default()
+                .evaluate(&snapshot, &history)
+                .unwrap()
+                .id,
+            "swap_pressure"
+        );
+    }
+
+    #[test]
+    fn oom_rule_requires_both_available_memory_and_swap_pressure() {
+        let mut snapshot = test_support::snapshot_at(std::time::Instant::now(), 1);
+        snapshot.system.total = 100;
+        snapshot.system.available = 4;
+        snapshot.system.swap_total = 100;
+        snapshot.system.swap_used = 90;
+        let history = HistoryBuffer::new(1, Duration::from_secs(1));
+        let insight = OomRiskDetector::default()
+            .evaluate(&snapshot, &history)
+            .unwrap();
+        assert_eq!(insight.severity, Severity::Critical);
+
+        snapshot.system.swap_used = 10;
+        assert!(
+            OomRiskDetector::default()
+                .evaluate(&snapshot, &history)
+                .is_none()
+        );
+    }
+}

@@ -145,3 +145,34 @@ impl Default for Analyzer {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_support;
+
+    #[test]
+    fn analyzer_lifecycle_keeps_process_insights_manageable() {
+        let snapshot = test_support::snapshot_at(Instant::now(), 6 * 1024 * 1024 * 1024);
+        let history = HistoryBuffer::new(4, Duration::from_secs(60));
+        let mut analyzer = Analyzer::new();
+        analyzer.analyze(&snapshot, &history);
+
+        let insights = analyzer.insights();
+        assert!(!insights.is_empty());
+        assert!(
+            analyzer
+                .insights_for_process(test_support::FIXTURE_PID)
+                .iter()
+                .any(|insight| insight.id.starts_with("hog_"))
+        );
+
+        let id = insights[0].id.clone();
+        analyzer.acknowledge(&id);
+        assert_eq!(analyzer.unacknowledged_counts(), (0, 0, 0));
+        analyzer.dismiss(&id);
+        assert!(analyzer.insights().iter().all(|insight| insight.id != id));
+        analyzer.clear();
+        assert!(analyzer.insights().is_empty());
+    }
+}

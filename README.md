@@ -1,6 +1,6 @@
 # ramwise
 
-> Your memory's wise advisor - Intelligent RAM usage visualizer for Arch Linux
+> Your memory's wise advisor - Intelligent RAM usage visualizer for Linux
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)
@@ -16,12 +16,33 @@
 - **Real-time Updates** - Live monitoring with configurable refresh rate
 - **Process Control** - Stop (`SIGTERM`) or kill (`SIGKILL`) selected processes directly from the TUI
 
+### Snapshot exports
+
+The collector exposes a versioned `ExportSnapshot` contract for integrations and
+future export formats. It uses wall-clock Unix milliseconds, explicit byte/count
+units, collector metadata, and capability markers. Runtime-only monotonic
+`Instant` values are intentionally not serialized; unavailable features remain
+explicit in the exported capability map.
+
 ## Screenshots
 
-![Screenshot](screenshot.png)
-![Screenshot2](screenshot_2.png)
+![Screenshot](Screenshot.png)
 
 ## Installation
+
+### From a binary
+
+**Arch**
+
+The package is available on the aur.
+
+**Opensuse**
+
+Download the .rpm from Releases and run `sudo zypper in filename.rpm`
+
+**Fedora**
+
+Download the .rpm from Releases and run `sudo dnf install filename.rpm` (untested)
 
 ### From Source
 
