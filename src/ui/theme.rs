@@ -57,6 +57,9 @@ pub struct Theme {
     pub rank_top_symbol: String,
     pub rank_high_symbol: String,
 
+    pub bar_partial_chars: Vec<char>,
+    pub bar_full_char: String,
+    pub bar_empty_char: String,
     pub border_subtle: Color,
 }
 
@@ -112,6 +115,10 @@ impl Theme {
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
 
+            bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
+            bar_full_char: "█".to_string(),
+            bar_empty_char: "░".to_string(),
+
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
         }
     }
@@ -166,6 +173,10 @@ impl Theme {
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
             
+            bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
+            bar_full_char: "█".to_string(),
+            bar_empty_char: "░".to_string(),
+
             border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
         }
     }
@@ -299,20 +310,19 @@ impl Theme {
         Style::default().fg(color)
     }
         /// Create a sleek progress bar with partial block characters
-    pub fn create_sleek_bar(percent: f64, width: usize) -> String {
-        let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-        let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-        let full_blocks = total_eighths / 8;
-        let partial = total_eighths % 8;
+    pub fn create_sleek_bar(&self, percent: f64, width: usize) -> String {
+        let total_eighths = ((percent / 100.0) * (width * self.bar_partial_chars.len()) as f64).round() as usize;
+        let full_blocks = total_eighths / self.bar_partial_chars.len();
+        let partial = total_eighths % self.bar_partial_chars.len();
 
-        let mut bar = "█".repeat(full_blocks);
+        let mut bar = self.bar_full_char.repeat(full_blocks);
 
         if partial > 0 && full_blocks < width {
-            bar.push(chars[partial]);
+            bar.push(self.bar_partial_chars[partial]);
         }
 
         let remaining = width.saturating_sub(bar.chars().count());
-        bar.push_str(&"░".repeat(remaining));
+        bar.push_str(&self.bar_empty_char.repeat(remaining));
 
         bar
     }

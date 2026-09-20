@@ -191,7 +191,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 };
 
                 // Sleek usage bar with gradient
-                let bar = Theme::create_sleek_bar(mem_percent, bar_width);
+                let bar = Theme::create_sleek_bar(&self.theme, mem_percent, bar_width);
                 let bar_style = if is_selected {
                     Style::default().fg(self.theme.selection_fg)
                 } else {

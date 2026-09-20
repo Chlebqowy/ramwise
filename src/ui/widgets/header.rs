@@ -48,7 +48,7 @@ impl<'a> Widget for HeaderWidget<'a> {
         // RAM usage with smooth gradient bar
         let ram_percent = sys.usage_percent();
         let ram_color = self.theme.mem_color_interpolated(ram_percent);
-        let ram_bar = Theme::create_sleek_bar(ram_percent, 12);
+        let ram_bar = Theme::create_sleek_bar(&self.theme, ram_percent, 12);
 
         let ram = vec![
             Span::styled("RAM ", Style::default().fg(self.theme.fg_dim)),

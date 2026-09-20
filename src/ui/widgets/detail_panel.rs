@@ -279,7 +279,7 @@ fn create_memory_row<'a>(
         0.0
     };
 
-    let bar = Theme::create_sleek_bar(percent.min(100.0), bar_width);
+    let bar = Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width);
     let color = if is_primary {
         theme.primary
     } else {
