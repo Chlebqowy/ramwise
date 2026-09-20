@@ -1,6 +1,6 @@
 # ramwise
 
-> Your memory's wise advisor - Intelligent RAM usage visualizer for Arch Linux
+> Your memory's wise advisor - Intelligent RAM usage visualizer for Linux
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)
