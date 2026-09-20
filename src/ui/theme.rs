@@ -124,16 +124,16 @@ impl Theme {
             primary_dim: Color::Rgb(0x68, 0x9d, 0x6a),
 
             // Secondary - GruvBox Dark's blue
-            secondary: Color::Rgb(0x45, 0x85, 0x88),
+            secondary: Color::Rgb(0x42, 0x7b, 0x58),
 
-            // Tertiary - Teal, not from Gruvbox
-            tertiary: Color::Rgb(0x10, 0xc9, 0xa7),
+            // Tertiary - Red
+            tertiary: Color::Rgb(0xcc, 0x24, 0x1d),
 
             // Semantic - All gruvbox light colors. 
             error: Color::Rgb(0xcc, 0x24, 0x1d),
             warning: Color::Rgb(0xd7, 0x99, 0x21),
             success: Color::Rgb(0x98, 0x97, 0x1a),
-            info: Color::Rgb(0xbd, 0xae, 0x93),
+            info: Color::Rgb(0x83, 0xa5, 0x98),
 
             // Memory gradient - Smooth color progression
             mem_excellent: Color::Rgb(100, 230, 140), // Fresh green - not gruvbox, their green is too lime
@@ -142,17 +142,17 @@ impl Theme {
             mem_high: Color::Rgb(0xfe, 0x80, 0x19),   // Light orange
             mem_critical: Color::Rgb(0xaf, 0x3a, 0x03), // Dark orange
 
-            // UI elements - GruvBox purple and fg/bg, taken from both themes.
+            // UI elements - GruvBox aqua and fg/bg, taken from light
             border: Color::Rgb(0x7c, 0x6f, 0x64),
-            border_focused: Color::Rgb(0xb1, 0x62, 0x86),
-            selection_bg: Color::Rgb(0xb1, 0x62, 0x86),
-            selection_fg: Color::Rgb(0x28, 0x28, 0x28),
+            border_focused: Color::Rgb(0x68, 0x9d, 0x6a),
+            selection_bg: Color::Rgb(0x42, 0x7b, 0x58),
+            selection_fg: Color::Rgb(0xfb, 0xf1, 0xc7),
             header_bg: Color::Rgb(0xeb, 0xdb, 0xb2),
 
-            // Graph - Green from progress bar, dark from gruvbox
-            graph_line: Color::Rgb(100, 230, 140),
+            // Graph - Grubvox dark aqua
+            graph_line: Color::Rgb(0x8e, 0xc0, 0x7c),
             //graph_bg: Color::Rgb(0x3c, 0x38, 0x36), 
-            graph_border: Color::Rgb(255,255,255),//not actually border
+            graph_border: Color::Rgb(0x3c, 0x38, 0x36),//not actually border
             graph_marker: Marker::Braille,
 
             // Process list
