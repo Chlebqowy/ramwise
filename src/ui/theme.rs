@@ -110,8 +110,8 @@ impl Theme {
             graph_marker: Marker::Braille,
             // Process list
             //row_alt_bg: Color::Rgb(22, 22, 30),
-            rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
-            rank_high: Color::Rgb(180, 130, 255),   // Purple for top 3
+            rank_top: Color::Rgb(255, 190, 70),   // Gold for #1
+            rank_high: Color::Rgb(180, 130, 255), // Purple for top 3
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
 
@@ -141,7 +141,7 @@ impl Theme {
             // Tertiary - Red
             tertiary: Color::Rgb(0xcc, 0x24, 0x1d),
 
-            // Semantic - All gruvbox light colors. 
+            // Semantic - All gruvbox light colors.
             error: Color::Rgb(0xcc, 0x24, 0x1d),
             warning: Color::Rgb(0xd7, 0x99, 0x21),
             success: Color::Rgb(0x98, 0x97, 0x1a),
@@ -163,8 +163,8 @@ impl Theme {
 
             // Graph - Grubvox dark aqua
             graph_line: Color::Rgb(0x8e, 0xc0, 0x7c),
-            //graph_bg: Color::Rgb(0x3c, 0x38, 0x36), 
-            graph_border: Color::Rgb(0x3c, 0x38, 0x36),//not actually border
+            //graph_bg: Color::Rgb(0x3c, 0x38, 0x36),
+            graph_border: Color::Rgb(0x3c, 0x38, 0x36), //not actually border
             graph_marker: Marker::Braille,
 
             // Process list
@@ -172,7 +172,7 @@ impl Theme {
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
-            
+
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "░".to_string(),
@@ -311,7 +311,7 @@ impl Theme {
     }
     /// Create a sleek progress bar with partial block characters
     pub fn create_sleek_bar(&self, percent: f64, width: usize) -> String {
-        let total_eighths = 
+        let total_eighths =
             ((percent / 100.0) * (width * self.bar_partial_chars.len()) as f64).round() as usize;
         let full_blocks = total_eighths / self.bar_partial_chars.len();
         let partial = total_eighths % self.bar_partial_chars.len();
