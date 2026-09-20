@@ -2,6 +2,7 @@
 
 #![allow(dead_code)]
 
+use clap::builder::ValueRange;
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
 
@@ -109,7 +110,7 @@ impl Theme {
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
             rank_high: Color::Rgb(180, 130, 255),   // Purple for top 3
             rank_top_symbol: "● ".to_string(),
-            rank_high_symbol: "○ ".to_string(),
+            rank_high_symbol: "⊗ ".to_string(),
 
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
         }
@@ -163,7 +164,7 @@ impl Theme {
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_top_symbol: "● ".to_string(),
-            rank_high_symbol: "○ ".to_string(),
+            rank_high_symbol: "⊗ ".to_string(),
             
             border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
         }
@@ -293,7 +294,7 @@ impl Theme {
         let color = match rank {
             0 => self.rank_top,
             1..=2 => self.rank_high,
-            _ => Color::Rgb(255, 0, 0) //shouldn't occur under normal use, set to full red as warning
+            _ => Color::Rgb(255, 0, 0) //should be empty under normal conditions, set to red
         };
         Style::default().fg(color)
     }
