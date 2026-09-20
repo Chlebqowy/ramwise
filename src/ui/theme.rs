@@ -30,11 +30,8 @@ pub struct Theme {
 
     // Semantic colors
     pub error: Color,
-    pub error_container: Color,
     pub warning: Color,
-    pub warning_container: Color,
     pub success: Color,
-    pub success_container: Color,
     pub info: Color,
 
     // Memory usage gradient (smooth transitions)
@@ -88,11 +85,8 @@ impl Theme {
 
             // Semantic
             error: Color::Rgb(255, 100, 100),
-            error_container: Color::Rgb(80, 30, 30),
             warning: Color::Rgb(255, 190, 70),
-            warning_container: Color::Rgb(80, 60, 20),
             success: Color::Rgb(100, 230, 140),
-            success_container: Color::Rgb(30, 70, 40),
             info: Color::Rgb(100, 180, 255),
 
             // Memory gradient - Smooth color progression
@@ -143,13 +137,10 @@ impl Theme {
             // Tertiary - Teal, not from Gruvbox
             tertiary: Color::Rgb(0x10, 0xc9, 0xa7),
 
-            // Semantic - All gruvbox light colors. Main is light, container is dark.
+            // Semantic - All gruvbox light colors. 
             error: Color::Rgb(0xcc, 0x24, 0x1d),
-            error_container: Color::Rgb(0x9d, 0x24, 0x1d),
             warning: Color::Rgb(0xd7, 0x99, 0x21),
-            warning_container: Color::Rgb(0xb5, 0x76, 0x21),
             success: Color::Rgb(0x98, 0x97, 0x1a),
-            success_container: Color::Rgb(0x79, 0x74, 0x0e),
             info: Color::Rgb(0xbd, 0xae, 0x93),
 
             // Memory gradient - Smooth color progression
