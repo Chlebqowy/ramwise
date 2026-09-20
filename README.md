@@ -26,7 +26,7 @@ explicit in the exported capability map.
 
 ## Screenshots
 
-![Screenshot](screenshot.png)
+![Screenshot](public/screenshot.png)
 
 ## Installation
 
