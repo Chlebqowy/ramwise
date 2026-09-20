@@ -57,6 +57,8 @@ pub struct Theme {
     // Process list specific
     pub rank_top: Color,
     pub rank_high: Color,
+
+    pub border_subtle: Color,
 }
 
 impl Theme {
@@ -112,6 +114,8 @@ impl Theme {
             //row_alt_bg: Color::Rgb(22, 22, 30),
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
             rank_high: Color::Rgb(180, 130, 255),   // Purple for top 3
+
+            border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -166,6 +170,8 @@ impl Theme {
             // Process list
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
+            
+            border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
         }
     }
 
@@ -342,7 +348,7 @@ impl Theme {
         if remaining > 0 {
             result.push((
                 " ".repeat(remaining),
-                Style::default().fg(self.fg_muted),
+                Style::default().fg(self.border_subtle),
             ));
         }
 
