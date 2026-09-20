@@ -96,8 +96,8 @@ impl Layout {
             header,
             left_panel,
             detail_panel,
-            graph_panel,
             bottom,
+            graph_panel,
         }
     }
 }
