@@ -298,6 +298,24 @@ impl Theme {
         };
         Style::default().fg(color)
     }
+        /// Create a sleek progress bar with partial block characters
+    pub fn create_sleek_bar(percent: f64, width: usize) -> String {
+        let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
+        let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
+        let full_blocks = total_eighths / 8;
+        let partial = total_eighths % 8;
+
+        let mut bar = "█".repeat(full_blocks);
+
+        if partial > 0 && full_blocks < width {
+            bar.push(chars[partial]);
+        }
+
+        let remaining = width.saturating_sub(bar.chars().count());
+        bar.push_str(&"░".repeat(remaining));
+
+        bar
+    }
 }
 /// Linear interpolation between two RGB colors
 fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {

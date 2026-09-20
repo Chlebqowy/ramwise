@@ -48,7 +48,7 @@ impl<'a> Widget for HeaderWidget<'a> {
         // RAM usage with smooth gradient bar
         let ram_percent = sys.usage_percent();
         let ram_color = self.theme.mem_color_interpolated(ram_percent);
-        let ram_bar = create_sleek_bar(ram_percent, 12);
+        let ram_bar = Theme::create_sleek_bar(ram_percent, 12);
 
         let ram = vec![
             Span::styled("RAM ", Style::default().fg(self.theme.fg_dim)),
@@ -140,23 +140,4 @@ impl<'a> Widget for HeaderWidget<'a> {
 
         paragraph.render(area, buf);
     }
-}
-
-/// Create a sleek progress bar with partial block characters
-fn create_sleek_bar(percent: f64, width: usize) -> String {
-    let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-    let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-    let full_blocks = total_eighths / 8;
-    let partial = total_eighths % 8;
-
-    let mut bar = "█".repeat(full_blocks);
-
-    if partial > 0 && full_blocks < width {
-        bar.push(chars[partial]);
-    }
-
-    let remaining = width.saturating_sub(bar.chars().count());
-    bar.push_str(&"░".repeat(remaining));
-
-    bar
 }
