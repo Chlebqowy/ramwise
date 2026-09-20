@@ -51,7 +51,6 @@ pub struct Theme {
     pub selection_bg: Color,
     pub selection_fg: Color,
     pub header_bg: Color,
-    pub header_fg: Color,
 
     // Graph colors
     pub graph_line: Color,
@@ -110,8 +109,7 @@ impl Theme {
             border_subtle: Color::Rgb(40, 40, 52),
             selection_bg: Color::Rgb(60, 40, 90),
             selection_fg: Color::Rgb(255, 255, 255),
-            header_bg: Color::Rgb(28, 28, 36),
-            header_fg: Color::Rgb(230, 230, 240),
+            header_bg: Color::Rgb(255, 0, 0),
 
             // Graph
             graph_line: Color::Rgb(0, 0, 255),
@@ -170,7 +168,6 @@ impl Theme {
             selection_bg: Color::Rgb(0xb1, 0x62, 0x86),
             selection_fg: Color::Rgb(0x28, 0x28, 0x28),
             header_bg: Color::Rgb(0xeb, 0xdb, 0xb2),
-            header_fg: Color::Rgb(0x3c, 0x38, 0x36),
 
             // Graph - Green from progress bar, dark from gruvbox
             graph_line: Color::Rgb(100, 230, 140),
@@ -261,7 +258,7 @@ impl Theme {
 
     pub fn header_style(&self) -> Style {
         Style::default()
-            .fg(self.header_fg)
+            .fg(self.primary)
             .bg(self.header_bg)
             .add_modifier(Modifier::BOLD)
     }
@@ -320,6 +317,7 @@ impl Theme {
         let color = match rank {
             0 => self.rank_top,
             1..=2 => self.rank_high,
+            _ => Color::Rgb(255, 0, 0) //shouldn't occur under normal use, set to full red as warning
         };
         Style::default().fg(color)
     }
