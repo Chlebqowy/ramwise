@@ -81,6 +81,16 @@ jobs:
           path: |
             dist/*.tar.gz
             dist/*.sha256
+      - name: build RPM package
+        id: rpm_build
+        uses: naveenrajm7/rpmbuild@master
+        with:
+              spec_file: "ramwise.spec"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: Binary RPM
+          path: ${{ steps.rpm.outputs.rpm_dir_path }}
 
   publish-release:
     name: Create GitHub Release
@@ -163,3 +173,8 @@ jobs:
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           commit_message: "Update to ${{ env.RELEASE_VERSION }}"
           updpkgsums: true
+  
+
+            
+        
+        
