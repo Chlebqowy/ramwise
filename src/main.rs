@@ -31,7 +31,6 @@ use ratatui::{
     style::Style,
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
-    symbols::merge::MergeStrategy,
 };
 use tokio::sync::mpsc;
 
@@ -139,7 +138,7 @@ async fn run_app(
         terminal.draw(|frame| {
             let areas = layout.calculate(frame.area());
 
-            // Header (not subject to merged borders)
+            // Header
             if let Some(snapshot) = &app.snapshot {
                 let header = HeaderWidget::new(&snapshot.system, &app.theme);
                 frame.render_widget(header, areas.header);
@@ -149,102 +148,41 @@ async fn run_app(
                 frame.render_widget(loading, areas.header);
             }
 
-            // PASS 1 (UNFOCUSED)
-
             // Process list
-            if app.focus != Focus::ProcessList
-            {
-                if let Some(snapshot) = &app.snapshot {
-                    let total_mem = snapshot.system.total;
-                    let focus = app.focus;
-                    let processes = app.processes().to_vec();
-                    let theme = app.theme.clone();
+            if let Some(snapshot) = &app.snapshot {
+                let total_mem = snapshot.system.total;
+                let focus = app.focus;
+                let processes = app.processes().to_vec();
+                let theme = app.theme.clone();
 
-                    let process_list = ProcessListWidget::new(&processes, &theme, total_mem)
-                        .focused(focus == Focus::ProcessList);
+                let process_list = ProcessListWidget::new(&processes, &theme, total_mem)
+                    .focused(focus == Focus::ProcessList);
 
-                    frame.render_stateful_widget(
-                        process_list,
-                        areas.left_panel,
-                        &mut app.process_list_state,
-                    );
-                } else {
-                    let block = Block::default()
-                        .merge_borders(MergeStrategy::Fuzzy)
-                        .title(" PROCESSES ")
-                        .borders(Borders::ALL)
-                        .border_type(app.theme.border_type(false))
-                        .border_style(app.theme.border_style(false));
-                    frame.render_widget(block, areas.left_panel);
-                    }
+                frame.render_stateful_widget(
+                    process_list,
+                    areas.left_panel,
+                    &mut app.process_list_state,
+                );
+            } else {
+                let block = Block::default()
+                    .title(" PROCESSES ")
+                    .borders(Borders::ALL)
+                    .border_style(app.theme.border_style(app.focus == Focus::ProcessList));
+                frame.render_widget(block, areas.left_panel);
             }
 
             // Detail panel
-            if app.focus != Focus::DetailPanel
-            {
-                let detail = DetailPanelWidget::new(app.selected_process(), &app.theme)
-                    .focused(false);
-                frame.render_widget(detail, areas.detail_panel);
-            }
+            let detail = DetailPanelWidget::new(app.selected_process(), &app.theme)
+                .focused(app.focus == Focus::DetailPanel);
+            frame.render_widget(detail, areas.detail_panel);
 
             // Graph panel
-            if app.focus != Focus::GraphPanel
-            {
-                let graph = GraphWidget::new(&app.history, &app.theme)
-                    .selected_pid(app.process_list_state.selected_pid)
-                    .focused(false);
-                frame.render_widget(graph, areas.graph_panel);
-            }
+            let graph = GraphWidget::new(&app.history, &app.theme)
+                .selected_pid(app.process_list_state.selected_pid)
+                .focused(app.focus == Focus::GraphPanel);
+            frame.render_widget(graph, areas.graph_panel);
 
-            // PASS 2 (FOCUSED)
-
-            // Process list
-            if app.focus == Focus::ProcessList
-            {
-                if let Some(snapshot) = &app.snapshot {
-                    let total_mem = snapshot.system.total;
-                    let focus = app.focus;
-                    let processes = app.processes().to_vec();
-                    let theme = app.theme.clone();
-
-                    let process_list = ProcessListWidget::new(&processes, &theme, total_mem)
-                        .focused(focus == Focus::ProcessList);
-
-                    frame.render_stateful_widget(
-                        process_list,
-                        areas.left_panel,
-                        &mut app.process_list_state,
-                    );
-                } else {
-                    let block = Block::default()
-                        .merge_borders(MergeStrategy::Fuzzy)
-                        .title(" PROCESSES ")
-                        .borders(Borders::ALL)
-                        .border_type(app.theme.border_type(true))
-                        .border_style(app.theme.border_style(true));
-                    frame.render_widget(block, areas.left_panel);
-                    }
-            }
-
-            // Detail panel
-            if app.focus == Focus::DetailPanel
-            {
-                let detail = DetailPanelWidget::new(app.selected_process(), &app.theme)
-                    .focused(true);
-                frame.render_widget(detail, areas.detail_panel);
-            }
-
-            // Graph panel
-            if app.focus == Focus::GraphPanel
-            {
-                let graph = GraphWidget::new(&app.history, &app.theme)
-                    .selected_pid(app.process_list_state.selected_pid)
-                    .focused(true);
-                frame.render_widget(graph, areas.graph_panel);
-            }
-
-            // OTHERS (NOT SUBJECT TO MERGED BORDERS)
-
+            // Insights panel
             let insights = InsightsPanelWidget::new(app.analyzer.insights(), &app.theme)
                 .focused(app.focus == Focus::InsightsPanel);
             frame.render_widget(insights, areas.bottom);
@@ -331,7 +269,6 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
             Block::default()
                 .title(" Help ")
                 .borders(Borders::ALL)
-                .border_type(theme.border_type(true))
                 .border_style(theme.border_style(true))
                 .style(theme.base_style()),
         )
@@ -366,7 +303,6 @@ fn render_kill_confirm_overlay(frame: &mut ratatui::Frame, app: &App) {
         Block::default()
             .title(" Confirm Kill ")
             .borders(Borders::ALL)
-            .border_type(app.theme.border_type(true))
             .border_style(app.theme.border_style(true))
             .style(app.theme.base_style()),
     );
@@ -403,7 +339,6 @@ fn render_action_status(frame: &mut ratatui::Frame, theme: &ui::Theme, status: &
     let paragraph = Paragraph::new(line).alignment(Alignment::Left).block(
         Block::default()
             .borders(Borders::ALL)
-            .border_type(theme.border_type(true))
             .border_style(Style::default().fg(color))
             .style(theme.base_style()),
     );

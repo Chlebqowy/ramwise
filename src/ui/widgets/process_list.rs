@@ -6,7 +6,6 @@ use ratatui::{
     style::{Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, ListState, StatefulWidget},
-    symbols::merge::MergeStrategy,
 };
 
 use crate::collector::ProcessMemory;
@@ -247,11 +246,9 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
         // Build block with rounded corners feel
         let block = Block::default()
-            .merge_borders(MergeStrategy::Fuzzy)
             .title(title)
             .borders(Borders::ALL)
             .border_style(self.theme.border_style(self.focused))
-            .border_type(self.theme.border_type(self.focused))
             .style(Style::default().bg(self.theme.bg));
 
         // Create list widget

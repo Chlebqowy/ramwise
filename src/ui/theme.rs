@@ -4,7 +4,6 @@
 
 use clap::builder::ValueRange;
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::widgets::{BorderType};
 use ratatui::symbols::Marker;
 
 /// Modern color theme - Material Design 3 inspired
@@ -55,11 +54,6 @@ pub struct Theme {
     // Process list specific
     pub rank_top: Color,
     pub rank_high: Color,
-    pub rank_normal: Color,
-
-    // Non-colors
-    pub border_type: String, // rounded, thick, double or square
-    pub focused_border_type: String,
     pub rank_top_symbol: String,
     pub rank_high_symbol: String,
 
@@ -115,14 +109,6 @@ impl Theme {
             graph_border: Color::Rgb(55, 55, 70), //not actually border
             graph_marker: Marker::Braille,
             // Process list
-            row_alt_bg: Color::Rgb(22, 22, 30),
-            rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
-            rank_high: Color::Rgb(180, 130, 255),   // Purple for top 5
-            rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
-
-            border_type: "square".to_string(),
-            focused_border_type: "square".to_string(),
-            //focused_border_type: "double".to_string(),
             //row_alt_bg: Color::Rgb(22, 22, 30),
             rank_top: Color::Rgb(255, 190, 70),   // Gold for #1
             rank_high: Color::Rgb(180, 130, 255), // Purple for top 3
@@ -184,10 +170,6 @@ impl Theme {
             // Process list
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
-            rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
-
-            border_type: "thick".to_string(),
-            focused_border_type: "thick".to_string()
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
 
@@ -359,30 +341,6 @@ impl Theme {
         } else {
             Style::default().fg(self.border)
         }
-    }
-
-    pub fn border_type(&self, focused: bool) -> BorderType {
-        if !focused 
-        {
-            if self.border_type == "rounded" { BorderType::Rounded }
-            else if self.border_type == "thick" { BorderType::Thick }
-            else if self.border_type == "square" { BorderType::Plain }
-            else if self.border_type == "double" { BorderType::Double }
-            else { BorderType::Plain }//fallback
-        }
-        else
-        {
-            if self.focused_border_type == "rounded" { BorderType::Rounded }
-            else if self.focused_border_type == "thick" { BorderType::Thick }
-            else if self.focused_border_type == "square" { BorderType::Plain }
-            else if self.focused_border_type == "double" { BorderType::Double }
-            else { BorderType::Plain }//fallback
-        }
-        
-    }
-
-    pub fn subtle_border_style(&self) -> Style {
-        Style::default().fg(self.border_subtle)
     }
 
     pub fn critical_style(&self) -> Style {
