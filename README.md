@@ -1,8 +1,6 @@
 # TODO add a way to change the border type
 Also add a new screenshot with light mode and another font
-# TODO fix top not connecting
-# TODO fix extra empty space
-
+# TODO render focused on top
 
 # ramwise
 

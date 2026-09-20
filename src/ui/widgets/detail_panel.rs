@@ -62,6 +62,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         };
 
         let block = Block::default()
+            .merge_borders(MergeStrategy::Exact)
             .title(title)
             .borders(Borders::ALL)
             .border_style(self.theme.border_style(self.focused))

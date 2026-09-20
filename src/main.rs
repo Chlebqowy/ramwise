@@ -28,6 +28,7 @@ use ratatui::{
     style::Style,
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
+    symbols::merge::MergeStrategy,
 };
 use tokio::sync::mpsc;
 
@@ -162,6 +163,7 @@ async fn run_app(
                 );
             } else {
                 let block = Block::default()
+                    .merge_borders(MergeStrategy::Exact)
                     .title(" PROCESSES ")
                     .borders(Borders::ALL)
                     .border_style(app.theme.border_style(app.focus == Focus::ProcessList));

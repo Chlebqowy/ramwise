@@ -73,9 +73,9 @@ impl Layout {
             .direction(Direction::Horizontal)
             .spacing(Spacing::Overlap(overlap))
             .constraints([
-                Constraint::Percentage(self.left_width_percent),
-                Constraint::Percentage(100 - self.left_width_percent),
-            ])
+                Constraint::Fill(self.left_width_percent),
+                Constraint::Fill(100 - self.left_width_percent),
+            ]) // kinda janky but collapsing borders does not work with percentage
             .split(main);
 
         let (left_panel, right_panel) = if self.invert_horizontal_split {
@@ -88,9 +88,9 @@ impl Layout {
         let right_split = RatatuiLayout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Percentage(self.side_vertical_split_percent),
-                Constraint::Percentage(100 - self.side_vertical_split_percent),
-            ])
+                Constraint::Fill(self.left_width_percent),
+                Constraint::Fill(100 - self.left_width_percent),
+            ]) // kinda janky but collapsing borders does not work with percentage
             .spacing(Spacing::Overlap(overlap))
             .split(right_panel);
 
