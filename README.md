@@ -1,7 +1,7 @@
 # TODO add a way to change the border type
-
-Also add a new screenshot with light mode and another font if collapsing borders is working
-
+Also add a new screenshot with light mode and another font
+# TODO fix top not connecting
+# TODO fix extra empty space
 
 
 # ramwise

@@ -71,6 +71,7 @@ impl Layout {
         // Split main into left and right panels
         let horizontal = RatatuiLayout::default()
             .direction(Direction::Horizontal)
+            .spacing(Spacing::Overlap(overlap))
             .constraints([
                 Constraint::Percentage(self.left_width_percent),
                 Constraint::Percentage(100 - self.left_width_percent),
@@ -86,11 +87,11 @@ impl Layout {
         // Split right panel into detail and graph
         let right_split = RatatuiLayout::default()
             .direction(Direction::Vertical)
-            .spacing(Spacing::Overlap(overlap))
             .constraints([
                 Constraint::Percentage(self.side_vertical_split_percent),
                 Constraint::Percentage(100 - self.side_vertical_split_percent),
             ])
+            .spacing(Spacing::Overlap(overlap))
             .split(right_panel);
 
         let (detail_panel, graph_panel) = if self.invert_side_vertical_split {
