@@ -106,7 +106,7 @@ impl Theme {
             // Graph
             graph_line: Color::Rgb(230, 230, 240),
             //graph_bg: Color::Rgb(255,0,0),
-            graph_border: Color::Rgb(55, 55, 70),//not actually border
+            graph_border: Color::Rgb(55, 55, 70), //not actually border
             graph_marker: Marker::Braille,
             // Process list
             //row_alt_bg: Color::Rgb(22, 22, 30),
@@ -305,13 +305,14 @@ impl Theme {
         let color = match rank {
             0 => self.rank_top,
             1..=2 => self.rank_high,
-            _ => Color::Rgb(255, 0, 0) //should be empty under normal conditions, set to red
+            _ => Color::Rgb(255, 0, 0), //should be empty under normal conditions, set to red
         };
         Style::default().fg(color)
     }
-        /// Create a sleek progress bar with partial block characters
+    /// Create a sleek progress bar with partial block characters
     pub fn create_sleek_bar(&self, percent: f64, width: usize) -> String {
-        let total_eighths = ((percent / 100.0) * (width * self.bar_partial_chars.len()) as f64).round() as usize;
+        let total_eighths = 
+            ((percent / 100.0) * (width * self.bar_partial_chars.len()) as f64).round() as usize;
         let full_blocks = total_eighths / self.bar_partial_chars.len();
         let partial = total_eighths % self.bar_partial_chars.len();
 

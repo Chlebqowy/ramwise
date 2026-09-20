@@ -141,8 +141,8 @@ impl<'a> Widget for GraphWidget<'a> {
                 .marker(self.theme.graph_marker)
                 .graph_type(GraphType::Line)
                 .style(Style::default().fg(line_color))
-                .data(&data)
-            ];
+                .data(&data),
+        ];
 
         // Modern time labels
         let x_labels = vec![
