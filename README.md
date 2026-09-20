@@ -1,5 +1,7 @@
 Also add a new screenshot with light mode and another font
 # TODO render focused on top
+render loop is in main.rs
+selected is for processes, so the selected pane is called something else
 
 # ramwise
 
