@@ -298,17 +298,6 @@ impl Theme {
         };
         Style::default().fg(color)
     }
-
-    /// Create a mini progress bar string with gradient coloring
-    pub fn progress_bar(&self, percent: f64, width: usize) -> (String, Style) {
-        let filled = ((percent / 100.0) * width as f64).round() as usize;
-        let empty = width.saturating_sub(filled);
-
-        let bar = format!("{}{}", "█".repeat(filled), "░".repeat(empty));
-
-        let color = self.mem_color_interpolated(percent);
-        (bar, Style::default().fg(color))
-    }
 }
 /// Linear interpolation between two RGB colors
 fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
