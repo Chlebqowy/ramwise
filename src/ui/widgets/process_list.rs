@@ -154,8 +154,8 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Rank indicator for top processes
                 let rank_indicator = match idx {
-                    0 => Span::styled("● ", Style::default().fg(self.theme.rank_top)),
-                    1..=2 => Span::styled("○ ", Style::default().fg(self.theme.rank_high)),
+                    0 => Span::styled(self.theme.rank_top_symbol.clone(), Style::default().fg(self.theme.rank_top)),
+                    1..=2 => Span::styled(self.theme.rank_high_symbol.clone(), Style::default().fg(self.theme.rank_high)),
                     _ => Span::styled("  ", Style::default()),
                 };
 
