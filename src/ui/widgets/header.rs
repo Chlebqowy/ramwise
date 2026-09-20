@@ -136,7 +136,7 @@ impl<'a> Widget for HeaderWidget<'a> {
         spans.extend(help);
 
         let line = Line::from(spans);
-        let paragraph = Paragraph::new(line).style(Style::default().bg(self.theme.bg_elevated));
+        let paragraph = Paragraph::new(line).style(Style::default().bg(self.theme.header_bg));
 
         paragraph.render(area, buf);
     }

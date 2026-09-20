@@ -109,7 +109,7 @@ impl Theme {
             border_subtle: Color::Rgb(40, 40, 52),
             selection_bg: Color::Rgb(60, 40, 90),
             selection_fg: Color::Rgb(255, 255, 255),
-            header_bg: Color::Rgb(255, 0, 0),
+            header_bg: Color::Rgb(28, 28, 36),
 
             // Graph
             graph_line: Color::Rgb(0, 0, 255),
