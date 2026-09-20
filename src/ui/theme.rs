@@ -67,6 +67,7 @@ pub struct Theme {
 
     // Non-colors
     pub border_type: String, // rounded, thick, double or square
+    pub focused_border_type: String,
 }
 
 impl Theme {
@@ -131,6 +132,8 @@ impl Theme {
             rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
 
             border_type: "square".to_string(),
+            focused_border_type: "square".to_string(),
+            //focused_border_type: "double".to_string(),
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -194,6 +197,7 @@ impl Theme {
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
 
             border_type: "thick".to_string(),
+            focused_border_type: "thick".to_string()
         }
     }
 
@@ -308,13 +312,23 @@ impl Theme {
         }
     }
 
-    pub fn border_type(&self) -> BorderType {
-        if self.border_type == "rounded" { BorderType::Rounded }
-        else if self.border_type == "thick" { BorderType::Thick }
-        else if self.border_type == "square" { BorderType::Plain }
-        else if self.border_type == "double" { BorderType::Double }
-        else { BorderType::Plain }//fallback
-
+    pub fn border_type(&self, focused: bool) -> BorderType {
+        if !focused 
+        {
+            if self.border_type == "rounded" { BorderType::Rounded }
+            else if self.border_type == "thick" { BorderType::Thick }
+            else if self.border_type == "square" { BorderType::Plain }
+            else if self.border_type == "double" { BorderType::Double }
+            else { BorderType::Plain }//fallback
+        }
+        else
+        {
+            if self.focused_border_type == "rounded" { BorderType::Rounded }
+            else if self.focused_border_type == "thick" { BorderType::Thick }
+            else if self.focused_border_type == "square" { BorderType::Plain }
+            else if self.focused_border_type == "double" { BorderType::Double }
+            else { BorderType::Plain }//fallback
+        }
         
     }
 

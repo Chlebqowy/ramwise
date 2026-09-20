@@ -101,7 +101,7 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
         let block = Block::default()
             .title(title)
             .borders(Borders::ALL)
-            .border_type(self.theme.border_type())
+            .border_type(self.theme.border_type(self.focused))
             .border_style(self.theme.border_style(self.focused))
             .style(Style::default().bg(self.theme.bg));
 

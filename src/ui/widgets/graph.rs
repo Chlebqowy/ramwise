@@ -176,7 +176,7 @@ impl<'a> Widget for GraphWidget<'a> {
                     .title(title_line)
                     .borders(Borders::ALL)
                     .border_style(self.theme.border_style(self.focused))
-                    .border_type(self.theme.border_type())
+                    .border_type(self.theme.border_type(self.focused))
                     .style(Style::default().bg(self.theme.bg)),
             )
             .x_axis(
@@ -211,7 +211,7 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
         .merge_borders(MergeStrategy::Exact)
         .title(title)
         .borders(Borders::ALL)
-        .border_type(theme.border_type())
+        .border_type(theme.border_type(focused))
         .border_style(theme.border_style(focused))
         .style(Style::default().bg(theme.bg));
 
