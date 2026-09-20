@@ -52,10 +52,10 @@ git clone https://github.com/Duckaet/ramwise
 cd ramwise
 
 # Build release binary
-cargo build --release
+make
 
 # Install (optional)
-sudo cp target/release/ramwise /usr/local/bin/
+sudo make install
 ```
 
 ## Usage
