@@ -1,5 +1,4 @@
-# THIS RPM BUILD IS KINDA BROKEN
-NewRPMBuild works correctly though
+# This is a copy of NewRPMBuild as I wanted to check whether the rpm build works but idk how to build a selected branch without modifying the script
 
 # ramwise
 
