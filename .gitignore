@@ -1,1 +1,14 @@
 /target
+**/*.rs.bk
+*.tar.gz
+*.tar.xz
+*.pkg.tar.zst
+aur/ramwise/pkg/
+aur/ramwise/src/
+aur/ramwise/*.tar.gz
+aur/ramwise/*.pkg.tar.zst
+aur/ramwise-bin/pkg/
+aur/ramwise-bin/src/
+aur/ramwise-bin/*.tar.gz
+aur/ramwise-bin/*.pkg.tar.zst
+dist/

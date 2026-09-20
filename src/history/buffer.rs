@@ -56,7 +56,7 @@ pub struct HistoryBuffer {
 
 impl HistoryBuffer {
     /// Create a new history buffer
-    /// 
+    ///
     /// # Arguments
     /// * `capacity` - Maximum number of snapshots to keep
     /// * `max_age` - Maximum age of snapshots before pruning
@@ -201,9 +201,7 @@ impl HistoryBuffer {
         let cutoff = now - duration;
 
         // Find the oldest point within the duration
-        let start_point = history
-            .iter()
-            .find(|p| p.timestamp >= cutoff)?;
+        let start_point = history.iter().find(|p| p.timestamp >= cutoff)?;
         let end_point = history.back()?;
 
         let actual_duration = end_point.timestamp.duration_since(start_point.timestamp);
@@ -292,10 +290,7 @@ impl HistoryBuffer {
 
     /// Get latest RSS for a process
     pub fn latest_rss(&self, pid: i32) -> Option<u64> {
-        self.process_history
-            .get(&pid)?
-            .back()
-            .map(|p| p.rss)
+        self.process_history.get(&pid)?.back().map(|p| p.rss)
     }
 }
 
@@ -303,6 +298,7 @@ impl HistoryBuffer {
 mod tests {
     use super::*;
     use crate::collector::ProcessMemory;
+    use crate::test_support;
 
     #[test]
     fn test_history_buffer() {
@@ -345,7 +341,7 @@ mod tests {
                 processes: vec![ProcessMemory {
                     pid: 1234,
                     name: "leaky".to_string(),
-                    rss: 100_000_000 + (i as u64 * 10_000_000), // Growing by 10MB/sec
+                    rss: 100_000_000 + (i * 10_000_000), // Growing by 10MB/sec
                     ..Default::default()
                 }],
                 total_processes: 1,
@@ -355,5 +351,27 @@ mod tests {
         }
 
         assert!(buffer.is_consistently_growing(1234, 10.0));
+    }
+
+    #[test]
+    fn deterministic_fixture_exercises_trend_and_pruning() {
+        let snapshots = test_support::history_snapshots(4, 100, 10);
+        let mut buffer = HistoryBuffer::new(3, Duration::from_secs(60));
+        for snapshot in &snapshots {
+            buffer.push(snapshot);
+        }
+        assert_eq!(buffer.len(), 3);
+        assert_eq!(buffer.process_trend(test_support::FIXTURE_PID).len(), 3);
+        assert_eq!(buffer.latest_rss(test_support::FIXTURE_PID), Some(130));
+        assert_eq!(
+            buffer.process_trend_normalized(test_support::FIXTURE_PID),
+            vec![0.0, 0.5, 1.0]
+        );
+        let stats = buffer
+            .growth_stats(test_support::FIXTURE_PID, Duration::from_secs(10))
+            .unwrap();
+        assert_eq!(stats.start_value, 110);
+        assert_eq!(stats.end_value, 130);
+        assert_eq!(stats.trend, Trend::Increasing);
     }
 }

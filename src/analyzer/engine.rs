@@ -10,8 +10,8 @@ use crate::history::HistoryBuffer;
 
 use super::insights::Insight;
 use super::rules::{
-    CacheInfoRule, FragmentationDetector, MemoryHogDetector, MemoryLeakDetector,
-    OomRiskDetector, Rule, SuddenSpikeDetector, SwapPressureDetector,
+    CacheInfoRule, FragmentationDetector, MemoryHogDetector, MemoryLeakDetector, OomRiskDetector,
+    Rule, SuddenSpikeDetector, SwapPressureDetector,
 };
 
 /// The main analyzer that runs all rules
@@ -66,10 +66,10 @@ impl Analyzer {
         for rule in &self.rules {
             if let Some(insight) = rule.evaluate(snapshot, history) {
                 // Check cooldown
-                if let Some(last) = self.last_triggered.get(&insight.id) {
-                    if now.duration_since(*last) < self.cooldown {
-                        continue; // Still in cooldown
-                    }
+                if let Some(last) = self.last_triggered.get(&insight.id)
+                    && now.duration_since(*last) < self.cooldown
+                {
+                    continue; // Still in cooldown
                 }
 
                 // Add or update insight
@@ -81,7 +81,7 @@ impl Analyzer {
         // Prune old insights (keep only the most recent)
         if self.active_insights.len() > self.max_insights {
             let mut insights: Vec<_> = self.active_insights.drain().collect();
-            insights.sort_by(|a, b| b.1.timestamp.cmp(&a.1.timestamp));
+            insights.sort_by_key(|a| std::cmp::Reverse(a.1.timestamp));
             insights.truncate(self.max_insights);
             self.active_insights = insights.into_iter().collect();
         }
@@ -90,7 +90,7 @@ impl Analyzer {
     /// Get all active insights, sorted by severity (critical first)
     pub fn insights(&self) -> Vec<&Insight> {
         let mut insights: Vec<_> = self.active_insights.values().collect();
-        insights.sort_by(|a, b| b.severity.cmp(&a.severity));
+        insights.sort_by_key(|a| std::cmp::Reverse(a.severity));
         insights
     }
 
@@ -143,5 +143,36 @@ impl Analyzer {
 impl Default for Analyzer {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_support;
+
+    #[test]
+    fn analyzer_lifecycle_keeps_process_insights_manageable() {
+        let snapshot = test_support::snapshot_at(Instant::now(), 6 * 1024 * 1024 * 1024);
+        let history = HistoryBuffer::new(4, Duration::from_secs(60));
+        let mut analyzer = Analyzer::new();
+        analyzer.analyze(&snapshot, &history);
+
+        let insights = analyzer.insights();
+        assert!(!insights.is_empty());
+        assert!(
+            analyzer
+                .insights_for_process(test_support::FIXTURE_PID)
+                .iter()
+                .any(|insight| insight.id.starts_with("hog_"))
+        );
+
+        let id = insights[0].id.clone();
+        analyzer.acknowledge(&id);
+        assert_eq!(analyzer.unacknowledged_counts(), (0, 0, 0));
+        analyzer.dismiss(&id);
+        assert!(analyzer.insights().iter().all(|insight| insight.id != id));
+        analyzer.clear();
+        assert!(analyzer.insights().is_empty());
     }
 }

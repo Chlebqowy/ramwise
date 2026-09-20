@@ -89,4 +89,13 @@ mod tests {
         assert_eq!(format_duration(90), "1m 30s");
         assert_eq!(format_duration(3661), "1h 1m");
     }
+
+    #[test]
+    fn formatting_boundaries_are_stable() {
+        assert_eq!(format_bytes_precise(1024), "1.00 KiB");
+        assert_eq!(format_bytes_precise(1024 * 1024), "1.00 MiB");
+        assert_eq!(format_percent(0.0), "0.00%");
+        assert_eq!(format_percent(10.0), "10.0%");
+        assert_eq!(format_percent(100.0), "100%");
+    }
 }

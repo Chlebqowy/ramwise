@@ -1,6 +1,6 @@
 # ramwise
 
-> Your memory's wise advisor - Intelligent RAM usage visualizer for Arch Linux
+> Your memory's wise advisor - Intelligent RAM usage visualizer for Linux
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)
@@ -16,11 +16,33 @@
 - **Real-time Updates** - Live monitoring with configurable refresh rate
 - **Process Control** - Stop (`SIGTERM`) or kill (`SIGKILL`) selected processes directly from the TUI
 
+### Snapshot exports
+
+The collector exposes a versioned `ExportSnapshot` contract for integrations and
+future export formats. It uses wall-clock Unix milliseconds, explicit byte/count
+units, collector metadata, and capability markers. Runtime-only monotonic
+`Instant` values are intentionally not serialized; unavailable features remain
+explicit in the exported capability map.
+
 ## Screenshots
 
 ![Screenshot](Screenshot.png)
 
 ## Installation
+
+### From a binary
+
+**Arch**
+
+The package is available on the aur.
+
+**Opensuse**
+
+Download the .rpm from Releases and run `sudo zypper in filename.rpm`
+
+**Fedora**
+
+Download the .rpm from Releases and run `sudo dnf install filename.rpm` (untested)
 
 ### From Source
 
@@ -34,13 +56,6 @@ cargo build --release
 
 # Install (optional)
 sudo cp target/release/ramwise /usr/local/bin/
-```
-
-### Arch Linux (AUR)
-
-```bash
-# Coming soon
-yay -S ramwise
 ```
 
 ## Usage
@@ -60,6 +75,9 @@ ramwise --no-smaps
 
 # Enable debug logging
 ramwise --debug
+
+# Use light mode
+ramwise -t light
 ```
 
 ## Keyboard Shortcuts
@@ -95,20 +113,28 @@ Action results are shown as in-app status messages (success, warning, or error).
 
 ## Configuration
 
-Sadly, there is no one single easy-to-use config. You have to make changes to the code itself but it's fairly easy and a lot is explained in comments. 
+### Themes
+ramwise includes built-in themes selectable via `--theme` or `-t`:
+```bash
+# Launch with dark theme (default)
+ramwise -t dark
 
-To modify the layout, go to src/ui/layout.rs. If you are not very experienced with coding, just modify the values in pub fn new() -> Self { Self {. If you can code, you can also modify the rest of the file. The layout and library is fairly simple. 
+# Launch with light theme (Gruvbox Light)
+ramwise -t light
+```
 
-To modify the theme, go to src/ui/theme.rs
-pub fn dark() -> Self {
-        Self {
-You can also copy that object and rename it to use another theme.
-You can set a theme with --theme.
-If the theme is custom, you have to add it to
-impl App {
-    /// Create a new application
-    pub fn new(theme: str) -> Self {
-in app.rs 
+Custom themes can be added to `src/ui/theme.rs` and registered in `App::new` (`src/app.rs`).
+
+### Layout Customization
+Layout dimensions and panel splits can be customized in `src/ui/layout.rs` (`Layout::new`):
+- `header_height`: Height of the top status bar.
+- `center_height`: Minimum height of the main process/detail panels.
+- `bottom_height`: Height of the insights panel.
+- `left_width_percent`: Width percentage allocated to the process list.
+- `side_vertical_split_percent`: Height percentage allocated to process details vs memory graph.
+- `invert_horizontal_split`: Swap process list and side panels.
+- `invert_side_vertical_split`: Swap detail view and trend graph.
+- `put_insights_on_top`: Place the insights panel below the header instead of at the bottom.
 
 
 ## Insight Rules

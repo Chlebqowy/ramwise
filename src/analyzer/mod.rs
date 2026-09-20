@@ -4,8 +4,8 @@
 //! and generates actionable insights.
 
 mod engine;
-mod rules;
 mod insights;
+mod rules;
 
 pub use engine::Analyzer;
 pub use insights::{Insight, Severity};

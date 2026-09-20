@@ -11,6 +11,9 @@ mod process_control;
 mod ui;
 mod utils;
 
+#[cfg(test)]
+mod test_support;
+
 use std::io::{self, stdout};
 use std::time::Duration;
 
@@ -60,7 +63,7 @@ struct Args {
     debug: bool,
 
     /// Theme (by default light or dark)
-    #[arg(long, default_value = "green")]
+    #[arg(short, long, default_value = "green")]
     theme: String,
 }
 
@@ -208,13 +211,11 @@ async fn run_app(
 
             // Keyboard/mouse events
             _ = async {
-                if event::poll(Duration::from_millis(50)).unwrap_or(false) {
-                    if let Ok(Event::Key(key)) = event::read() {
-                        if key.kind == KeyEventKind::Press {
+                if event::poll(Duration::from_millis(50)).unwrap_or(false)
+                    && let Ok(Event::Key(key)) = event::read()
+                        && key.kind == KeyEventKind::Press {
                             app.handle_key(key.code, key.modifiers);
                         }
-                    }
-                }
             } => {}
         }
 

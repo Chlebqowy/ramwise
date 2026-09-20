@@ -68,9 +68,18 @@ impl<'a> Widget for GraphWidget<'a> {
             let y_max = max_bytes + range * 0.1;
 
             let y_labels = vec![
-                Span::styled(format_bytes(y_min as u64), Style::default().fg(self.theme.fg_muted)),
-                Span::styled(format_bytes(((y_min + y_max) / 2.0) as u64), Style::default().fg(self.theme.fg_dim)),
-                Span::styled(format_bytes(y_max as u64), Style::default().fg(self.theme.fg_muted)),
+                Span::styled(
+                    format_bytes(y_min as u64),
+                    Style::default().fg(self.theme.fg_muted),
+                ),
+                Span::styled(
+                    format_bytes(((y_min + y_max) / 2.0) as u64),
+                    Style::default().fg(self.theme.fg_dim),
+                ),
+                Span::styled(
+                    format_bytes(y_max as u64),
+                    Style::default().fg(self.theme.fg_muted),
+                ),
             ];
 
             ("Process Memory", data, [y_min, y_max], y_labels, true)
@@ -96,9 +105,18 @@ impl<'a> Widget for GraphWidget<'a> {
             let y_max = max_bytes + range * 0.1;
 
             let y_labels = vec![
-                Span::styled(format_bytes(y_min as u64), Style::default().fg(self.theme.fg_muted)),
-                Span::styled(format_bytes(((y_min + y_max) / 2.0) as u64), Style::default().fg(self.theme.fg_dim)),
-                Span::styled(format_bytes(y_max as u64), Style::default().fg(self.theme.fg_muted)),
+                Span::styled(
+                    format_bytes(y_min as u64),
+                    Style::default().fg(self.theme.fg_muted),
+                ),
+                Span::styled(
+                    format_bytes(((y_min + y_max) / 2.0) as u64),
+                    Style::default().fg(self.theme.fg_dim),
+                ),
+                Span::styled(
+                    format_bytes(y_max as u64),
+                    Style::default().fg(self.theme.fg_muted),
+                ),
             ];
 
             ("System Memory", data, [y_min, y_max], y_labels, false)
@@ -130,15 +148,23 @@ impl<'a> Widget for GraphWidget<'a> {
 
         // Modern time labels
         let x_labels = vec![
-            Span::styled(format!("{}s ago", time_span), Style::default().fg(self.theme.fg_dim)),
-            Span::styled(format!("now"), Style::default().fg(self.theme.fg_muted)),
+            Span::styled(
+                format!("-{}s", time_span),
+                Style::default().fg(self.theme.fg_muted),
+            ),
+            Span::styled("now", Style::default().fg(self.theme.fg_dim)),
         ];
 
         // Modern title
         let title_line = Line::from(vec![
             Span::styled(" ", Style::default()),
             Span::styled("◈ ", Style::default().fg(line_color)),
-            Span::styled(title, Style::default().fg(self.theme.fg).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                title,
+                Style::default()
+                    .fg(self.theme.fg)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled(" ", Style::default()),
         ]);
 
@@ -171,10 +197,13 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
     let title = Line::from(vec![
         Span::styled(" ", Style::default()),
         Span::styled("◈ ", Style::default().fg(theme.fg_muted)),
-        Span::styled("Memory Trend", Style::default().fg(theme.fg).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            "Memory Trend",
+            Style::default().fg(theme.fg).add_modifier(Modifier::BOLD),
+        ),
         Span::styled(" ", Style::default()),
     ]);
-    
+
     let block = Block::default()
         .title(title)
         .borders(Borders::ALL)
