@@ -298,6 +298,7 @@ impl HistoryBuffer {
 mod tests {
     use super::*;
     use crate::collector::ProcessMemory;
+    use crate::test_support;
 
     #[test]
     fn test_history_buffer() {
@@ -350,5 +351,27 @@ mod tests {
         }
 
         assert!(buffer.is_consistently_growing(1234, 10.0));
+    }
+
+    #[test]
+    fn deterministic_fixture_exercises_trend_and_pruning() {
+        let snapshots = test_support::history_snapshots(4, 100, 10);
+        let mut buffer = HistoryBuffer::new(3, Duration::from_secs(60));
+        for snapshot in &snapshots {
+            buffer.push(snapshot);
+        }
+        assert_eq!(buffer.len(), 3);
+        assert_eq!(buffer.process_trend(test_support::FIXTURE_PID).len(), 3);
+        assert_eq!(buffer.latest_rss(test_support::FIXTURE_PID), Some(130));
+        assert_eq!(
+            buffer.process_trend_normalized(test_support::FIXTURE_PID),
+            vec![0.0, 0.5, 1.0]
+        );
+        let stats = buffer
+            .growth_stats(test_support::FIXTURE_PID, Duration::from_secs(10))
+            .unwrap();
+        assert_eq!(stats.start_value, 110);
+        assert_eq!(stats.end_value, 130);
+        assert_eq!(stats.trend, Trend::Increasing);
     }
 }

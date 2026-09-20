@@ -101,4 +101,10 @@ mod tests {
             SignalResult::PermissionDenied
         );
     }
+
+    #[test]
+    fn signal_labels_are_stable() {
+        assert_eq!(SignalAction::Terminate.as_label(), "SIGTERM");
+        assert_eq!(SignalAction::Kill.as_label(), "SIGKILL");
+    }
 }
