@@ -181,9 +181,9 @@ impl Theme {
             graph_marker: Marker::Braille,
 
             // Process list
-            rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
-            rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
-            rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
+            rank_top: Color::Rgb(255, 0, 0), // Light yellow for top 1
+            rank_high: Color::Rgb(255, 0, 0), // Middle orange for top 3
+            rank_normal: Color::Rgb(255, 0, 0), // fg0 for rest
         }
     }
 
@@ -326,15 +326,6 @@ impl Theme {
             _ => self.rank_normal,
         };
         Style::default().fg(color)
-    }
-
-    /// Style for process rows (alternating)
-    pub fn row_style(&self, index: usize, selected: bool) -> Style {
-        if selected {
-            self.selected_style()
-        } else {
-            Style::default()
-        }
     }
 
     /// Create a mini progress bar string with gradient coloring
