@@ -47,7 +47,6 @@ pub struct Theme {
     // UI elements
     pub border: Color,
     pub border_focused: Color,
-    pub border_subtle: Color,
     pub selection_bg: Color,
     pub selection_fg: Color,
     pub header_bg: Color,
@@ -106,15 +105,14 @@ impl Theme {
             // UI elements
             border: Color::Rgb(55, 55, 70),
             border_focused: Color::Rgb(180, 130, 255),
-            border_subtle: Color::Rgb(40, 40, 52),
             selection_bg: Color::Rgb(60, 40, 90),
             selection_fg: Color::Rgb(255, 255, 255),
             header_bg: Color::Rgb(28, 28, 36),
 
             // Graph
-            graph_line: Color::Rgb(0, 0, 255),
+            graph_line: Color::Rgb(230, 230, 240),
             //graph_bg: Color::Rgb(255,0,0),
-            graph_border: Color::Rgb(255,255,255),//not actually border
+            graph_border: Color::Rgb(55, 55, 70),//not actually border
             graph_marker: Marker::Braille,
             // Process list
             //row_alt_bg: Color::Rgb(22, 22, 30),
@@ -164,7 +162,6 @@ impl Theme {
             // UI elements - GruvBox purple and fg/bg, taken from both themes.
             border: Color::Rgb(0x7c, 0x6f, 0x64),
             border_focused: Color::Rgb(0xb1, 0x62, 0x86),
-            border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
             selection_bg: Color::Rgb(0xb1, 0x62, 0x86),
             selection_fg: Color::Rgb(0x28, 0x28, 0x28),
             header_bg: Color::Rgb(0xeb, 0xdb, 0xb2),
@@ -292,10 +289,6 @@ impl Theme {
         }
     }
 
-    pub fn subtle_border_style(&self) -> Style {
-        Style::default().fg(self.border_subtle)
-    }
-
     pub fn critical_style(&self) -> Style {
         Style::default().fg(self.error).add_modifier(Modifier::BOLD)
     }
@@ -358,7 +351,7 @@ impl Theme {
         if remaining > 0 {
             result.push((
                 " ".repeat(remaining),
-                Style::default().fg(self.border_subtle),
+                Style::default().fg(self.fg_muted),
             ));
         }
 
