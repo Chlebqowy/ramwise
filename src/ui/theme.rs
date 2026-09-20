@@ -19,11 +19,10 @@ pub struct Theme {
     // Primary accent - Vibrant purple/violet
     pub primary: Color,
     pub primary_dim: Color,
-    pub primary_container: Color,
 
     // Secondary accent - Teal/Cyan
     pub secondary: Color,
-    
+
     // Tertiary - Coral/Pink for special highlights (only quit keybind for now)
     pub tertiary: Color,
 
@@ -75,7 +74,6 @@ impl Theme {
             // Primary - Electric violet/purple
             primary: Color::Rgb(180, 130, 255),
             primary_dim: Color::Rgb(140, 90, 200),
-            primary_container: Color::Rgb(60, 40, 90),
 
             // Secondary - Vibrant teal
             secondary: Color::Rgb(80, 220, 200),
@@ -130,7 +128,6 @@ impl Theme {
             // Primary - GruvBox's aqua (Mix between both color schemes. Actually a slightly blue-ish green)
             primary: Color::Rgb(0x8e, 0xc0, 0x7c),
             primary_dim: Color::Rgb(0x68, 0x9d, 0x6a),
-            primary_container: Color::Rgb(0x42, 0x7b, 0x58),
 
             // Secondary - GruvBox Dark's blue
             secondary: Color::Rgb(0x45, 0x85, 0x88),
