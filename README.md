@@ -53,6 +53,7 @@ cd ramwise
 
 # Build release binary
 make
+make clean
 
 # Install (optional)
 sudo make install
