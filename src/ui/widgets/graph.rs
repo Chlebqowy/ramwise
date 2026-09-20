@@ -7,6 +7,7 @@ use ratatui::{
     symbols::Marker,
     text::{Line, Span},
     widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Widget},
+    symbols::merge::MergeStrategy,
 };
 
 use crate::history::HistoryBuffer;
@@ -131,16 +132,14 @@ impl<'a> Widget for GraphWidget<'a> {
         let time_span = data.len();
 
         // Choose line color based on context
-        let line_color = if is_process {
-            self.theme.primary
-        } else {
-            self.theme.secondary
-        };
+        let line_color = self.theme.graph_line;
+        //let background_color = self.theme.graph_bg;
+        let text_color = self.theme.primary;
 
         let datasets = vec![
             Dataset::default()
                 .name("Memory")
-                .marker(Marker::Braille)
+                .marker(self.theme.graph_marker)
                 .graph_type(GraphType::Line)
                 .style(Style::default().fg(line_color))
                 .data(&data),
@@ -158,7 +157,7 @@ impl<'a> Widget for GraphWidget<'a> {
         // Modern title
         let title_line = Line::from(vec![
             Span::styled(" ", Style::default()),
-            Span::styled("◈ ", Style::default().fg(line_color)),
+            Span::styled("◈ ", Style::default().fg(text_color)),
             Span::styled(
                 title,
                 Style::default()
@@ -171,20 +170,22 @@ impl<'a> Widget for GraphWidget<'a> {
         let chart = Chart::new(datasets)
             .block(
                 Block::default()
+                    .merge_borders(MergeStrategy::Fuzzy)
                     .title(title_line)
                     .borders(Borders::ALL)
                     .border_style(self.theme.border_style(self.focused))
+                    .border_type(self.theme.border_type(self.focused))
                     .style(Style::default().bg(self.theme.bg)),
             )
             .x_axis(
                 Axis::default()
-                    .style(Style::default().fg(self.theme.border_subtle))
+                    .style(Style::default().fg(self.theme.graph_border)) // if custom borders commit gets merged, collapse borders here and in y
                     .bounds([0.0, x_max])
                     .labels(x_labels),
             )
             .y_axis(
                 Axis::default()
-                    .style(Style::default().fg(self.theme.border_subtle))
+                    .style(Style::default().fg(self.theme.graph_border))
                     .bounds(y_bounds)
                     .labels(y_labels),
             );
@@ -205,8 +206,10 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
     ]);
 
     let block = Block::default()
+        .merge_borders(MergeStrategy::Fuzzy)
         .title(title)
         .borders(Borders::ALL)
+        .border_type(theme.border_type(focused))
         .border_style(theme.border_style(focused))
         .style(Style::default().bg(theme.bg));
 
