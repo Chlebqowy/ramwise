@@ -89,7 +89,7 @@ jobs:
         id: rpm_build
         uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
         with:
-          spec_file: "ramwise.spec"
+          spec_file: "ramwise-x86_64.spec"
 
       - name: Find RPM
         id: find_rpm

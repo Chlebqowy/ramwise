@@ -26,6 +26,7 @@ URL:            https://github.com/Duckaet/ramwise
 %global debug_package %{nil}
 Source0:        https://github.com/Duckaet/ramwise/archive/refs/tags/ramwise-%{version}.tar.gz
 BuildRequires:  cargo, make
+BuildArch:      x86_64
 
 %description
 ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory monitoring. It provides deep memory introspection, intelligent leak detection, and beautiful visualization all in a lightweight TUI application.
@@ -34,7 +35,7 @@ ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory m
 %setup -q
 
 %build
-make %{?_smp_mflags}
+make build-x86_64 %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT 
