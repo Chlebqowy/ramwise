@@ -1,6 +1,7 @@
 //! Layout management for the UI
 
 use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
+use ratatui::layout::Spacing;
 
 /// Main layout manager
 pub struct Layout {
@@ -20,6 +21,8 @@ pub struct Layout {
     pub invert_side_vertical_split: bool,
     /// If this value is true, the insights panel will be below the header and above main
     pub put_insights_on_top: bool,
+    /// If true, 2 borders will become 1. So for example, if without it a slice of the layout is content||content, with it it would be content|content
+    pub collapse_borders: bool
 }
 
 impl Layout {
@@ -34,11 +37,14 @@ impl Layout {
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
+
+            collapse_borders: false,
         }
     }
 
     /// Calculate all layout areas from the terminal size
     pub fn calculate(&self, area: Rect) -> LayoutAreas {
+        let overlap: u16 = if self.collapse_borders {1} else {0}; // In the function because it needs self
         // Split into header, main, and bottom (insights)
         let (header, main, bottom) = if self.put_insights_on_top {
             let vertical = RatatuiLayout::default()
@@ -65,10 +71,11 @@ impl Layout {
         // Split main into left and right panels
         let horizontal = RatatuiLayout::default()
             .direction(Direction::Horizontal)
+            .spacing(Spacing::Overlap(overlap))
             .constraints([
-                Constraint::Percentage(self.left_width_percent),
-                Constraint::Percentage(100 - self.left_width_percent),
-            ])
+                Constraint::Fill(self.left_width_percent),
+                Constraint::Fill(100 - self.left_width_percent),
+            ]) // kinda janky but collapsing borders does not work with percentage
             .split(main);
 
         let (left_panel, right_panel) = if self.invert_horizontal_split {
@@ -81,9 +88,10 @@ impl Layout {
         let right_split = RatatuiLayout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Percentage(self.side_vertical_split_percent),
-                Constraint::Percentage(100 - self.side_vertical_split_percent),
-            ])
+                Constraint::Fill(self.left_width_percent),
+                Constraint::Fill(100 - self.left_width_percent),
+            ]) // kinda janky but collapsing borders does not work with percentage
+            .spacing(Spacing::Overlap(overlap))
             .split(right_panel);
 
         let (detail_panel, graph_panel) = if self.invert_side_vertical_split {
