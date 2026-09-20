@@ -309,40 +309,7 @@ impl Theme {
         let color = self.mem_color_interpolated(percent);
         (bar, Style::default().fg(color))
     }
-
-    /// Create a sleek progress bar with block characters
-    pub fn sleek_bar(&self, percent: f64, width: usize) -> Vec<(String, Style)> {
-        let chars = ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"];
-        let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-        let full_blocks = total_eighths / 8;
-        let partial = total_eighths % 8;
-
-        let mut result = Vec::new();
-        let color = self.mem_color_interpolated(percent);
-
-        // Full blocks
-        if full_blocks > 0 {
-            result.push(("█".repeat(full_blocks), Style::default().fg(color)));
-        }
-
-        // Partial block
-        if partial > 0 && full_blocks < width {
-            result.push((chars[partial].to_string(), Style::default().fg(color)));
-        }
-
-        // Empty space
-        let remaining = width.saturating_sub(full_blocks + if partial > 0 { 1 } else { 0 });
-        if remaining > 0 {
-            result.push((
-                " ".repeat(remaining),
-                Style::default().fg(self.border_subtle),
-            ));
-        }
-
-        result
-    }
 }
-
 /// Linear interpolation between two RGB colors
 fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
     let t = t.clamp(0.0, 1.0);
