@@ -10,7 +10,6 @@ use ratatui::symbols::Marker;
 pub struct Theme {
     // Base colors - Deep dark with slight blue undertone
     pub bg: Color,
-    pub bg_elevated: Color,
     pub fg: Color,
     pub fg_dim: Color,
     pub fg_muted: Color,
@@ -64,7 +63,6 @@ impl Theme {
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
-            bg_elevated: Color::Rgb(28, 28, 36),
             fg: Color::Rgb(230, 230, 240),
             fg_dim: Color::Rgb(160, 160, 175),
             fg_muted: Color::Rgb(100, 100, 115),
@@ -117,7 +115,6 @@ impl Theme {
         Self {
             // Base - Very light gray with a yellow tint
             bg: Color::Rgb(0xfb, 0xf1, 0xc7),
-            bg_elevated: Color::Rgb(0xf9, 0xf5, 0xd7),
             fg: Color::Rgb(0x28, 0x28, 0x28),
             fg_dim: Color::Rgb(0x3c, 0x38, 0x36),
             fg_muted: Color::Rgb(0x3c, 0x38, 0x36),
@@ -259,11 +256,6 @@ impl Theme {
             .fg(self.selection_fg)
             .bg(self.selection_bg)
             .add_modifier(Modifier::BOLD)
-    }
-
-
-    pub fn elevated_style(&self) -> Style {
-        Style::default().bg(self.bg_elevated)
     }
 
     pub fn border_style(&self, focused: bool) -> Style {
