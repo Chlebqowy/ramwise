@@ -60,7 +60,6 @@ pub struct Theme {
     pub graph_marker: Marker,
 
     // Process list specific
-    pub row_alt_bg: Color,
     pub rank_top: Color,
     pub rank_high: Color,
     pub rank_normal: Color,
@@ -121,7 +120,7 @@ impl Theme {
             graph_border: Color::Rgb(255,255,255),//not actually border
             graph_marker: Marker::Braille,
             // Process list
-            row_alt_bg: Color::Rgb(22, 22, 30),
+            //row_alt_bg: Color::Rgb(22, 22, 30),
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
             rank_high: Color::Rgb(180, 130, 255),   // Purple for top 5
             rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
@@ -182,7 +181,6 @@ impl Theme {
             graph_marker: Marker::Braille,
 
             // Process list
-            row_alt_bg: Color::Rgb(0xf2, 0xe5, 0xbc),
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
@@ -334,8 +332,6 @@ impl Theme {
     pub fn row_style(&self, index: usize, selected: bool) -> Style {
         if selected {
             self.selected_style()
-        } else if index % 2 == 1 {
-            Style::default().bg(self.row_alt_bg)
         } else {
             Style::default()
         }
