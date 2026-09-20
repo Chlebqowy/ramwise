@@ -23,9 +23,8 @@ pub struct Theme {
 
     // Secondary accent - Teal/Cyan
     pub secondary: Color,
-    pub secondary_dim: Color,
-
-    // Tertiary - Coral/Pink for special highlights
+    
+    // Tertiary - Coral/Pink for special highlights (only quit keybind for now)
     pub tertiary: Color,
 
     // Semantic colors
@@ -80,7 +79,6 @@ impl Theme {
 
             // Secondary - Vibrant teal
             secondary: Color::Rgb(80, 220, 200),
-            secondary_dim: Color::Rgb(50, 160, 145),
 
             // Tertiary - Warm coral
             tertiary: Color::Rgb(255, 140, 120),
@@ -136,7 +134,6 @@ impl Theme {
 
             // Secondary - GruvBox Dark's blue
             secondary: Color::Rgb(0x45, 0x85, 0x88),
-            secondary_dim: Color::Rgb(0x83, 0xa5, 0x98),
 
             // Tertiary - Teal, not from Gruvbox
             tertiary: Color::Rgb(0x10, 0xc9, 0xa7),
