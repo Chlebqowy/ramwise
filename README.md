@@ -30,6 +30,20 @@ explicit in the exported capability map.
 
 ## Installation
 
+### From a binary
+
+**Arch**
+
+The package is available on the aur.
+
+**Opensuse**
+
+Download the .rpm from Releases and run `sudo zypper in filename.rpm`
+
+**Fedora**
+
+Download the .rpm from Releases and run `sudo dnf install filename.rpm` (untested)
+
 ### From Source
 
 ```bash
