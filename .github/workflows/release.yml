@@ -93,7 +93,9 @@ jobs:
       - name: Make x86_64 spec file
         run: |
           tree .
+          echo
           ls
+          echo
           ls ..
           echo
           ls ../..
