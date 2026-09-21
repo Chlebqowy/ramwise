@@ -25,10 +25,18 @@ debug-aarch64:
 clean:
 	cargo clean
 install:
-	mkdir -p $(DESTDIR)/usr/bin
+	mkdir -pv $(DESTDIR)/usr
+	mkdir -pv $(DESTDIR)/usr/bin
 	install -m 0755 target/release/ramwise $(DESTDIR)/usr/bin/ramwise
+	mkdir -pv $(DESTDIR)/usr/share
+	mkdir -pv $(DESTDIR)/usr/share/licenses/
+	mkdir -pv $(DESTDIR)/usr/share/licenses/ramwise/
 	install -D -m 0644 LICENSE "\$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
 install-debug:
-	mkdir -p $(DESTDIR)/usr/bin
+	mkdir -pv $(DESTDIR)/usr
+	mkdir -pv $(DESTDIR)/usr/bin
 	install -m 0755 target/debug/ramwise $(DESTDIR)/usr/bin/ramwise
-	install -D -m 0644 LICENSE "$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
+	mkdir -pv $(DESTDIR)/usr/share
+	mkdir -pv $(DESTDIR)/usr/share/licenses/
+	mkdir -pv $(DESTDIR)/usr/share/licenses/ramwise/
+	install -D -m 0644 LICENSE "\$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
