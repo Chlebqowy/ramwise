@@ -82,6 +82,7 @@ jobs:
             dist/*.tar.gz
             dist/*.sha256
   package-rpms:
+    runs-on: ubuntu-latest
     steps:
       - name: Install RPM build tools
         run: |
