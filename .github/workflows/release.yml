@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build-binaries:
-    name: Build (${{ matrix.target }})
+    name: Build tarball (${{ matrix.target }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -94,7 +94,6 @@ jobs:
           else
             TAG="${{ github.ref_name }}"
           fi
-          echo "RELEASE_VERSION=${TAG#v}" >> $GITHUB_ENV
           echo "RELEASE_TAG=${TAG}" >> $GITHUB_ENV
       - name: Install RPM build tools
         run: |
@@ -103,8 +102,6 @@ jobs:
       - name: Make x86_64 spec file
         run: |
           chmod 777 scripts/gen-spec.sh
-          echo ${RELEASE_VERSION}
-          echo ${RELEASE_TAG}
           scripts/gen-spec.sh x86_64 ${RELEASE_VERSION}
       - name: Make aarch64 spec file
         run: |
