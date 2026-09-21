@@ -87,12 +87,12 @@ jobs:
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-26.04
             packages: ""
             env: 
               ARCH: x86_64
           - target: aarch64-unknown-linux-gnu
-            runs-on: ubuntu-latest-arm
+            runs-on: ubuntu-26.04-arm
             packages: ""
             env: 
               ARCH: aarch64
