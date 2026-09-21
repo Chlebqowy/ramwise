@@ -92,6 +92,7 @@ jobs:
           sudo apt-get install -y rpm  
       - name: Make x86_64 spec file
         run: |
+          tree . | echo
           chmod 777 scripts/gen-spec.sh
           scripts/gen-spec.sh x86_64 ${RELEASE_VERSION}
       - name: Make aarch64 spec file
