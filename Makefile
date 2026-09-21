@@ -16,12 +16,12 @@ debug-x86_64:
 	cargo build --target x86_64-unknown-linux-gnu
 	mkdir -pv target
 	mkdir -pv target/debug
-	cp -f target/x86_64-unknown-linux-gnu/debug/ramwise target/release/debug
+	cp -f target/x86_64-unknown-linux-gnu/debug/ramwise target/debug/ramwise
 debug-aarch64:
 	cargo build --target aarch64-unknown-linux-gnu
 	mkdir -pv target
 	mkdir -pv target/debug
-	cp -f target/aarch64-unknown-linux-gnu/debug/ramwise target/release/debug
+	cp -f target/aarch64-unknown-linux-gnu/debug/ramwise target/debug/ramwise
 clean:
 	cargo clean
 install:
