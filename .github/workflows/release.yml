@@ -94,7 +94,7 @@ jobs:
           else
             TAG="${{ github.ref_name }}"
           fi
-          echo "RELEASE_TAG=${TAG}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${TAG#v}" >> $GITHUB_ENV
       - name: Install RPM build tools
         run: |
           sudo apt-get update
@@ -138,7 +138,7 @@ jobs:
 
   publish-release:
     name: Create GitHub Release
-    needs: package-rpms, build-binaries
+    needs: [package-rpms, build-binaries]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
