@@ -1,5 +1,7 @@
 # ramwise
 
+# THIS BRANCH WILL START GETTING DEVELOPED WHEN MERGEBORDERS AND THEME GET MERGED BECAUSE IT'S JUST EASIER THEN
+
 > Your memory's wise advisor - Intelligent RAM usage visualizer for Arch Linux
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
