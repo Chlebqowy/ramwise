@@ -93,6 +93,9 @@ jobs:
       - name: Make x86_64 spec file
         run: |
           tree .
+          ls
+          ls ..
+          ls ../..
           pwd
           chmod 777 scripts/gen-spec.sh
           scripts/gen-spec.sh x86_64 ${RELEASE_VERSION}
