@@ -96,6 +96,7 @@ jobs:
             packages: ""
             env: 
               ARCH: aarch64
+    runs-on: ${{ matrix.runs_on }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
