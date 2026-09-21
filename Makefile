@@ -31,7 +31,7 @@ install:
 	mkdir -pv $(DESTDIR)/usr/share
 	mkdir -pv $(DESTDIR)/usr/share/licenses/
 	mkdir -pv $(DESTDIR)/usr/share/licenses/ramwise/
-	install -m 0644 LICENSE "\$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
+	install -m 0644 LICENSE "$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
 install-debug:
 	mkdir -pv $(DESTDIR)/usr
 	mkdir -pv $(DESTDIR)/usr/bin
@@ -39,4 +39,4 @@ install-debug:
 	mkdir -pv $(DESTDIR)/usr/share
 	mkdir -pv $(DESTDIR)/usr/share/licenses/
 	mkdir -pv $(DESTDIR)/usr/share/licenses/ramwise/
-	install -D -m 0644 LICENSE "\$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
+	install -m 0644 LICENSE "$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
