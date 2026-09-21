@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build-binaries:
-    name: Build (${{ matrix.target }})
+    name: Build tarball (${{ matrix.target }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -81,52 +81,67 @@ jobs:
           path: |
             dist/*.tar.gz
             dist/*.sha256
+  package-rpms:
+    name: Package RPMs (${{ matrix.target }})
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            runs-on: ubuntu-26.04
+            packages: ""
+            env: 
+              ARCH: x86_64
+          - target: aarch64-unknown-linux-gnu
+            runs-on: ubuntu-26.04-arm
+            packages: ""
+            env: 
+              ARCH: aarch64
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set Release Version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          echo "RELEASE_VERSION=${TAG#v}" >> $GITHUB_ENV
       - name: Install RPM build tools
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm  
-          - name: Install RPM build tools
-      - name: Make x86_64 spec file
+      - name: Make spec file
+        env: ${{ matrix.env }}
         run: |
           chmod 777 scripts/gen-spec.sh
-          scripts/gen-spec.sh x86_64 ${TAG}
-                - name: Make x86_64 spec file
-      - name: Make aarch64 spec file
-        run: |
-          chmod 777 scripts/gen-spec.sh
-          scripts/gen-spec.sh aarch64 ${TAG}
-      - name: Build x86_64 RPM package
+          scripts/gen-spec.sh ${ARCH} ${RELEASE_VERSION}
+      - name: Build RPM package
         id: rpm_build
+        env: ${{ matrix.env }}
         uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
         with:
-          spec_file: "ramwise-x86_64.spec"
-      - name: Build aarch64 RPM package
-        id: rpm_build_arm
-        uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
-        with:
-          spec_file: "ramwise-aarch64.spec"
+          spec_file: "ramwise-${{ env.ARCH }}.spec"
       - name: Find RPM
         id: find_rpm
         shell: bash
         run: |
-          RPM1=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 1)
-          RPM2=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 2 | tail -n 1)
+          RPM=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 1)
 
-          echo "Found RPMs: $RPM1 $RPM2"
-          echo "rpm1_path=$RPM1" >> "$GITHUB_OUTPUT"
-          echo "rpm2_path=$RPM2" >> "$GITHUB_OUTPUT"
+          echo "Found RPM: $RPM"
+          echo "rpm_path=$RPM" >> "$GITHUB_OUTPUT"
 
       - name: Upload RPMs
         uses: actions/upload-artifact@v4
         with:
           name: rpm-${{ matrix.target }}
           path: |
-            ${{ steps.find_rpm.outputs.rpm1_path }}
-            ${{ steps.find_rpm.outputs.rpm2_path }}
+            ${{ steps.find_rpm.outputs.rpm_path }}
 
   publish-release:
     name: Create GitHub Release
-    needs: build-binaries
+    needs: [package-rpms, build-binaries]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
