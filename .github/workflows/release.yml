@@ -45,8 +45,6 @@ jobs:
           echo "RELEASE_TAG=${TAG}" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ env.RELEASE_TAG }}
       - name: Install system dependencies
         if: matrix.packages != ''
         run: |
@@ -109,8 +107,6 @@ jobs:
           echo "RELEASE_TAG=${TAG}" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ env.RELEASE_TAG }}
       - name: Install RPM build tools
         run: |
           sudo apt-get update
