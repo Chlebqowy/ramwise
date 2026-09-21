@@ -43,7 +43,6 @@ make build-$1 %{?_smp_mflags}
 %install
 rm -rf \$RPM_BUILD_ROOT
 %make_install
-install -D -m 0644 LICENSE "\$RPM_BUILD_ROOT/usr/share/licenses/ramwise/LICENSE"
 
 %files
 %license /usr/share/licenses/ramwise/LICENSE

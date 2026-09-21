@@ -27,6 +27,8 @@ clean:
 install:
 	mkdir -p $(DESTDIR)/usr/bin
 	install -m 0755 target/release/ramwise $(DESTDIR)/usr/bin/ramwise
+	install -D -m 0644 LICENSE "\$RPM_BUILD_ROOT/usr/share/licenses/ramwise/LICENSE"
 install-debug:
 	mkdir -p $(DESTDIR)/usr/bin
 	install -m 0755 target/debug/ramwise $(DESTDIR)/usr/bin/ramwise
+	install -D -m 0644 LICENSE "\$RPM_BUILD_ROOT/usr/share/licenses/ramwise/LICENSE"
