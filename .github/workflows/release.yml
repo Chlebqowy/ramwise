@@ -138,8 +138,7 @@ jobs:
 
   publish-release:
     name: Create GitHub Release
-    needs: package-rpms
-    needs: build-binaries
+    needs: package-rpms, build-binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
