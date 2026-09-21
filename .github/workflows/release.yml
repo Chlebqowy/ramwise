@@ -82,8 +82,19 @@ jobs:
             dist/*.tar.gz
             dist/*.sha256
   package-rpms:
-    name: Package RPMs
+    name: Package RPMs (${{ matrix.target }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            packages: ""
+            env: 
+              ARCH: x86_64
+          - target: aarch64-unknown-linux-gnu
+            packages: ""
+            env: 
+              ARCH: aarch64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -99,42 +110,32 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm  
-      - name: Make x86_64 spec file
+      - name: Make spec file
+        env: ${{ matrix.env }}
         run: |
           chmod 777 scripts/gen-spec.sh
-          scripts/gen-spec.sh x86_64 ${RELEASE_VERSION}
-      - name: Make aarch64 spec file
-        run: |
-          chmod 777 scripts/gen-spec.sh
-          scripts/gen-spec.sh aarch64 ${RELEASE_VERSION}
-      - name: Build x86_64 RPM package
+          scripts/gen-spec.sh ${ARCH} ${RELEASE_VERSION}
+      - name: Build RPM package
         id: rpm_build
+        env: ${{ matrix.env }}
         uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
         with:
-          spec_file: "ramwise-x86_64.spec"
-      - name: Build aarch64 RPM package
-        id: rpm_build_arm
-        uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
-        with:
-          spec_file: "ramwise-aarch64.spec"
+          spec_file: "ramwise-${{ env.ARCH }}.spec"
       - name: Find RPM
         id: find_rpm
         shell: bash
         run: |
-          RPM1=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 1)
-          RPM2=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 2 | tail -n 1)
+          RPM=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 1)
 
-          echo "Found RPMs: $RPM1 $RPM2"
-          echo "rpm1_path=$RPM1" >> "$GITHUB_OUTPUT"
-          echo "rpm2_path=$RPM2" >> "$GITHUB_OUTPUT"
+          echo "Found RPM: $RPM"
+          echo "rpm_path=$RPM" >> "$GITHUB_OUTPUT"
 
       - name: Upload RPMs
         uses: actions/upload-artifact@v4
         with:
           name: rpm-${{ matrix.target }}
           path: |
-            ${{ steps.find_rpm.outputs.rpm1_path }}
-            ${{ steps.find_rpm.outputs.rpm2_path }}
+            ${{ steps.find_rpm.outputs.rpm_path }}
 
   publish-release:
     name: Create GitHub Release
