@@ -84,33 +84,45 @@ jobs:
       - name: Install RPM build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm      
-      - name: Build RPM package
+          sudo apt-get install -y rpm  
+          - name: Install RPM build tools
+      - name: Make x86_64 spec file
+        run: |
+          chmod 777 scripts/gen-spec.sh
+          scripts/gen-spec.sh x86_64 ${TAG}
+                - name: Make x86_64 spec file
+      - name: Make aarch64 spec file
+        run: |
+          chmod 777 scripts/gen-spec.sh
+          scripts/gen-spec.sh aarch64 ${TAG}
+      - name: Build x86_64 RPM package
         id: rpm_build
-        uses: naveenrajm7/rpmbuild@master
+        uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
         with:
-          spec_file: "ramwise.spec"
-
+          spec_file: "ramwise-x86_64.spec"
+      - name: Build aarch64 RPM package
+        id: rpm_build_arm
+        uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
+        with:
+          spec_file: "ramwise-aarch64.spec"
       - name: Find RPM
         id: find_rpm
         shell: bash
         run: |
-          RPM=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 1)
+          RPM1=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 1)
+          RPM2=$(find rpmbuild/RPMS -type f -name '*.rpm' | head -n 2 | tail -n 1)
 
-          if [ -z "$RPM" ]; then
-            echo "No RPM found"
-            find rpmbuild -type f -print || true
-            exit 1
-          fi
+          echo "Found RPMs: $RPM1 $RPM2"
+          echo "rpm1_path=$RPM1" >> "$GITHUB_OUTPUT"
+          echo "rpm2_path=$RPM2" >> "$GITHUB_OUTPUT"
 
-          echo "Found RPM: $RPM"
-          echo "rpm_path=$RPM" >> "$GITHUB_OUTPUT"
-
-      - name: Upload RPM
+      - name: Upload RPMs
         uses: actions/upload-artifact@v4
         with:
           name: rpm-${{ matrix.target }}
-          path: ${{ steps.find_rpm.outputs.rpm_path }}
+          path: |
+            ${{ steps.find_rpm.outputs.rpm1_path }}
+            ${{ steps.find_rpm.outputs.rpm2_path }}
 
   publish-release:
     name: Create GitHub Release

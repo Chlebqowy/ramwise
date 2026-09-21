@@ -1,3 +1,6 @@
+#!/bin/sh
+# $1 - arch, $2 - ver
+cat > "ramwise-$1.spec" <<EOF
 #
 # spec file for package ramwise
 #
@@ -17,7 +20,8 @@
 
 
 Name:           ramwise
-Version:        0.1.0
+# CHANGE THIS WHEN BUILDING A NEW VERSION
+Version:        $2
 Release:        1%{?dist}
 Summary:        a modern memory visualiser tui
 License:        MIT
@@ -25,6 +29,7 @@ URL:            https://github.com/Duckaet/ramwise
 %global debug_package %{nil}
 Source0:        https://github.com/Duckaet/ramwise/archive/refs/tags/ramwise-%{version}.tar.gz
 BuildRequires:  cargo, make
+BuildArch:      $1
 
 %description
 ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory monitoring. It provides deep memory introspection, intelligent leak detection, and beautiful visualization all in a lightweight TUI application.
@@ -33,10 +38,10 @@ ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory m
 %setup -q
 
 %build
-make %{?_smp_mflags}
+make build-$1 %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT 
+rm -rf \$RPM_BUILD_ROOT 
 %make_install
 
 %files 
@@ -46,3 +51,4 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sun Sep 13 2026 - v0.1.0
 - First release
+EOF
