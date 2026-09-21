@@ -5,16 +5,22 @@ build-x86_64:
 	mkdir -pv target
 	mkdir -pv target/release
 	cp -f target/x86_64-unknown-linux-gnu/release/ramwise target/release/release
+	ls target
+	ls target/release/
 build-arm:
 	cargo build --release --target aarch64-unknown-linux-gnu
 	mkdir -pv target
 	mkdir -pv target/release
 	cp -f target/aarch64-unknown-linux-gnu/release/ramwise target/release/release
+	ls target
+	ls target/release/
 build-mac:
 	cargo build --release --target aarch64-apple-darwin
 	mkdir -pv target
 	mkdir -pv target/release
 	cp -f target/aarch64-apple-darwin/release/ramwise target/release/release
+	ls target
+	ls target/release/
 debug:
 	cargo build
 debug-x86_64:
