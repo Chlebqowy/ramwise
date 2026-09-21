@@ -90,11 +90,11 @@ jobs:
       - name: Make x86_64 spec file
         run: |
           chmod 777 scripts/gen-spec.sh
-          scripts/gen-spec.sh x86_64 ${TAG}
+          scripts/gen-spec.sh x86_64 ${RELEASE_VERSION}
       - name: Make aarch64 spec file
         run: |
           chmod 777 scripts/gen-spec.sh
-          scripts/gen-spec.sh aarch64 ${TAG}
+          scripts/gen-spec.sh aarch64 ${RELEASE_VERSION}
       - name: Build x86_64 RPM package
         id: rpm_build
         uses: naveenrajm7/rpmbuild@3a7282e96d04bc88ebdeb0ec422569f01b5bfa0a
