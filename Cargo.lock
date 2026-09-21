@@ -1283,7 +1283,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3274ba0a2c5e1bcad2a2005d20f4dc59dad26b2eb0940fb094500dba4099d57d"
 dependencies = [
  "instability",
- "ratatui-core",
+ "ratatui-core",s
  "ratatui-crossterm",
  "ratatui-macros",
  "ratatui-termina",
