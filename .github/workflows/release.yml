@@ -85,12 +85,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm  
-          - name: Install RPM build tools
       - name: Make x86_64 spec file
         run: |
           chmod 777 scripts/gen-spec.sh
           scripts/gen-spec.sh x86_64 ${TAG}
-                - name: Make x86_64 spec file
       - name: Make aarch64 spec file
         run: |
           chmod 777 scripts/gen-spec.sh
