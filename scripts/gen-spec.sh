@@ -41,11 +41,11 @@ ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory m
 make build-$1 %{?_smp_mflags}
 
 %install
-rm -rf \$RPM_BUILD_ROOT 
+rm -rf \$RPM_BUILD_ROOT
 %make_install
 
-%files 
-%license LICENSE
+%files
+%license /usr/share/licenses/ramwise/LICENSE
 /usr/bin/ramwise
 
 %changelog
