@@ -46,7 +46,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ RELEASE_TAG }}
+          ref: ${{ env.RELEASE_TAG }}
       - name: Install system dependencies
         if: matrix.packages != ''
         run: |
@@ -110,7 +110,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ RELEASE_TAG }}
+          ref: ${{ env.RELEASE_TAG }}
       - name: Install RPM build tools
         run: |
           sudo apt-get update
