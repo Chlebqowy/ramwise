@@ -1,8 +1,10 @@
 //! Layout management for the UI
 
 use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
-
+use serde::Deserialize;
+use std::{env, fs};
 /// Main layout manager
+#[derive(Debug, Clone, Deserialize)]
 pub struct Layout {
     /// Header height
     pub header_height: u16,
@@ -36,6 +38,18 @@ impl Layout {
             put_insights_on_top: false,
         }
     }
+    //pub fn custom() -> Result<Self, String> {
+    //    let home = env::var("HOME")
+
+    //    let path = std::path::PathBuf::from(home)
+    //        .join(".config")
+    //        .join("ramwise")
+    //        .join("layout.toml");
+
+    //    let contents = fs::read_to_string(&path)
+    //    // todo output string for errors
+    //    toml::from_str(&contents).unwrap_or_else(Self::new())
+    //}
 
     /// Calculate all layout areas from the terminal size
     pub fn calculate(&self, area: Rect) -> LayoutAreas {
@@ -104,7 +118,12 @@ impl Layout {
 
 impl Default for Layout {
     fn default() -> Self {
-        Self::new()
+        //if !args.layout_config {
+            Self::new()
+        //} else {
+        //    Self::custom()
+        //    // if it is string, quit program
+        //}
     }
 }
 

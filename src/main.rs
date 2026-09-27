@@ -65,6 +65,10 @@ struct Args {
     /// Theme (by default light or dark)
     #[arg(short, long, default_value = "dark")]
     theme: String,
+
+    /// Theme (by default light or dark)
+    #[arg(long)]
+    layout_config: bool,
 }
 
 #[tokio::main]
