@@ -38,6 +38,9 @@ impl Layout {
             put_insights_on_top: false,
         }
     }
+    // maybe make it use the theme but idk if that's initialised yet
+    // have to check how app is initialised and maybe give layout_config to here
+    // or somehow get it directly from args
     //pub fn custom() -> Result<Self, String> {
     //    let home = env::var("HOME")
 
@@ -47,7 +50,7 @@ impl Layout {
     //        .join("layout.toml");
 
     //    let contents = fs::read_to_string(&path)
-    //    // todo output string for errors
+        // todo output string for errors
     //    toml::from_str(&contents).unwrap_or_else(Self::new())
     //}
 
@@ -122,7 +125,7 @@ impl Default for Layout {
             Self::new()
         //} else {
         //    Self::custom()
-        //    // if it is string, quit program
+            // if it is string, quit program
         //}
     }
 }
