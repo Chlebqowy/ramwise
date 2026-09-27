@@ -43,6 +43,12 @@ impl SystemMemory {
         self.total.saturating_sub(self.available)
     }
 
+    /// Calculate empty swap
+    pub fn empty_swap(&self) -> u64
+    {
+        self.swap_total.saturating_sub(self.swap_used)
+    }
+
     /// Calculate memory usage percentage
     pub fn usage_percent(&self) -> f64 {
         if self.total == 0 {
