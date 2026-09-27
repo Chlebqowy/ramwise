@@ -27,7 +27,7 @@ pub struct Analyzer {
     /// Maximum insights to keep
     max_insights: usize,
     /// List of apps to ignore (PID)
-    pub ignore_list: Vec<i32>
+    pub ignore_list: Vec<i32>,
 }
 
 impl Analyzer {
@@ -75,8 +75,7 @@ impl Analyzer {
                     continue; // Still in cooldown
                 }
 
-                if let Some(pid) = insight.pid
-                { 
+                if let Some(pid) = insight.pid {
                     if self.ignore_list.contains(&pid) {
                         continue;
                     }
@@ -84,7 +83,7 @@ impl Analyzer {
 
                 // Add or update insight
                 self.last_triggered.insert(insight.id.clone(), now);
-                    self.active_insights.insert(insight.id.clone(), insight);
+                self.active_insights.insert(insight.id.clone(), insight);
             }
         }
 

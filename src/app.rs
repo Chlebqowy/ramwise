@@ -300,10 +300,8 @@ impl App {
                 if self.selected_process().is_none() {
                     self.set_status(ActionStatusKind::Warning, "No process selected");
                 } else {
-                    if let Some(selected_pid) = self.process_list_state.selected_pid 
-                    {
-                        if self.analyzer.ignore_list.contains(&selected_pid) 
-                        {
+                    if let Some(selected_pid) = self.process_list_state.selected_pid {
+                        if self.analyzer.ignore_list.contains(&selected_pid) {
                             self.analyzer.ignore_list.retain(|pid| *pid != selected_pid);
                         } else {
                             self.analyzer.ignore_list.push(selected_pid)
