@@ -2,7 +2,6 @@
 
 use std::time::{Duration, Instant};
 
-use crossterm::event::KeyCode::Null;
 use crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::analyzer::Analyzer;
@@ -305,7 +304,7 @@ impl App {
                     {
                         if self.analyzer.ignore_list.contains(&selected_pid) 
                         {
-                            self.analyzer.ignore_list.retain(|PID| *PID != selected_pid);
+                            self.analyzer.ignore_list.retain(|pid| *pid != selected_pid);
                         } else {
                             self.analyzer.ignore_list.push(selected_pid)
                         }
