@@ -3,65 +3,115 @@
 #![allow(dead_code)]
 
 use ratatui::style::{Color, Modifier, Style};
+use serde::Deserialize;
+use std::fs;
+use std::env;
+
+fn deserialize_color<'de, D>(deserialiser: D) -> Result<Color, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let [r, g, b] = <[u8; 3]>::deserialize(deserialiser)?;
+    Ok(Color::Rgb(r, g, b))
+}
 
 /// Modern color theme - Material Design 3 inspired
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Theme {
     // Base colors - Deep dark with slight blue undertone
+    #[serde(deserialize_with = "deserialize_color")]
     pub bg: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub bg_elevated: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub bg_card: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub fg: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub fg_dim: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub fg_muted: Color,
 
     // Primary accent - Vibrant purple/violet
+    #[serde(deserialize_with = "deserialize_color")]
     pub primary: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub primary_dim: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub primary_container: Color,
 
     // Secondary accent - Teal/Cyan
+    #[serde(deserialize_with = "deserialize_color")]
     pub secondary: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub secondary_dim: Color,
 
     // Tertiary - Coral/Pink for special highlights
+    #[serde(deserialize_with = "deserialize_color")]
     pub tertiary: Color,
 
     // Semantic colors
+    #[serde(deserialize_with = "deserialize_color")]
     pub error: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub error_container: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub warning: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub warning_container: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub success: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub success_container: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub info: Color,
 
     // Memory usage gradient (smooth transitions)
+    #[serde(deserialize_with = "deserialize_color")]
     pub mem_excellent: Color, // < 30%
+    #[serde(deserialize_with = "deserialize_color")]
     pub mem_good: Color,      // 30-50%
+    #[serde(deserialize_with = "deserialize_color")]
     pub mem_moderate: Color,  // 50-70%
+    #[serde(deserialize_with = "deserialize_color")]
     pub mem_high: Color,      // 70-85%
+    #[serde(deserialize_with = "deserialize_color")]
     pub mem_critical: Color,  // > 85%
 
     // UI elements
+    #[serde(deserialize_with = "deserialize_color")]
     pub border: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub border_focused: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub border_subtle: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub selection_bg: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub selection_fg: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub header_bg: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub header_fg: Color,
 
     // Graph colors
+    #[serde(deserialize_with = "deserialize_color")]
     pub graph_line: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub graph_fill: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub graph_axis: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub graph_grid: Color,
 
     // Process list specific
+    #[serde(deserialize_with = "deserialize_color")]
     pub row_alt_bg: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub rank_top: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub rank_high: Color,
+    #[serde(deserialize_with = "deserialize_color")]
     pub rank_normal: Color,
 }
 
@@ -187,6 +237,19 @@ impl Theme {
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
         }
+    }
+    pub fn custom() -> Result<Self, String> {
+        let home = env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
+
+        let path = std::path::PathBuf::from(home)
+            .join(".config")
+            .join("ramwise")
+            .join("theme.toml");
+
+        let contents = fs::read_to_string(&path)
+            .map_err(|_| "$HOME/.config/ramwise/theme.toml not found".to_string())?;
+
+        toml::from_str(&contents).map_err(|err| err.to_string())
     }
 
     /// Get memory color based on percentage (0-100) with smooth gradient

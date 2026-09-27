@@ -91,6 +91,15 @@ impl App {
         let theme = match theme_name.trim().to_lowercase().as_str() {
             "light" => Theme::light(),
             "dark" => Theme::dark(),
+            "custom" => match Theme::custom() {
+                Ok(theme) => (theme),
+                Err(err) => {
+                    eprintln!("Failed to load custom theme: {err}");
+                    std::process::exit(1);
+                    Theme::dark()
+                    // breaks the shell but I could not figure out a better way to do this. App is not created yet and fallback would not print it because of the ui. Also fallback is only for the build not to error out
+                }
+            },
             other => {
                 tracing::warn!("Invalid theme: {other}. Using dark as fallback.");
                 Theme::dark()
