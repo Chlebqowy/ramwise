@@ -24,14 +24,16 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             packages: ""
-            env: {}
+            env: 
+                ARCH: x86_64
           - target: x86_64-unknown-linux-musl
             packages: "musl-tools"
-            env: {}
+            env: 
+                ARCH: x86_64-musl
           - target: aarch64-unknown-linux-gnu
             packages: "gcc-aarch64-linux-gnu"
             env:
-              CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+                ARCH: aarch64 CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
 
     steps:
       - name: Set Release Version
@@ -59,7 +61,7 @@ jobs:
       - name: Build release binary
         env: ${{ matrix.env }}
         run: |
-          cargo build --release --target ${{ matrix.target }}
+          make build-${ARCH}
 
       - name: Package archive
         run: |
