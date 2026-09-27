@@ -80,6 +80,7 @@ ramwise -t light
 | `X` | Confirm and send `SIGKILL` to selected process |
 | `?` | Toggle help overlay |
 | `q` | Quit |
+| `i` | Blacklist/unblacklist the process from appearing in insights
 
 Notes:
 - `SIGKILL` requires confirmation in-app (`Enter` confirm, `Esc` cancel).
