@@ -72,9 +72,8 @@ impl<'a> Widget for HeaderWidget<'a> {
 
         // Swap usage with smooth gradient bar
         let swap_percent = sys.swap_percent();
-        let swap = if sys.swap_total > 0 { 
-            if matches!(self.swap_type, SwapDisplay::BAR) 
-            {
+        let swap = if sys.swap_total > 0 {
+            if matches!(self.swap_type, SwapDisplay::BAR) {
                 // Swap usage with bar
                 let swap_color = self.theme.mem_color_interpolated(swap_percent);
                 let swap_bar = create_sleek_bar(swap_percent, 8);
@@ -82,7 +81,11 @@ impl<'a> Widget for HeaderWidget<'a> {
                     Span::styled("SWAP ", Style::default().fg(self.theme.fg_dim)),
                     Span::styled(swap_bar, Style::default().fg(swap_color)),
                     Span::styled(
-                        format!(" {}/{} ", format_bytes(sys.swap_used), format_bytes(sys.swap_total),),
+                        format!(
+                            " {}/{} ",
+                            format_bytes(sys.swap_used),
+                            format_bytes(sys.swap_total),
+                        ),
                         Style::default().fg(self.theme.fg),
                     ),
                     Span::styled(

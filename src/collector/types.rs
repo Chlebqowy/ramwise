@@ -44,8 +44,7 @@ impl SystemMemory {
     }
 
     /// Calculate empty swap
-    pub fn empty_swap(&self) -> u64
-    {
+    pub fn empty_swap(&self) -> u64 {
         self.swap_total.saturating_sub(self.swap_used)
     }
 
