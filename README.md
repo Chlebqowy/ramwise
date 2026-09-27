@@ -107,6 +107,7 @@ ramwise -t dark
 # Launch with light theme (Gruvbox Light)
 ramwise -t light
 ```
+You can also add a custom theme in .config/ramwise/theme.toml. The theme in the app will be called custom and will not need to be registered by you.
 
 Custom themes can be added to `src/ui/theme.rs` and registered in `App::new` (`src/app.rs`).
 
