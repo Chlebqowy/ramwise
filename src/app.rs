@@ -2,6 +2,7 @@
 
 use std::time::{Duration, Instant};
 
+use crossterm::event::KeyCode::Null;
 use crossterm::event::{KeyCode, KeyModifiers};
 
 use crate::analyzer::Analyzer;
@@ -294,6 +295,21 @@ impl App {
                     self.set_status(ActionStatusKind::Warning, "No process selected");
                 } else {
                     self.show_kill_confirm = true;
+                }
+            }
+            KeyCode::Char('i') => {
+                if self.selected_process().is_none() {
+                    self.set_status(ActionStatusKind::Warning, "No process selected");
+                } else {
+                    if let Some(selected_pid) = self.process_list_state.selected_pid 
+                    {
+                        if self.analyzer.ignore_list.contains(&selected_pid) 
+                        {
+                            self.analyzer.ignore_list.retain(|PID| *PID != selected_pid);
+                        } else {
+                            self.analyzer.ignore_list.push(selected_pid)
+                        }
+                    }
                 }
             }
             _ => {}

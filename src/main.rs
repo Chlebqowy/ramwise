@@ -255,6 +255,7 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     G            Go to bottom
     x            Send SIGTERM
     X            Confirm + send SIGKILL
+    i            Blacklist the selected process from insights
 
   General:
     ?            Toggle this help

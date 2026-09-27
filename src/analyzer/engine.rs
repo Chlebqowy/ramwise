@@ -26,6 +26,8 @@ pub struct Analyzer {
     last_triggered: HashMap<String, Instant>,
     /// Maximum insights to keep
     max_insights: usize,
+    /// List of apps to ignore (PID)
+    pub ignore_list: Vec<i32>
 }
 
 impl Analyzer {
@@ -45,6 +47,7 @@ impl Analyzer {
             cooldown: Duration::from_secs(60), // Don't re-trigger same insight for 1 min
             last_triggered: HashMap::new(),
             max_insights: 10,
+            ignore_list: vec![],
         }
     }
 
@@ -72,9 +75,16 @@ impl Analyzer {
                     continue; // Still in cooldown
                 }
 
+                if let Some(pid) = insight.pid
+                { 
+                    if self.ignore_list.contains(&pid) {
+                        continue;
+                    }
+                }
+
                 // Add or update insight
                 self.last_triggered.insert(insight.id.clone(), now);
-                self.active_insights.insert(insight.id.clone(), insight);
+                    self.active_insights.insert(insight.id.clone(), insight);
             }
         }
 
