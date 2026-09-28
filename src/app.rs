@@ -102,7 +102,7 @@ impl App {
             },
             other => {
                 tracing::warn!("Invalid theme: {other}. Using dark as fallback.");
-                Theme::dark()
+                Theme::dark() // Needed for this not to be red in my ide
             }
         };
         Self {

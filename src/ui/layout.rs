@@ -6,7 +6,7 @@ use serde::Deserialize;
 /// Main layout manager
 #[derive(Debug, Clone, Deserialize)]
 pub struct Layout {
-    theme: Theme,
+    theme: Theme, // Actually used, without it theme would need to be copied, with another name it would be not found
     /// Header height
     pub header_height: u16,
     /// Main panel height
@@ -28,7 +28,7 @@ pub struct Layout {
 impl Layout {
     pub fn new(theme: Theme) -> Self {
         Self {
-            theme: theme.clone(),
+            theme: theme.clone(), // Actually used, without it theme would need to be copied, with another name it would be not found
             header_height: theme.header_height,
             center_height: theme.center_height,
             bottom_height: theme.bottom_height,
