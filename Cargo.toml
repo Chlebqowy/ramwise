@@ -31,6 +31,7 @@ clap = { version = "4", features = ["derive"] }
 # Serialization for config
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
+shellexpand = "3.1.2"
 
 # Config file location
 directories = "6"
@@ -38,6 +39,7 @@ directories = "6"
 # Logging (optional, for debugging)
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
 
 [dev-dependencies]
 serde_json = "1"
