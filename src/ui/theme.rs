@@ -5,7 +5,6 @@
 use ratatui::style::{Color, Modifier, Style};
 use serde::Deserialize;
 use std::fs;
-use std::env;
 
 fn deserialize_color<'de, D>(deserialiser: D) -> Result<Color, D::Error>
 where
@@ -279,8 +278,9 @@ impl Theme {
         }
     }
     pub fn custom(custom_theme_file: String) -> Result<Self, String> {
-        eprintln!("{}",custom_theme_file);
-        let path = std::path::PathBuf::from(custom_theme_file);
+        let theme_file = shellexpand::full(&custom_theme_file).map_err(|e| format!("{custom_theme_file} expanding failed: {e}"))?;
+        //eprintln!("{}",theme_file);
+        let path = std::path::PathBuf::from(theme_file.into_owned());
         let contents = fs::read_to_string(&path)
             .map_err(|_| format!("{custom_theme_file} not found").to_string())?;
 
