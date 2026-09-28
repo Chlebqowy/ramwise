@@ -63,6 +63,9 @@ ramwise --debug
 
 # Use light mode
 ramwise -t light
+
+# Use config at /home/user/.config/ramwise/theme.toml
+ramwise --custom_theme_file $HOME/.config/ramwise/theme.toml 
 ```
 
 ## Keyboard Shortcuts
@@ -107,20 +110,12 @@ ramwise -t dark
 # Launch with light theme (Gruvbox Light)
 ramwise -t light
 ```
-You can also add a custom theme in .config/ramwise/theme.toml. The theme in the app will be called custom and will not need to be registered by you.
+You can also add a custom theme in $HOME/.config/ramwise/theme.toml. The theme in the app will be called custom and will not need to be registered by you.
 
 Custom themes can be added to `src/ui/theme.rs` and registered in `App::new` (`src/app.rs`).
 
 ### Layout Customization
-Layout dimensions and panel splits can be customized in `src/ui/layout.rs` (`Layout::new`):
-- `header_height`: Height of the top status bar.
-- `center_height`: Minimum height of the main process/detail panels.
-- `bottom_height`: Height of the insights panel.
-- `left_width_percent`: Width percentage allocated to the process list.
-- `side_vertical_split_percent`: Height percentage allocated to process details vs memory graph.
-- `invert_horizontal_split`: Swap process list and side panels.
-- `invert_side_vertical_split`: Swap detail view and trend graph.
-- `put_insights_on_top`: Place the insights panel below the header instead of at the bottom.
+Layout dimensions and panel splits can be customized in themes
 
 
 ## Insight Rules
