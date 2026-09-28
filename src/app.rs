@@ -452,13 +452,13 @@ mod tests {
 
     #[test]
     fn app_theme_selection() {
-        let app_light = App::new("light");
+        let app_light = App::new("light", "");
         assert_eq!(app_light.theme.bg, Theme::light().bg);
 
-        let app_dark = App::new("dark");
+        let app_dark = App::new("dark", "");
         assert_eq!(app_dark.theme.bg, Theme::dark().bg);
 
-        let app_fallback = App::new("unknown-theme");
+        let app_fallback = App::new("unknown-theme", "");
         assert_eq!(app_fallback.theme.bg, Theme::dark().bg);
     }
 }
