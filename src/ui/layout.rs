@@ -1,7 +1,7 @@
 //! Layout management for the UI
 
-use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
 use crate::ui::Theme;
+use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
 use serde::Deserialize;
 /// Main layout manager
 #[derive(Debug, Clone, Deserialize)]
@@ -108,7 +108,7 @@ impl Layout {
 
 impl Default for Layout {
     fn default() -> Self {
-            Self::new(Theme::dark())
+        Self::new(Theme::dark())
     }
 }
 

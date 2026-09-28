@@ -69,13 +69,13 @@ pub struct Theme {
     #[serde(deserialize_with = "deserialize_color")]
     pub mem_excellent: Color, // < 30%
     #[serde(deserialize_with = "deserialize_color")]
-    pub mem_good: Color,      // 30-50%
+    pub mem_good: Color, // 30-50%
     #[serde(deserialize_with = "deserialize_color")]
-    pub mem_moderate: Color,  // 50-70%
+    pub mem_moderate: Color, // 50-70%
     #[serde(deserialize_with = "deserialize_color")]
-    pub mem_high: Color,      // 70-85%
+    pub mem_high: Color, // 70-85%
     #[serde(deserialize_with = "deserialize_color")]
-    pub mem_critical: Color,  // > 85%
+    pub mem_critical: Color, // > 85%
 
     // UI elements
     #[serde(deserialize_with = "deserialize_color")]
@@ -278,7 +278,8 @@ impl Theme {
         }
     }
     pub fn custom(custom_theme_file: String) -> Result<Self, String> {
-        let theme_file = shellexpand::full(&custom_theme_file).map_err(|e| format!("{custom_theme_file} expanding failed: {e}"))?;
+        let theme_file = shellexpand::full(&custom_theme_file)
+            .map_err(|e| format!("{custom_theme_file} expanding failed: {e}"))?;
         //eprintln!("{}",theme_file);
         let path = std::path::PathBuf::from(theme_file.into_owned());
         let contents = fs::read_to_string(&path)
