@@ -67,8 +67,8 @@ struct Args {
     theme: String,
 
     /// Theme (by default light or dark)
-    #[arg(long)]
-    layout_config: bool,
+    #[arg(long, default_value = "$HOME/.config/ramwise/theme.toml")]
+    custom_theme_file: String, // TODO actually use it and pass it to theme, there convert it to FileBuf
 }
 
 #[tokio::main]
