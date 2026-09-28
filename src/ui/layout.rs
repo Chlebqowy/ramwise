@@ -28,33 +28,18 @@ pub struct Layout {
 impl Layout {
     pub fn new(theme: Theme) -> Self {
         Self {
-            theme,
-            header_height: 1,
-            center_height: 10,
-            bottom_height: 4,
-            left_width_percent: 40,
-            side_vertical_split_percent: 60,
+            theme: theme.clone(),
+            header_height: theme.header_height,
+            center_height: theme.center_height,
+            bottom_height: theme.bottom_height,
+            left_width_percent: theme.left_width_percent,
+            side_vertical_split_percent: theme.side_vertical_split_percent,
 
-            invert_horizontal_split: false,
-            invert_side_vertical_split: false,
-            put_insights_on_top: false,
+            invert_horizontal_split: theme.invert_horizontal_split,
+            invert_side_vertical_split: theme.invert_side_vertical_split,
+            put_insights_on_top: theme.put_insights_on_top,
         }
     }
-    // maybe make it use the theme but idk if that's initialised yet
-    // have to check how app is initialised and maybe give layout_config to here
-    // or somehow get it directly from args
-    //pub fn custom() -> Result<Self, String> {
-    //    let home = env::var("HOME")
-
-    //    let path = std::path::PathBuf::from(home)
-    //        .join(".config")
-    //        .join("ramwise")
-    //        .join("layout.toml");
-
-    //    let contents = fs::read_to_string(&path)
-        // todo output string for errors
-    //    toml::from_str(&contents).unwrap_or_else(Self::new())
-    //}
 
     /// Calculate all layout areas from the terminal size
     pub fn calculate(&self, area: Rect) -> LayoutAreas {
@@ -123,12 +108,7 @@ impl Layout {
 
 impl Default for Layout {
     fn default() -> Self {
-        //if !args.layout_config {
             Self::new(Theme::dark())
-        //} else {
-        //    Self::custom()
-            // if it is string, quit program
-        //}
     }
 }
 
