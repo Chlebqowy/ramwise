@@ -113,6 +113,24 @@ pub struct Theme {
     pub rank_high: Color,
     #[serde(deserialize_with = "deserialize_color")]
     pub rank_normal: Color,
+
+    // Layout
+    /// Header height
+    pub header_height: u16,
+    /// Main panel height
+    pub center_height: u16,
+    /// Bottom panel height
+    pub bottom_height: u16,
+    /// Left panel width percentage
+    pub left_width_percent: u16,
+    /// Percentage of the top panel for the right side split (by default contains details and graph)
+    pub side_vertical_split_percent: u16,
+    /// If this value is true, the left panel will be on the right and the right panel will be on the left.
+    pub invert_horizontal_split: bool,
+    /// If this value is true, the top panel will be on the bottom and the bottom panel will be on the top.
+    pub invert_side_vertical_split: bool,
+    /// If this value is true, the insights panel will be below the header and above main
+    pub put_insights_on_top: bool,
 }
 
 impl Theme {
@@ -175,6 +193,17 @@ impl Theme {
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
             rank_high: Color::Rgb(180, 130, 255),   // Purple for top 5
             rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
+
+            // Layout
+            header_height: 1,
+            center_height: 10,
+            bottom_height: 4,
+            left_width_percent: 40,
+            side_vertical_split_percent: 60,
+
+            invert_horizontal_split: false,
+            invert_side_vertical_split: false,
+            put_insights_on_top: false,
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -236,6 +265,17 @@ impl Theme {
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
+
+            // Layout
+            header_height: 1,
+            center_height: 10,
+            bottom_height: 4,
+            left_width_percent: 40,
+            side_vertical_split_percent: 60,
+
+            invert_horizontal_split: false,
+            invert_side_vertical_split: false,
+            put_insights_on_top: false,
         }
     }
     pub fn custom() -> Result<Self, String> {

@@ -1,11 +1,12 @@
 //! Layout management for the UI
 
 use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
+use crate::ui::Theme;
 use serde::Deserialize;
-use std::{env, fs};
 /// Main layout manager
 #[derive(Debug, Clone, Deserialize)]
 pub struct Layout {
+    theme: Theme,
     /// Header height
     pub header_height: u16,
     /// Main panel height
@@ -25,8 +26,9 @@ pub struct Layout {
 }
 
 impl Layout {
-    pub fn new() -> Self {
+    pub fn new(theme: Theme) -> Self {
         Self {
+            theme,
             header_height: 1,
             center_height: 10,
             bottom_height: 4,
@@ -122,7 +124,7 @@ impl Layout {
 impl Default for Layout {
     fn default() -> Self {
         //if !args.layout_config {
-            Self::new()
+            Self::new(Theme::dark())
         //} else {
         //    Self::custom()
             // if it is string, quit program
@@ -151,7 +153,7 @@ mod tests {
 
     #[test]
     fn default_layout_calculation() {
-        let layout = Layout::new();
+        let layout = Layout::new(Theme::dark());
         let area = Rect::new(0, 0, 100, 50);
         let areas = layout.calculate(area);
 
@@ -167,7 +169,7 @@ mod tests {
 
     #[test]
     fn put_insights_on_top_inverts_vertical_order() {
-        let mut layout = Layout::new();
+        let mut layout = Layout::new(Theme::dark());
         layout.put_insights_on_top = true;
         let area = Rect::new(0, 0, 100, 50);
         let areas = layout.calculate(area);
@@ -183,7 +185,7 @@ mod tests {
 
     #[test]
     fn invert_horizontal_and_side_split() {
-        let mut layout = Layout::new();
+        let mut layout = Layout::new(Theme::dark());
         layout.invert_horizontal_split = true;
         layout.invert_side_vertical_split = true;
         let area = Rect::new(0, 0, 100, 50);

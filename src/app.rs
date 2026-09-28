@@ -92,7 +92,7 @@ impl App {
             "light" => Theme::light(),
             "dark" => Theme::dark(),
             "custom" => match Theme::custom() {
-                Ok(theme) => (theme),
+                Ok(theme) => theme,
                 Err(err) => {
                     eprintln!("Failed to load custom theme: {err}");
                     std::process::exit(1);

@@ -133,7 +133,7 @@ async fn run_app(
     app: &mut App,
     rx: &mut mpsc::Receiver<collector::MemorySnapshot>,
 ) -> Result<()> {
-    let layout = Layout::new();
+    let layout = Layout::new(app.theme.clone());
 
     loop {
         app.prune_transient_state();
