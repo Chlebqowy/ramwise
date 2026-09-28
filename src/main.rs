@@ -91,7 +91,7 @@ async fn main() -> Result<()> {
     let mut terminal = Terminal::new(backend).context("Failed to create terminal")?;
 
     // Create app
-    let mut app = App::new(&args.theme);
+    let mut app = App::new(&args.theme, &args.custom_theme_file);
 
     // Create collector
     let collector = Collector::new()

@@ -278,16 +278,11 @@ impl Theme {
             put_insights_on_top: false,
         }
     }
-    pub fn custom() -> Result<Self, String> {
-        let home = env::var("HOME").map_err(|_| "HOME is not set".to_string())?;
-
-        let path = std::path::PathBuf::from(home)
-            .join(".config")
-            .join("ramwise")
-            .join("theme.toml");
-
+    pub fn custom(custom_theme_file: String) -> Result<Self, String> {
+        eprintln!("{}",custom_theme_file);
+        let path = std::path::PathBuf::from(custom_theme_file);
         let contents = fs::read_to_string(&path)
-            .map_err(|_| "$HOME/.config/ramwise/theme.toml not found".to_string())?;
+            .map_err(|_| format!("{custom_theme_file} not found").to_string())?;
 
         toml::from_str(&contents).map_err(|err| err.to_string())
     }

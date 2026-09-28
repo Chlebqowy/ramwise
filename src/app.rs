@@ -87,11 +87,11 @@ pub struct App {
 
 impl App {
     /// Create a new application
-    pub fn new(theme_name: &str) -> Self {
+    pub fn new(theme_name: &str, custom_theme_file: &str) -> Self {
         let theme = match theme_name.trim().to_lowercase().as_str() {
             "light" => Theme::light(),
             "dark" => Theme::dark(),
-            "custom" => match Theme::custom() {
+            "custom" => match Theme::custom(custom_theme_file.to_string()) {
                 Ok(theme) => theme,
                 Err(err) => {
                     eprintln!("Failed to load custom theme: {err}");
@@ -404,7 +404,7 @@ impl App {
 
 impl Default for App {
     fn default() -> Self {
-        Self::new("dark")
+        Self::new("dark", "") // can be empty because dark is used
     }
 }
 
