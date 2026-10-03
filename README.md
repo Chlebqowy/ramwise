@@ -66,6 +66,31 @@ ramwise --debug
 ramwise -t light
 ```
 
+### Capture snapshots
+
+Capture one JSON snapshot to stdout, or write JSON/CSV files without starting
+the TUI:
+
+```bash
+# Machine-readable JSON on stdout
+ramwise --once > snapshot.json
+
+# Refuse to overwrite existing files
+ramwise --export-json snapshot.json --export-csv snapshot.csv
+
+# Replace existing files explicitly
+ramwise --export-json snapshot.json --force
+
+# Include per-mapping details in the CSV and timestamp the filename
+ramwise --export-csv capture.csv --export-details --export-timestamped
+
+# Stream CSV to stdout
+ramwise --export-csv -
+```
+
+Export failures and diagnostics are written to stderr; JSON and CSV payloads
+remain on stdout only when `-` is used.
+
 ## Keyboard Shortcuts
 
 | Key | Action |
