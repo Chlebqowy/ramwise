@@ -4,6 +4,35 @@
 
 use std::time::Instant;
 
+/// Pressure-stall (PSI) averages from `/proc/pressure/memory`.
+///
+/// Every average is optional: older kernels and containers may not expose the
+/// pressure files at all, and a missing file must surface as an explicit
+/// capability gap rather than a zero that looks like "no pressure".
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub struct MemoryPressure {
+    /// `some` line: share of time at least one task was stalled.
+    pub some_avg10: Option<f32>,
+    pub some_avg60: Option<f32>,
+    pub some_avg300: Option<f32>,
+    /// `full` line: share of time every non-idle task was stalled.
+    pub full_avg10: Option<f32>,
+    pub full_avg60: Option<f32>,
+    pub full_avg300: Option<f32>,
+}
+
+impl MemoryPressure {
+    /// Whether at least one pressure average was reported.
+    pub fn is_available(&self) -> bool {
+        self.some_avg10.is_some()
+            || self.some_avg60.is_some()
+            || self.some_avg300.is_some()
+            || self.full_avg10.is_some()
+            || self.full_avg60.is_some()
+            || self.full_avg300.is_some()
+    }
+}
+
 /// System-wide memory information from /proc/meminfo
 #[derive(Debug, Clone, Default)]
 pub struct SystemMemory {
@@ -21,8 +50,26 @@ pub struct SystemMemory {
     pub swap_total: u64,
     /// Used swap space
     pub swap_used: u64,
+    /// Cumulative pages swapped in (`pswpin` from /proc/vmstat); zero when unavailable
+    pub swap_in_pages: u64,
+    /// Cumulative pages swapped out (`pswpout` from /proc/vmstat); zero when unavailable
+    pub swap_out_pages: u64,
+    /// Swap-in rate in pages per second; `None` on the first sample or when
+    /// vmstat is unreadable, so unknown is never confused with idle
+    pub swap_in_rate: Option<f64>,
+    /// Swap-out rate in pages per second; `None` under the same conditions
+    pub swap_out_rate: Option<f64>,
     /// Kernel slab allocator memory
     pub slab: u64,
+    /// Reclaimable part of slab (`SReclaimable`); zero when the kernel omits it
+    pub slab_reclaimable: u64,
+    /// Unreclaimable part of slab (`SUnreclaim`); zero when the kernel omits it
+    pub slab_unreclaimable: u64,
+    /// Memory allocated to kernel stacks; zero when the kernel omits it
+    pub kernel_stack: u64,
+    /// Memory-pressure (PSI) inputs; all `None` when `/proc/pressure/memory`
+    /// is missing, which downstream marks as an explicit capability gap
+    pub pressure: MemoryPressure,
     /// Shared memory (shmem, tmpfs)
     pub shared: u64,
     /// Memory actively being used

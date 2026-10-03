@@ -29,7 +29,12 @@ pub struct CollectorMetadata {
 }
 
 /// System metrics. All memory values are bytes.
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// Swap rates are pages per second; pressure averages are PSI percentages.
+/// Optional values are `None` exactly when the input was unavailable, so a
+/// missing `/proc` file serializes as an explicit `null` next to an
+/// `unavailable` capability instead of a misleading zero.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct ExportSystemMemory {
     pub total_bytes: u64,
     pub available_bytes: u64,
@@ -38,7 +43,27 @@ pub struct ExportSystemMemory {
     pub cached_bytes: u64,
     pub swap_total_bytes: u64,
     pub swap_used_bytes: u64,
+    /// Added after schema 1 shipped: defaulted on read so older files parse.
+    #[serde(default)]
+    pub swap_in_pages: u64,
+    #[serde(default)]
+    pub swap_out_pages: u64,
+    pub swap_in_rate_per_sec: Option<f64>,
+    pub swap_out_rate_per_sec: Option<f64>,
     pub slab_bytes: u64,
+    /// Added after schema 1 shipped: defaulted on read so older files parse.
+    #[serde(default)]
+    pub slab_reclaimable_bytes: u64,
+    #[serde(default)]
+    pub slab_unreclaimable_bytes: u64,
+    #[serde(default)]
+    pub kernel_stack_bytes: u64,
+    pub pressure_some_avg10: Option<f32>,
+    pub pressure_some_avg60: Option<f32>,
+    pub pressure_some_avg300: Option<f32>,
+    pub pressure_full_avg10: Option<f32>,
+    pub pressure_full_avg60: Option<f32>,
+    pub pressure_full_avg300: Option<f32>,
     pub shared_bytes: u64,
     pub active_bytes: u64,
     pub inactive_bytes: u64,
@@ -104,7 +129,7 @@ pub struct ExportProcessMemory {
 }
 
 /// Serializable snapshot contract. The timestamp is Unix milliseconds (wall-clock UTC).
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExportSnapshot {
     pub schema_version: u32,
     pub captured_at_unix_ms: u64,
@@ -121,15 +146,36 @@ pub struct ExportSnapshot {
 pub type SnapshotExport = ExportSnapshot;
 
 impl ExportSnapshot {
-    /// Reject a payload from a schema version this binary does not understand.
+    /// Reject a payload from a schema version this binary does not understand,
+    /// or one carrying non-finite floats (rates and pressure must be real
+    /// numbers or explicit nulls, never NaN or infinity).
     pub fn validate(&self) -> Result<(), String> {
-        if self.schema_version == SNAPSHOT_SCHEMA_VERSION {
-            Ok(())
-        } else {
-            Err(format!(
+        if self.schema_version != SNAPSHOT_SCHEMA_VERSION {
+            return Err(format!(
                 "unsupported snapshot schema version {}",
                 self.schema_version
-            ))
+            ));
+        }
+        let system = &self.system;
+        let finite = [system.swap_in_rate_per_sec, system.swap_out_rate_per_sec]
+            .into_iter()
+            .flatten()
+            .all(f64::is_finite);
+        let pressures = [
+            system.pressure_some_avg10,
+            system.pressure_some_avg60,
+            system.pressure_some_avg300,
+            system.pressure_full_avg10,
+            system.pressure_full_avg60,
+            system.pressure_full_avg300,
+        ]
+        .into_iter()
+        .flatten()
+        .all(f32::is_finite);
+        if finite && pressures {
+            Ok(())
+        } else {
+            Err("non-finite swap rate or pressure value".to_string())
         }
     }
 
@@ -139,12 +185,20 @@ impl ExportSnapshot {
             ("processes".to_string(), Capability::Available),
             ("smaps_rollup".to_string(), Capability::Unavailable),
             ("regions".to_string(), Capability::Unavailable),
+            ("swap_rates".to_string(), Capability::Unavailable),
+            ("pressure".to_string(), Capability::Unavailable),
         ]);
         if snapshot.processes.iter().any(|p| p.pss != 0 || p.uss != 0) {
             capabilities.insert("smaps_rollup".to_string(), Capability::Available);
         }
         if snapshot.processes.iter().any(|p| p.regions.is_some()) {
             capabilities.insert("regions".to_string(), Capability::Available);
+        }
+        if snapshot.system.swap_in_rate.is_some() && snapshot.system.swap_out_rate.is_some() {
+            capabilities.insert("swap_rates".to_string(), Capability::Available);
+        }
+        if snapshot.system.pressure.is_available() {
+            capabilities.insert("pressure".to_string(), Capability::Available);
         }
         Self {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
@@ -184,21 +238,37 @@ fn wall_clock_ms() -> u64 {
         .map_or(0, |duration| duration.as_millis() as u64)
 }
 
-macro_rules! map_fields {
-    ($source:expr, $($field:ident => $export:ident),+ $(,)?) => {
-        Self { $($export: $source.$field,)+ }
-    };
-}
-
 impl From<&SystemMemory> for ExportSystemMemory {
     fn from(value: &SystemMemory) -> Self {
-        map_fields!(value,
-            total => total_bytes, available => available_bytes, free => free_bytes,
-            buffers => buffers_bytes, cached => cached_bytes, swap_total => swap_total_bytes,
-            swap_used => swap_used_bytes, slab => slab_bytes, shared => shared_bytes,
-            active => active_bytes, inactive => inactive_bytes, dirty => dirty_bytes,
-            writeback => writeback_bytes, mapped => mapped_bytes,
-        )
+        Self {
+            total_bytes: value.total,
+            available_bytes: value.available,
+            free_bytes: value.free,
+            buffers_bytes: value.buffers,
+            cached_bytes: value.cached,
+            swap_total_bytes: value.swap_total,
+            swap_used_bytes: value.swap_used,
+            swap_in_pages: value.swap_in_pages,
+            swap_out_pages: value.swap_out_pages,
+            swap_in_rate_per_sec: value.swap_in_rate,
+            swap_out_rate_per_sec: value.swap_out_rate,
+            slab_bytes: value.slab,
+            slab_reclaimable_bytes: value.slab_reclaimable,
+            slab_unreclaimable_bytes: value.slab_unreclaimable,
+            kernel_stack_bytes: value.kernel_stack,
+            pressure_some_avg10: value.pressure.some_avg10,
+            pressure_some_avg60: value.pressure.some_avg60,
+            pressure_some_avg300: value.pressure.some_avg300,
+            pressure_full_avg10: value.pressure.full_avg10,
+            pressure_full_avg60: value.pressure.full_avg60,
+            pressure_full_avg300: value.pressure.full_avg300,
+            shared_bytes: value.shared,
+            active_bytes: value.active,
+            inactive_bytes: value.inactive,
+            dirty_bytes: value.dirty,
+            writeback_bytes: value.writeback,
+            mapped_bytes: value.mapped,
+        }
     }
 }
 
@@ -296,6 +366,18 @@ mod tests {
     }
 
     #[test]
+    fn non_finite_values_are_rejected() {
+        let mut fixture = ExportSnapshot::fixture();
+        fixture.system.swap_in_rate_per_sec = Some(f64::NAN);
+        assert!(fixture.validate().is_err());
+        fixture.system.swap_in_rate_per_sec = Some(1.0);
+        fixture.system.pressure_some_avg10 = Some(f32::INFINITY);
+        assert!(fixture.validate().is_err());
+        fixture.system.pressure_some_avg10 = Some(1.0);
+        assert!(fixture.validate().is_ok());
+    }
+
+    #[test]
     fn fixture_is_deterministic() {
         assert_eq!(ExportSnapshot::fixture(), ExportSnapshot::fixture());
     }
@@ -340,5 +422,60 @@ mod tests {
         assert!(json["system"]["total_bytes"].is_number());
         assert!(json["processes"].is_array());
         assert_eq!(json["capabilities"]["processes"], "available");
+    }
+
+    #[test]
+    fn unavailable_inputs_are_explicit_gaps_not_zeros() {
+        let export = ExportSnapshot::from_runtime(&MemorySnapshot::default());
+        assert_eq!(export.capabilities["swap_rates"], Capability::Unavailable);
+        assert_eq!(export.capabilities["pressure"], Capability::Unavailable);
+        assert_eq!(export.system.swap_in_rate_per_sec, None);
+        assert_eq!(export.system.pressure_some_avg10, None);
+        let json = serde_json::to_value(&export).unwrap();
+        assert!(json["system"]["swap_in_rate_per_sec"].is_null());
+        assert!(json["system"]["pressure_some_avg10"].is_null());
+        assert_eq!(json["capabilities"]["swap_rates"], "unavailable");
+        assert_eq!(json["capabilities"]["pressure"], "unavailable");
+    }
+
+    #[test]
+    fn snapshots_predating_new_system_fields_still_parse() {
+        let mut json = serde_json::to_value(ExportSnapshot::fixture()).unwrap();
+        let system = json["system"].as_object_mut().unwrap();
+        for field in [
+            "swap_in_pages",
+            "swap_out_pages",
+            "swap_in_rate_per_sec",
+            "swap_out_rate_per_sec",
+            "slab_reclaimable_bytes",
+            "slab_unreclaimable_bytes",
+            "kernel_stack_bytes",
+            "pressure_some_avg10",
+            "pressure_full_avg300",
+        ] {
+            system.remove(field);
+        }
+        let decoded: ExportSnapshot = serde_json::from_value(json).unwrap();
+        assert_eq!(decoded.system.swap_in_pages, 0);
+        assert_eq!(decoded.system.kernel_stack_bytes, 0);
+        assert_eq!(decoded.system.pressure_full_avg300, None);
+        assert!(decoded.validate().is_ok());
+    }
+
+    #[test]
+    fn present_rates_and_pressure_mark_capabilities_available() {
+        let mut snapshot = MemorySnapshot::default();
+        snapshot.system.swap_in_pages = 1200;
+        snapshot.system.swap_out_pages = 3400;
+        snapshot.system.swap_in_rate = Some(10.0);
+        snapshot.system.swap_out_rate = Some(20.0);
+        snapshot.system.pressure.some_avg10 = Some(1.25);
+        let export = ExportSnapshot::from_runtime(&snapshot);
+        assert_eq!(export.capabilities["swap_rates"], Capability::Available);
+        assert_eq!(export.capabilities["pressure"], Capability::Available);
+        assert_eq!(export.system.swap_in_pages, 1200);
+        assert_eq!(export.system.swap_in_rate_per_sec, Some(10.0));
+        assert_eq!(export.system.pressure_some_avg10, Some(1.25));
+        assert!(export.validate().is_ok());
     }
 }
