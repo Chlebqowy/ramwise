@@ -106,15 +106,22 @@ impl Default for ProcessListState {
 pub struct ProcessListWidget<'a> {
     processes: &'a [ProcessMemory],
     theme: &'a Theme,
+    ignore_list: Vec<i32>,
     focused: bool,
     total_memory: u64,
 }
 
 impl<'a> ProcessListWidget<'a> {
-    pub fn new(processes: &'a [ProcessMemory], theme: &'a Theme, total_memory: u64) -> Self {
+    pub fn new(
+        processes: &'a [ProcessMemory],
+        theme: &'a Theme,
+        ignore_list: Vec<i32>,
+        total_memory: u64,
+    ) -> Self {
         Self {
             processes,
             theme,
+            ignore_list,
             focused: true,
             total_memory,
         }
@@ -159,8 +166,13 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     _ => Span::styled("  ", Style::default()),
                 };
 
-                let ignored = self.theme.ignored_process_indicator.to_string();
+                let ignored = if self.ignore_list.contains(&proc.pid) {
+                    self.theme.ignored_process_indicator.to_string()
+                } else {
+                    " ".to_string()
+                };
                 let ignored_borrowed: &str = &ignored;
+                let ignored_style = Style::default().fg(self.theme.fg_muted);
 
                 // Truncate name if needed
                 let mut name = if proc.name.len() > name_width {
@@ -168,7 +180,6 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 } else {
                     format!("{:<width$}", proc.name, width = name_width)
                 };
-                name += ignored_borrowed;
 
                 // Name styling - brighter for selected, dimmer for lower ranks
                 let name_style = if is_selected {
@@ -205,7 +216,8 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 let spans = vec![
                     rank_indicator,
                     Span::styled(name, name_style),
-                    Span::raw(" "),
+                    Span::styled(ignored, ignored_style),
+                    Span::raw(""),
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
                     Span::styled(bar, bar_style),
