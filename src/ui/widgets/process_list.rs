@@ -218,7 +218,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 let spans = vec![
                     rank_indicator,
-                    Scapan::styled(name, name_style),
+                    Span::styled(name, name_style),
                     Span::styled(ignored, ignored_style),
                     Span::raw(""),
                     Span::styled(mem_str, mem_style),
