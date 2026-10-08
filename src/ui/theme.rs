@@ -191,7 +191,7 @@ impl Theme {
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
 
-            ignored_process_indicator: '-',
+            ignored_process_indicator: '-', 
         }
     }
 
