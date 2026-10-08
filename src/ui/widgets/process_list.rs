@@ -172,10 +172,10 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     " ".to_string()
                 };
                 let ignored_style = match idx {
-                        0..=2 => Style::default().fg(self.theme.tertiary),
-                        3..=9 => Style::default().fg(self.theme.secondary),
-                        _ => Style::default().fg(self.theme.secondary_dim),
-                    };
+                    0..=2 => Style::default().fg(self.theme.tertiary),
+                    3..=9 => Style::default().fg(self.theme.secondary),
+                    _ => Style::default().fg(self.theme.secondary_dim),
+                };
 
                 // Truncate name if needed
                 let name = if proc.name.len() > name_width {
