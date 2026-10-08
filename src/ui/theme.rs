@@ -63,6 +63,8 @@ pub struct Theme {
     pub rank_top: Color,
     pub rank_high: Color,
     pub rank_normal: Color,
+
+    pub ignored_process_indicator: char,
 }
 
 impl Theme {
@@ -125,6 +127,8 @@ impl Theme {
             rank_top: Color::Rgb(255, 190, 70),     // Gold for #1
             rank_high: Color::Rgb(180, 130, 255),   // Purple for top 5
             rank_normal: Color::Rgb(160, 160, 175), // Dim for rest
+
+            ignored_process_indicator: '-',
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -186,6 +190,8 @@ impl Theme {
             rank_top: Color::Rgb(0xfa, 0xbd, 0x2f), // Light yellow for top 1
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_normal: Color::Rgb(0x28, 0x28, 0x28), // fg0 for rest
+
+            ignored_process_indicator: '-',
         }
     }
 

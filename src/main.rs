@@ -155,8 +155,13 @@ async fn run_app(
                 let processes = app.processes().to_vec();
                 let theme = app.theme.clone();
 
-                let process_list = ProcessListWidget::new(&processes, &theme, total_mem)
-                    .focused(focus == Focus::ProcessList);
+                let process_list = ProcessListWidget::new(
+                    &processes,
+                    &theme,
+                    app.analyzer.ignore_list(),
+                    total_mem,
+                )
+                .focused(focus == Focus::ProcessList);
 
                 frame.render_stateful_widget(
                     process_list,

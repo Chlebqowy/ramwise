@@ -103,6 +103,11 @@ impl Analyzer {
         insights
     }
 
+    /// Give ignore list
+    pub fn ignore_list(&self) -> Vec<i32> {
+        self.ignore_list.clone()
+    }
+
     /// Get insights for a specific process
     pub fn insights_for_process(&self, pid: i32) -> Vec<&Insight> {
         self.active_insights
