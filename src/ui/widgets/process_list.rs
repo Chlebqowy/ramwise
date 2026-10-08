@@ -171,11 +171,10 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 } else {
                     " ".to_string()
                 };
-                let ignored_borrowed: &str = &ignored;
                 let ignored_style = Style::default().fg(self.theme.fg_muted);
 
                 // Truncate name if needed
-                let mut name = if proc.name.len() > name_width {
+                let name = if proc.name.len() > name_width {
                     format!("{}…", &proc.name[..name_width.saturating_sub(1)])
                 } else {
                     format!("{:<width$}", proc.name, width = name_width)
