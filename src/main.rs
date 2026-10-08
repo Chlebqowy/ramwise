@@ -66,9 +66,10 @@ struct Args {
     #[arg(short, long, default_value = "dark")]
     theme: String,
 
-    /// Theme (by default light or dark)
+    /// Custom file for theme
     #[arg(long, default_value = "$HOME/.config/ramwise/theme.toml")]
-    custom_theme_file: String, // TODO actually use it and pass it to theme, there convert it to FileBuf
+    custom_theme_file: String,
+
     /// Print one compact JSON snapshot to stdout and exit (exit 0 on
     /// success, non-zero when collection fails; diagnostics go to stderr).
     /// Combines with --tiny: JSON prints first, then the status line.
@@ -730,6 +731,7 @@ mod tests {
             no_smaps: false,
             debug: false,
             theme: "dark".into(),
+            custom_theme_file: "$HOME/.config/ramwise/theme.toml".to_string(),
             tiny,
             once,
             watch,
