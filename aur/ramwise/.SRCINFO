@@ -1,0 +1,14 @@
+pkgbase = ramwise
+	pkgdesc = Intelligent RAM usage visualizer for Arch Linux
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Duckaet/ramwise
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	makedepends = cargo
+	depends = gcc-libs
+	source = ramwise-0.1.0.tar.gz::https://github.com/Duckaet/ramwise/archive/refs/tags/v0.1.0.tar.gz
+	sha256sums = SKIP
+
+pkgname = ramwise
