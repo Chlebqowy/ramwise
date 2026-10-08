@@ -75,10 +75,10 @@ impl Analyzer {
                     continue; // Still in cooldown
                 }
 
-                if let Some(pid) = insight.pid {
-                    if self.ignore_list.contains(&pid) {
-                        continue;
-                    }
+                if let Some(pid) = insight.pid
+                    && self.ignore_list.contains(&pid)
+                {
+                    continue;
                 }
 
                 // Add or update insight
