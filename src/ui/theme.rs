@@ -141,61 +141,61 @@ impl Theme {
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
         }
     }
-    pub fn ansi-4() -> Self {
+    pub fn ansi4bit() -> Self {
         Self {
-            // Base - Rich dark with subtle warmth
-            bg: Color::Rgb(18, 18, 24),
-            fg: Color::Rgb(230, 230, 240),
-            fg_dim: Color::Rgb(160, 160, 175),
-            fg_muted: Color::Rgb(100, 100, 115),
+            // Base - Basic monochrome l
+            bg: Color::Indexed(Ansi::black as u8),
+            fg: Color::Indexed(Ansi::white as u8),
+            fg_dim: Color::Indexed(Ansi::light_gray as u8),
+            fg_muted: Color::Indexed(Ansi::light_gray as u8),
 
-            // Primary - Electric violet/purple
-            primary: Color::Rgb(180, 130, 255),
-            primary_dim: Color::Rgb(140, 90, 200),
+            // Primary - Aqua
+            primary: Color::Indexed(Ansi::aqua as u8),
+            primary_dim: Color::Indexed(Ansi::dark_aqua as u8),
 
-            // Secondary - Vibrant teal
-            secondary: Color::Rgb(80, 220, 200),
+            // Secondary - Blue
+            secondary: Color::Indexed(Ansi::blue as u8),
 
-            // Tertiary - Warm coral
-            tertiary: Color::Rgb(255, 140, 120),
+            // Tertiary - Green
+            tertiary: Color::Indexed(Ansi::green as u8),
 
             // Semantic
-            error: Color::Rgb(255, 100, 100),
-            warning: Color::Rgb(255, 190, 70),
-            success: Color::Rgb(100, 230, 140),
-            info: Color::Rgb(100, 180, 255),
+            error: Color::Indexed(Ansi::red as u8),
+            warning: Color::Indexed(Ansi::dark_yellow as u8),
+            success: Color::Indexed(Ansi::dark_green as u8),
+            info: Color::Indexed(Ansi::dark_blue as u8),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(100, 230, 140), // Fresh green
-            mem_good: Color::Rgb(140, 220, 100),      // Lime
-            mem_moderate: Color::Rgb(255, 210, 80),   // Golden yellow
-            mem_high: Color::Rgb(255, 150, 80),       // Orange
-            mem_critical: Color::Rgb(255, 90, 90),    // Coral red
+            mem_excellent: Color::Indexed(Ansi::dark_green as u8), // Fresh green
+            mem_good: Color::Indexed(Ansi::green as u8),           // Lime
+            mem_moderate: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
+            mem_high: Color::Indexed(Ansi::dark_red as u8),        // Orange
+            mem_critical: Color::Indexed(Ansi::red as u8),         // Coral red
 
-            // UI elements
-            border: Color::Rgb(55, 55, 70),
-            border_focused: Color::Rgb(180, 130, 255),
-            selection_bg: Color::Rgb(60, 40, 90),
-            selection_fg: Color::Rgb(255, 255, 255),
-            header_bg: Color::Rgb(28, 28, 36),
+            // UI elements - blue borders and gray selections
+            border: Color::Indexed(Ansi::dark_blue as u8),
+            border_focused: Color::Indexed(Ansi::blue as u8),
+            selection_bg: Color::Indexed(Ansi::gray as u8),
+            selection_fg: Color::Indexed(Ansi::white as u8),
+            header_bg: Color::Indexed(Ansi::gray as u8),
 
             // Graph
-            graph_line: Color::Rgb(230, 230, 240),
+            graph_line: Color::Indexed(Ansi::aqua as u8),
             //graph_bg: Color::Rgb(255,0,0),
-            graph_border: Color::Rgb(55, 55, 70), //not actually border
-            graph_marker: Marker::Braille,
+            graph_border: Color::Indexed(Ansi::dark_aqua as u8), //not actually border
+            graph_marker: Marker::Braille, //dot looks better but braille shows data better
             // Process list
             //row_alt_bg: Color::Rgb(22, 22, 30),
-            rank_top: Color::Rgb(255, 190, 70),   // Gold for #1
-            rank_high: Color::Rgb(180, 130, 255), // Purple for top 3
-            rank_top_symbol: "● ".to_string(),
-            rank_high_symbol: "⊗ ".to_string(),
-
+            rank_top: Color::Indexed(Ansi::yellow as u8), // Yellow for #1
+            rank_high: Color::Indexed(Ansi::dark_yellow as u8), // dark yellow for top 3
+            rank_top_symbol: "*, ".to_string(),
+            rank_high_symbol: "° ".to_string(),
+            // Use basic chars as a stylistic choice
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
-            bar_empty_char: "░".to_string(),
+            bar_empty_char: "-".to_string(),
 
-            border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
+            border_subtle: Color::Indexed(Ansi::red as u8), // Not subtle, but I prefer it
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
