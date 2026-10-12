@@ -309,7 +309,7 @@ impl Theme {
         };
         Style::default().fg(color)
     }
-    pub fn generate_gradient(sections: u8, color1: Color, color2: Color) -> Vec<Color> {
+    pub fn generate_gradient(segments: u8, color1: Color, color2: Color) -> Vec<Color> {
         if let Color::Rgb(r1, g1, b1) = color1
             && let Color::Rgb(r2, g2, b2) = color2
         {
@@ -319,8 +319,8 @@ impl Theme {
                 b2 as f32 - b1 as f32,
             ];
             let mut result = vec![];
-            for segment in 0..=sections {
-                let part = segment as f32 / sections as f32;
+            for segment in 0..segments {
+                let part = segment as f32 / segments as f32;
                 let part_of_diff = vec![part * diff[0], part * diff[1], part * diff[2]];
                 let part_color_i16 = vec![
                     r1 as f32 + part_of_diff[0],
@@ -336,7 +336,24 @@ impl Theme {
             }
             result
         } else {
-            vec![color1, color2] // in the future repeat them to fill sections
+            let mut result = vec![];
+            let color1_segments = if segments % 2 == 1 {
+                segments / 2 + 1
+            } else {
+                segments / 2
+            };
+            let color2_segments = if segments % 2 == 1 {
+                color1_segments - 1
+            } else {
+                segments / 2
+            }; // did the if just to be safe if it rounds up .5
+            for segment in 0..color1_segments {
+                result.push(color1);
+            }
+            for segment in 0..color2_segments {
+                result.push(color2);
+            }
+            result
         }
     }
     /// Create a sleek progress bar with partial block characters
