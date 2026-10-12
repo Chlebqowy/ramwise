@@ -266,7 +266,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
         let list = List::new(items)
             .block(block)
             .highlight_style(self.theme.selected_style())
-            .highlight_symbol("▸ ");
+            .highlight_symbol(&self.theme.chosen);
 
         StatefulWidget::render(list, area, buf, &mut state.list_state);
     }

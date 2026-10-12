@@ -156,7 +156,7 @@ impl<'a> Widget for GraphWidget<'a> {
         // Modern title
         let title_line = Line::from(vec![
             Span::styled(" ", Style::default()),
-            Span::styled(self.theme.diamond.clone(), Style::default().fg(text_color)),
+            Span::styled(format!("{ } ", self.theme.diamond.clone()), Style::default().fg(text_color)),
             Span::styled(
                 title,
                 Style::default()

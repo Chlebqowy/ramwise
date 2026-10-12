@@ -43,7 +43,7 @@ impl<'a> Widget for HeaderWidget<'a> {
                 .add_modifier(Modifier::BOLD),
         );
 
-        let dot = Span::styled(self.theme.header_dot.clone(), self.theme.muted_style());
+        let dot = Span::styled(format!(" { } ", self.theme.header_dot), self.theme.muted_style());
 
         // RAM usage with smooth gradient bar
         let ram_percent = sys.usage_percent();

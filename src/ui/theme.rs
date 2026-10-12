@@ -76,6 +76,7 @@ pub struct Theme {
     pub rank_top_symbol: String,
     pub rank_high_symbol: String,
     pub border_subtle: Color,
+    pub chosen: String,
 
     // Chars
     pub bar_partial_chars: Vec<char>,
@@ -151,6 +152,7 @@ impl Theme {
             rank_high: Color::Rgb(180, 130, 255), // Purple for top 3
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
+            chosen: "▶".to_string(),
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
@@ -225,6 +227,7 @@ impl Theme {
             rank_high: Color::Indexed(Ansi::dark_yellow as u8), // dark yellow for top 3
             rank_top_symbol: "* ".to_string(),
             rank_high_symbol: "° ".to_string(),
+            chosen: "▶".to_string(),
             // Use basic chars as a stylistic choice
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
@@ -300,6 +303,7 @@ impl Theme {
             rank_high: Color::Rgb(0xd6, 0x5d, 0x0e), // Middle orange for top 3
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
+            chosen: "▶".to_string(),
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),

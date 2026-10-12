@@ -39,7 +39,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Modern title with icon-like prefix
         let title = match &self.process {
             Some(p) => Line::from(vec![
-                Span::styled(" ◆ ", Style::default().fg(self.theme.primary)),
+                Span::styled(format!("{ } ", self.theme.diamond.clone()), Style::default().fg(self.theme.primary)),
                 Span::styled(
                     &p.name,
                     Style::default()
@@ -216,7 +216,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if proc.major_faults > 100 {
             lines.push(Line::from(vec![
                 Span::styled(
-                    self.theme.full_circle.clone(),
+                    format!("{ } ", self.theme.full_circle.clone()),
                     Style::default().fg(if proc.major_faults > 1000 {
                         self.theme.warning
                     } else {
@@ -240,7 +240,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if frag_ratio > 5.0 {
             lines.push(Line::from(vec![
                 Span::styled(
-                    self.theme.semicircle.clone(),
+                    format!("{ } ", self.theme.semicircle.clone()),
                     Style::default().fg(if frag_ratio > 15.0 {
                         self.theme.warning
                     } else {
