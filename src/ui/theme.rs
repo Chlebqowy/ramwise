@@ -77,6 +77,7 @@ pub struct Theme {
     pub rank_high_symbol: String,
     pub border_subtle: Color,
     pub chosen: String,
+    pub use_list_gradient: bool,
 
     // Chars
     pub bar_partial_chars: Vec<char>,
@@ -153,6 +154,7 @@ impl Theme {
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
             chosen: "▶".to_string(),
+            use_list_gradient: true,
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
@@ -228,6 +230,7 @@ impl Theme {
             rank_top_symbol: "* ".to_string(),
             rank_high_symbol: "° ".to_string(),
             chosen: "▶".to_string(),
+            use_list_gradient: true,
             // Use basic chars as a stylistic choice
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
@@ -304,6 +307,7 @@ impl Theme {
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
             chosen: "▶".to_string(),
+            use_list_gradient: true,
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),

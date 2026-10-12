@@ -198,11 +198,6 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Sleek usage bar with gradient
                 let bar = Theme::create_sleek_bar(&self.theme, mem_percent, bar_width);
-                let bar_style = if is_selected {
-                    Style::default().fg(self.theme.selection_fg)
-                } else {
-                    Style::default().fg(mem_color)
-                };
 
                 let mut spans = vec![
                     rank_indicator,
@@ -211,7 +206,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
                 ];
-                if !is_selected
+                if !is_selected && self.theme.use_list_gradient
                 {
                 let bar_gradient = Theme::generate_gradient(bar_width as u8, self.theme.primary, self.theme.primary_dim);
                 let bar_char_array: Vec<char> = bar.chars().collect();
@@ -222,6 +217,14 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     let span = Span::styled(bar_char.to_string(), bar_char_style);
                     spans.push(span); // make this a toggle 
                 };
+                } else {
+                    let bar_style = if is_selected {
+                        Style::default().fg(self.theme.selection_fg)
+                    } else {
+                        Style::default().fg(mem_color)
+                    };
+                    let span = Span::styled(bar, bar_style);
+                    spans.push(span);
                 };
 
                 ListItem::new(Line::from(spans))
