@@ -145,11 +145,11 @@ impl Theme {
             mem_critical: Color::Rgb(255, 90, 90),    // Coral red
 
             // Dim memory gradient - Smooth color progression
-            mem_excellent_dim: Color::Rgb(90, 200, 130), // Fresh green
-            mem_good_dim: Color::Rgb(120, 200, 90),      // Lime
-            mem_moderate_dim: Color::Rgb(225, 100, 70),  // Golden yellow
-            mem_high_dim: Color::Rgb(200, 120, 70),      // Orange
-            mem_critical_dim: Color::Rgb(200, 70, 70),   // Coral red
+            mem_excellent_dim: Color::Rgb(75, 170, 120), // Fresh green
+            mem_good_dim: Color::Rgb(100, 180, 80),      // Lime
+            mem_moderate_dim: Color::Rgb(200, 130, 60),  // Golden yellow
+            mem_high_dim: Color::Rgb(200, 110, 60),      // Orange
+            mem_critical_dim: Color::Rgb(200, 60, 60),   // Coral red
 
             // UI elements
             border: Color::Rgb(55, 55, 70),
