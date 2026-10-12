@@ -90,6 +90,18 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Build content with modern sections
         let mut lines = Vec::new();
 
+        let state_chip =
+            match proc.state {
+                'R' => "● Running".to_string(),
+                'S' => "○ Sleeping".to_string(),
+                'D' => "◐ Disk Wait".to_string(),
+                'Z' => "✕ Zombie".to_string(),
+                'T' => "◼ Stopped".to_string(),
+                't' => "◻ Tracing".to_string(),
+                'I' => "◌ Idle".to_string(),
+                _ => format!("? {}", proc.state),
+            };
+
         // Process info row with status chip
         let state_style = match proc.state {
             'R' => Style::default().fg(self.theme.success),
@@ -100,7 +112,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         };
 
         lines.push(Line::from(vec![
-            Span::styled(state_chip(proc.state), state_style),
+            Span::styled(state_chip, state_style),
             Span::styled("  ", Style::default()),
             Span::styled("PPID ", self.theme.muted_style()),
             Span::styled(
@@ -316,18 +328,4 @@ fn create_two_col<'a>(left: (&'a str, u64), right: (&'a str, u64), theme: &'a Th
             Style::default().fg(theme.fg_dim),
         ),
     ])
-}
-
-/// State chip with icon
-fn state_chip(state: char) -> String {
-    match state {
-        'R' => "● Running".to_string(),
-        'S' => "○ Sleeping".to_string(),
-        'D' => "◐ Disk Wait".to_string(),
-        'Z' => "✕ Zombie".to_string(),
-        'T' => "◼ Stopped".to_string(),
-        't' => "◻ Tracing".to_string(),
-        'I' => "◌ Idle".to_string(),
-        _ => format!("? {}", state),
-    }
 }
