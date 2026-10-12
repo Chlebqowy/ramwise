@@ -581,26 +581,15 @@ impl Theme {
         if let Color::Rgb(r1, g1, b1) = color1
             && let Color::Rgb(r2, g2, b2) = color2
         {
-            let diff = vec![
-                r2 as f32 - r1 as f32,
-                g2 as f32 - g1 as f32,
-                b2 as f32 - b1 as f32,
-            ];
-            let mut result = vec![];
+            let mut result = Vec::with_capacity(segments as usize);
             for segment in 0..segments {
-                let part = segment as f32 / segments as f32;
-                let part_of_diff = vec![part * diff[0], part * diff[1], part * diff[2]];
-                let part_color_i16 = vec![
-                    r1 as f32 + part_of_diff[0],
-                    g1 as f32 + part_of_diff[1],
-                    b1 as f32 + part_of_diff[2],
-                ];
-                let part_color = Color::Rgb(
-                    part_color_i16[0] as u8,
-                    part_color_i16[1] as u8,
-                    part_color_i16[2] as u8,
-                );
-                result.push(part_color);
+                let progress = if segments <= 1 {
+                    0.0
+                } else {
+                    segment as f64 / (segments - 1) as f64
+                };
+                let (r, g, b) = lerp_rgb((r1, g1, b1), (r2, g2, b2), progress);
+                result.push(Color::Rgb(r, g, b));
             }
             result
         } else {
@@ -673,5 +662,193 @@ fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
 impl Default for Theme {
     fn default() -> Self {
         Self::dark()
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_gradient() {
+        let color1 = Color::Rgb(0, 0, 255);
+        let color2 = Color::Rgb(255, 0, 0);
+        let gradient = Theme::generate_gradient(8, color1, color2);
+        assert_eq!(gradient.len(), 8);
+        assert_eq!(gradient[0], color1);
+        assert_eq!(gradient[7], color2);
+        assert_ne!(gradient[3], gradient[4]);
+    }
+
+    #[test]
+    fn check_gradient_long() {
+        let color1 = Color::Rgb(0, 0, 255);
+        let color2 = Color::Rgb(255, 0, 0);
+        let gradient = Theme::generate_gradient(80, color1, color2);
+        assert_eq!(gradient.len(), 80);
+        assert_eq!(gradient[0], color1);
+        assert_eq!(gradient[79], color2);
+        assert_ne!(gradient[30], gradient[40]);
+    }
+
+    #[test]
+    fn check_0_1_gradient() {
+        let color1 = Color::Rgb(0, 0, 255);
+        let color2 = Color::Rgb(255, 0, 0);
+        assert_eq!(Theme::generate_gradient(0, color1, color2), vec![]);
+        assert_eq!(Theme::generate_gradient(1, color1, color2), vec![color1]);
+    }
+
+    #[test]
+    fn check_non_rgb_gradient() {
+        let gradient = Theme::generate_gradient(7, Color::Blue, Color::Red);
+        assert_eq!(
+            gradient,
+            vec![
+                Color::Blue,
+                Color::Blue,
+                Color::Blue,
+                Color::Blue,
+                Color::Red,
+                Color::Red,
+                Color::Red,
+            ]
+        );
+    }
+
+    #[test]
+    fn check_create_gradient_bar_color() {
+        let mut spans = Vec::new();
+        Theme::create_gradient_bar("abcdefg".to_string(), 7, Color::Blue, Color::Red, &mut spans);
+        assert_eq!(spans[0].style.fg, Some(Color::Blue));
+        assert_eq!(spans[3].style.fg, Some(Color::Blue));
+        assert_eq!(spans[4].style.fg, Some(Color::Red));
+        assert_eq!(spans[6].style.fg, Some(Color::Red));
+    }
+    #[test]
+    fn check_create_gradient_bar_color_long() {
+        let mut spans = Vec::new();
+        Theme::create_gradient_bar("1234567890abcdefghijklmnopqrstuwvxyz".to_string(), 36, Color::Blue, Color::Red, &mut spans);
+        assert_eq!(spans[0].style.fg, Some(Color::Blue));
+        assert_eq!(spans[10].style.fg, Some(Color::Blue));
+        assert_eq!(spans[17].style.fg, Some(Color::Blue));
+        assert_eq!(spans[18].style.fg, Some(Color::Red));
+        assert_eq!(spans[30].style.fg, Some(Color::Red));
+        assert_eq!(spans[35].style.fg, Some(Color::Red));
+    }
+    #[test]
+    fn check_create_gradient_bar_char() {
+        let mut spans = Vec::new();
+        Theme::create_gradient_bar("abcdefg".to_string(), 7, Color::Blue, Color::Red, &mut spans);
+
+        assert_eq!(spans[0].content, "a");
+        assert_eq!(spans[3].content, "d");
+        assert_eq!(spans[4].content, "e");
+        assert_eq!(spans[6].content, "g");
+    }
+        #[test]
+    fn check_create_gradient_bar_char_long() {
+        let mut spans = Vec::new();
+        Theme::create_gradient_bar("1234567890abcdefghijklmnopqrstuwvxyz".to_string(), 36, Color::Blue, Color::Red, &mut spans); // 36 chars
+
+        assert_eq!(spans[0].content, "1");
+        assert_eq!(spans[9].content, "0");
+        assert_eq!(spans[15].content, "f");
+        assert_eq!(spans[35].content, "z");
+    }
+    #[test]
+    fn check_create_sleek_bar_whole() {
+        let theme = Theme::dark();
+        let part: f64 = 100.0;
+        let chars: usize = 8;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", correct_result);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result, correct_result);
+    }
+    #[test]
+    fn check_create_sleek_bar_half() {
+        let theme = Theme::dark();
+        let part: f64 = 50.0;
+        let chars: usize = 8;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", correct_result);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result, correct_result);
+    }
+    #[test]
+    fn check_create_sleek_bar_quarter() {
+        let theme = Theme::dark();
+        let part: f64 = 25.0;
+        let chars: usize = 8;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", correct_result);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result, correct_result);
+    }
+    #[test]
+    fn check_create_sleek_bar_eighth() {
+        let theme = Theme::dark();
+        let part: f64 = 12.5;
+        let chars: usize = 8;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", correct_result);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result, correct_result);
+    }
+    #[test]
+    fn check_create_sleek_bar_nonwhole() {
+        let theme = Theme::dark();
+        let part: f64 = 20.0;
+        let chars: usize = 8;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let incorrect_result_a = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", incorrect_result_a);
+        let incorrect_result_b = theme.bar_full_char.to_string().repeat(full_chars as usize +1 as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize -1 as usize);
+        print!("{}", incorrect_result_b);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_ne!(result, incorrect_result_a);
+        assert_ne!(result, incorrect_result_b);
+    }
+    // maybe add a test for that without middle characters
+    #[test]
+    fn check_create_sleek_bar_nonwhole_len() {
+        let theme = Theme::dark();
+        let part: f64 = 20.0;
+        let chars: usize = 8;
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result.chars().count(), chars);
+    }
+    #[test]
+    fn check_create_sleek_bar_quarter_ansi() {
+        let theme = Theme::ansi4bit();
+        let part: f64 = 25.0;
+        let chars: usize = 8;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", correct_result);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result, correct_result);
+    }
+    #[test]
+    fn check_create_sleek_bar_quarter_big() {
+        let theme = Theme::dark();
+        let part: f64 = 25.0;
+        let chars: usize = 800;
+        let full_chars: f64 = chars as f64*part/100.0;
+        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        print!("{}", correct_result);
+        let result = Theme::create_sleek_bar(&theme, part, chars);
+        assert_eq!(result, correct_result);
     }
 }
