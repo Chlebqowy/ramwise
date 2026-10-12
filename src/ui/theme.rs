@@ -2,28 +2,27 @@
 
 #![allow(dead_code)]
 
-use clap::builder::ValueRange;
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
 use ratatui::text::Span;
 
 enum Ansi {
-    black = 0,
-    dark_red = 1,
-    dark_green = 2,
-    dark_yellow = 3,
-    dark_blue = 4,
-    dark_purple = 5,
-    dark_aqua = 6,
-    light_gray = 7,
-    gray = 8,
-    red = 9,
-    green = 10,
-    yellow = 11,
-    blue = 12,
-    purple = 13,
-    aqua = 14,
-    white = 15,
+    Black = 0,
+    DarkRed = 1,
+    DarkGreen = 2,
+    DarkYellow = 3,
+    DarkBlue = 4,
+    DarkPurple = 5,
+    DarkAqua = 6,
+    LightGray = 7,
+    Gray = 8,
+    Red = 9,
+    Green = 10,
+    Yellow = 11,
+    Blue = 12,
+    Purple = 13,
+    Aqua = 14,
+    White = 15,
 }
 
 /// Modern color theme - Material Design 3 inspired
@@ -246,57 +245,57 @@ impl Theme {
     pub fn ansi4bit() -> Self {
         Self {
             // Base - Basic monochrome l
-            bg: Color::Indexed(Ansi::black as u8),
-            fg: Color::Indexed(Ansi::white as u8),
-            fg_dim: Color::Indexed(Ansi::light_gray as u8),
-            fg_muted: Color::Indexed(Ansi::light_gray as u8),
+            bg: Color::Indexed(Ansi::Black as u8),
+            fg: Color::Indexed(Ansi::White as u8),
+            fg_dim: Color::Indexed(Ansi::LightGray as u8),
+            fg_muted: Color::Indexed(Ansi::LightGray as u8),
 
             // Primary - Aqua
-            primary: Color::Indexed(Ansi::aqua as u8),
-            primary_dim: Color::Indexed(Ansi::dark_aqua as u8),
+            primary: Color::Indexed(Ansi::Aqua as u8),
+            primary_dim: Color::Indexed(Ansi::DarkAqua as u8),
 
             // Secondary - Blue
-            secondary: Color::Indexed(Ansi::blue as u8),
+            secondary: Color::Indexed(Ansi::Blue as u8),
 
             // Tertiary - Green
-            tertiary: Color::Indexed(Ansi::green as u8),
+            tertiary: Color::Indexed(Ansi::Green as u8),
 
             // Semantic
-            error: Color::Indexed(Ansi::red as u8),
-            warning: Color::Indexed(Ansi::dark_yellow as u8),
-            success: Color::Indexed(Ansi::dark_green as u8),
-            info: Color::Indexed(Ansi::dark_blue as u8),
+            error: Color::Indexed(Ansi::Red as u8),
+            warning: Color::Indexed(Ansi::DarkYellow as u8),
+            success: Color::Indexed(Ansi::DarkGreen as u8),
+            info: Color::Indexed(Ansi::DarkBlue as u8),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Indexed(Ansi::dark_green as u8), // Fresh green
-            mem_good: Color::Indexed(Ansi::green as u8),           // Lime
-            mem_moderate: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
-            mem_high: Color::Indexed(Ansi::dark_red as u8),        // Orange
-            mem_critical: Color::Indexed(Ansi::red as u8),         // Coral red
+            mem_excellent: Color::Indexed(Ansi::DarkGreen as u8), // Fresh green
+            mem_good: Color::Indexed(Ansi::Green as u8),           // Lime
+            mem_moderate: Color::Indexed(Ansi::DarkYellow as u8), // Golden yellow
+            mem_high: Color::Indexed(Ansi::DarkRed as u8),        // Orange
+            mem_critical: Color::Indexed(Ansi::Red as u8),         // Coral red
 
             // Dim memory gradient - Smooth color progression
-            mem_excellent_dim: Color::Indexed(Ansi::dark_green as u8), // Fresh green
-            mem_good_dim: Color::Indexed(Ansi::dark_green as u8),      // Lime
-            mem_moderate_dim: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
-            mem_high_dim: Color::Indexed(Ansi::dark_red as u8),        // Orange
-            mem_critical_dim: Color::Indexed(Ansi::dark_red as u8),    // Coral red
+            mem_excellent_dim: Color::Indexed(Ansi::DarkGreen as u8), // Fresh green
+            mem_good_dim: Color::Indexed(Ansi::DarkGreen as u8),      // Lime
+            mem_moderate_dim: Color::Indexed(Ansi::DarkYellow as u8), // Golden yellow
+            mem_high_dim: Color::Indexed(Ansi::DarkRed as u8),        // Orange
+            mem_critical_dim: Color::Indexed(Ansi::DarkRed as u8),    // Coral red
 
             // UI elements - blue borders and gray selections
-            border: Color::Indexed(Ansi::dark_blue as u8),
-            border_focused: Color::Indexed(Ansi::aqua as u8),
-            selection_bg: Color::Indexed(Ansi::gray as u8),
-            selection_fg: Color::Indexed(Ansi::green as u8),
-            header_bg: Color::Indexed(Ansi::gray as u8),
+            border: Color::Indexed(Ansi::DarkBlue as u8),
+            border_focused: Color::Indexed(Ansi::Aqua as u8),
+            selection_bg: Color::Indexed(Ansi::Gray as u8),
+            selection_fg: Color::Indexed(Ansi::Green as u8),
+            header_bg: Color::Indexed(Ansi::Gray as u8),
 
             // Graph
-            graph_line: Color::Indexed(Ansi::aqua as u8),
+            graph_line: Color::Indexed(Ansi::Aqua as u8),
             //graph_bg: Color::Rgb(255,0,0),
-            graph_border: Color::Indexed(Ansi::dark_aqua as u8), //not actually border
+            graph_border: Color::Indexed(Ansi::DarkAqua as u8), //not actually border
             graph_marker: Marker::Braille, //dot looks better but braille shows data better
             // Process list
             //row_alt_bg: Color::Rgb(22, 22, 30),
-            rank_top: Color::Indexed(Ansi::yellow as u8), // Yellow for #1
-            rank_high: Color::Indexed(Ansi::dark_yellow as u8), // dark yellow for top 3
+            rank_top: Color::Indexed(Ansi::Yellow as u8), // Yellow for #1
+            rank_high: Color::Indexed(Ansi::DarkYellow as u8), // dark yellow for top 3
             rank_top_symbol: "* ".to_string(),
             rank_high_symbol: "° ".to_string(),
             chosen: "▶".to_string(),
@@ -324,7 +323,7 @@ impl Theme {
             idle: "◌".to_string(),
             unknown: "?".to_string(),
 
-            border_subtle: Color::Indexed(Ansi::red as u8), // Not subtle, but I prefer it
+            border_subtle: Color::Indexed(Ansi::Red as u8), // Not subtle, but I prefer it
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -616,10 +615,10 @@ impl Theme {
             } else {
                 segments / 2
             }; // did the if just to be safe if it rounds up .5
-            for segment in 0..color1_segments {
+            for _segment in 0..color1_segments {
                 result.push(color1);
             }
-            for segment in 0..color2_segments {
+            for _segment in 0..color2_segments {
                 result.push(color2);
             }
             result

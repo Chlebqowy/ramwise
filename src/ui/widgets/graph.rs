@@ -4,7 +4,6 @@ use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::{Modifier, Style},
-    symbols::Marker,
     text::{Line, Span},
     widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Widget},
 };
@@ -45,7 +44,7 @@ impl<'a> GraphWidget<'a> {
 impl<'a> Widget for GraphWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // Determine what to graph
-        let (title, data, y_bounds, y_labels, is_process) = if let Some(pid) = self.selected_pid {
+        let (title, data, y_bounds, y_labels, _is_process) = if let Some(pid) = self.selected_pid {
             let trend = self.history.process_trend(pid);
             if trend.is_empty() {
                 render_empty(area, buf, self.theme, self.focused, "Collecting data…");
