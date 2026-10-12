@@ -173,10 +173,10 @@ impl Theme {
             mem_critical: Color::Indexed(Ansi::red as u8),         // Coral red
 
             // UI elements - blue borders and gray selections
-            border: Color::Indexed(Ansi::blue as u8),
+            border: Color::Indexed(Ansi::dark_blue as u8),
             border_focused: Color::Indexed(Ansi::aqua as u8),
             selection_bg: Color::Indexed(Ansi::gray as u8),
-            selection_fg: Color::Indexed(Ansi::white as u8),
+            selection_fg: Color::Indexed(Ansi::green as u8),
             header_bg: Color::Indexed(Ansi::gray as u8),
 
             // Graph
