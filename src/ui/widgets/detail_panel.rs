@@ -312,6 +312,18 @@ fn create_memory_row<'a>(
         format!("{:<4}", label),
         Style::default().fg(color),
     ));
+    if theme.use_list_gradient {
+            Theme::create_gradient_bar(
+                bar,
+                bar_width,
+                color,
+                secondary_color,
+                &mut span_row,
+            );
+    } else {
+        let span = Span::styled(bar, Style::default().fg(color));
+        span_row.push(span);
+    };
     //Span::styled(bar, Style::default().fg(color)),
     // maybe make the whole sleek_bar optional
     span_row.push(Span::raw(" "));
