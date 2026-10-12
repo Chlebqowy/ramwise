@@ -25,9 +25,9 @@ Version:        $2
 Release:        1%{?dist}
 Summary:        a modern memory visualiser tui
 License:        MIT
-URL:            https://github.com/Duckaet/ramwise
+URL:            https://github.com/parasunc/ramwise
 %global debug_package %{nil}
-Source0:        https://github.com/Duckaet/ramwise/archive/refs/tags/ramwise-%{version}.tar.gz
+Source0:        https://github.com/parasunc/ramwise/archive/refs/tags/ramwise-%{version}.tar.gz
 BuildRequires:  cargo, make
 BuildArch:      $1
 
