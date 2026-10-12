@@ -310,8 +310,8 @@ impl Theme {
         Style::default().fg(color)
     }
     pub fn generate_gradient(sections: u8, color1: Color, color2: Color) -> Vec<Color> {
-        if let Color::Rgb (r1, g1, b1) = color1
-            && let Color::Rgb (r2, g2, b2) = color2
+        if let Color::Rgb(r1, g1, b1) = color1
+            && let Color::Rgb(r2, g2, b2) = color2
         {
             let difference = vec![
                 r1.abs_diff(r2),
