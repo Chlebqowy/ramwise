@@ -292,16 +292,23 @@ fn create_memory_row<'a>(
     };
 
     let bar = Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width);
+    let mut span_row = vec![];
     let color = if is_primary {
         theme.primary
     } else {
         theme.fg_dim
     };
-
-    Line::from(vec![
-        Span::styled(format!("{:<4}", label), Style::default().fg(color)),
-        Span::styled(bar, Style::default().fg(color)),
-        Span::raw(" "),
+    let secondary_color = if is_primary {
+        theme.primary_dim
+    } else {
+        theme.fg_muted
+    };
+    span_row.push(Span::styled(format!("{:<4}", label), Style::default().fg(color)));
+        //Span::styled(bar, Style::default().fg(color)),
+        // maybe make the whole sleek_bar optional
+    span_row.push(
+        Span::raw(" "));
+    span_row.push(
         Span::styled(
             format!("{:>9}", format_bytes(value)),
             if is_primary {
@@ -310,7 +317,8 @@ fn create_memory_row<'a>(
                 Style::default().fg(theme.fg_dim)
             },
         ),
-    ])
+    );
+    Line::from(span_row)
 }
 
 /// Create a two-column stat row
