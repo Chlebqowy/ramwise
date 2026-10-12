@@ -6,6 +6,25 @@ use clap::builder::ValueRange;
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
 
+enum Ansi {
+    black = 0,
+    dark_red = 1,
+    dark_green = 2,
+    dark_yellow = 3,
+    dark_blue = 4,
+    dark_purple = 5,
+    dark_aqua = 6,
+    light_gray = 7,
+    gray = 8,
+    red = 9,
+    green = 10,
+    yellow = 11,
+    blue = 12,
+    purple = 13,
+    aqua = 14,
+    white = 15,
+}
+
 /// Modern color theme - Material Design 3 inspired
 #[derive(Debug, Clone)]
 pub struct Theme {
@@ -66,6 +85,63 @@ pub struct Theme {
 impl Theme {
     /// Modern dark theme - Material Design 3 inspired
     pub fn dark() -> Self {
+        Self {
+            // Base - Rich dark with subtle warmth
+            bg: Color::Rgb(18, 18, 24),
+            fg: Color::Rgb(230, 230, 240),
+            fg_dim: Color::Rgb(160, 160, 175),
+            fg_muted: Color::Rgb(100, 100, 115),
+
+            // Primary - Electric violet/purple
+            primary: Color::Rgb(180, 130, 255),
+            primary_dim: Color::Rgb(140, 90, 200),
+
+            // Secondary - Vibrant teal
+            secondary: Color::Rgb(80, 220, 200),
+
+            // Tertiary - Warm coral
+            tertiary: Color::Rgb(255, 140, 120),
+
+            // Semantic
+            error: Color::Rgb(255, 100, 100),
+            warning: Color::Rgb(255, 190, 70),
+            success: Color::Rgb(100, 230, 140),
+            info: Color::Rgb(100, 180, 255),
+
+            // Memory gradient - Smooth color progression
+            mem_excellent: Color::Rgb(100, 230, 140), // Fresh green
+            mem_good: Color::Rgb(140, 220, 100),      // Lime
+            mem_moderate: Color::Rgb(255, 210, 80),   // Golden yellow
+            mem_high: Color::Rgb(255, 150, 80),       // Orange
+            mem_critical: Color::Rgb(255, 90, 90),    // Coral red
+
+            // UI elements
+            border: Color::Rgb(55, 55, 70),
+            border_focused: Color::Rgb(180, 130, 255),
+            selection_bg: Color::Rgb(60, 40, 90),
+            selection_fg: Color::Rgb(255, 255, 255),
+            header_bg: Color::Rgb(28, 28, 36),
+
+            // Graph
+            graph_line: Color::Rgb(230, 230, 240),
+            //graph_bg: Color::Rgb(255,0,0),
+            graph_border: Color::Rgb(55, 55, 70), //not actually border
+            graph_marker: Marker::Braille,
+            // Process list
+            //row_alt_bg: Color::Rgb(22, 22, 30),
+            rank_top: Color::Rgb(255, 190, 70),   // Gold for #1
+            rank_high: Color::Rgb(180, 130, 255), // Purple for top 3
+            rank_top_symbol: "● ".to_string(),
+            rank_high_symbol: "⊗ ".to_string(),
+
+            bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
+            bar_full_char: "█".to_string(),
+            bar_empty_char: "░".to_string(),
+
+            border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
+        }
+    }
+    pub fn ansi-4() -> Self {
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
