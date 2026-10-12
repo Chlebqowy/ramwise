@@ -718,7 +718,13 @@ mod tests {
     #[test]
     fn check_create_gradient_bar_color() {
         let mut spans = Vec::new();
-        Theme::create_gradient_bar("abcdefg".to_string(), 7, Color::Blue, Color::Red, &mut spans);
+        Theme::create_gradient_bar(
+            "abcdefg".to_string(),
+            7,
+            Color::Blue,
+            Color::Red,
+            &mut spans,
+        );
         assert_eq!(spans[0].style.fg, Some(Color::Blue));
         assert_eq!(spans[3].style.fg, Some(Color::Blue));
         assert_eq!(spans[4].style.fg, Some(Color::Red));
@@ -727,7 +733,13 @@ mod tests {
     #[test]
     fn check_create_gradient_bar_color_long() {
         let mut spans = Vec::new();
-        Theme::create_gradient_bar("1234567890abcdefghijklmnopqrstuwvxyz".to_string(), 36, Color::Blue, Color::Red, &mut spans);
+        Theme::create_gradient_bar(
+            "1234567890abcdefghijklmnopqrstuwvxyz".to_string(),
+            36,
+            Color::Blue,
+            Color::Red,
+            &mut spans,
+        );
         assert_eq!(spans[0].style.fg, Some(Color::Blue));
         assert_eq!(spans[10].style.fg, Some(Color::Blue));
         assert_eq!(spans[17].style.fg, Some(Color::Blue));
@@ -738,17 +750,29 @@ mod tests {
     #[test]
     fn check_create_gradient_bar_char() {
         let mut spans = Vec::new();
-        Theme::create_gradient_bar("abcdefg".to_string(), 7, Color::Blue, Color::Red, &mut spans);
+        Theme::create_gradient_bar(
+            "abcdefg".to_string(),
+            7,
+            Color::Blue,
+            Color::Red,
+            &mut spans,
+        );
 
         assert_eq!(spans[0].content, "a");
         assert_eq!(spans[3].content, "d");
         assert_eq!(spans[4].content, "e");
         assert_eq!(spans[6].content, "g");
     }
-        #[test]
+    #[test]
     fn check_create_gradient_bar_char_long() {
         let mut spans = Vec::new();
-        Theme::create_gradient_bar("1234567890abcdefghijklmnopqrstuwvxyz".to_string(), 36, Color::Blue, Color::Red, &mut spans); // 36 chars
+        Theme::create_gradient_bar(
+            "1234567890abcdefghijklmnopqrstuwvxyz".to_string(),
+            36,
+            Color::Blue,
+            Color::Red,
+            &mut spans,
+        ); // 36 chars
 
         assert_eq!(spans[0].content, "1");
         assert_eq!(spans[9].content, "0");
@@ -760,9 +784,13 @@ mod tests {
         let theme = Theme::dark();
         let part: f64 = 100.0;
         let chars: usize = 8;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", correct_result);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_eq!(result, correct_result);
@@ -772,9 +800,13 @@ mod tests {
         let theme = Theme::dark();
         let part: f64 = 50.0;
         let chars: usize = 8;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", correct_result);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_eq!(result, correct_result);
@@ -784,9 +816,13 @@ mod tests {
         let theme = Theme::dark();
         let part: f64 = 25.0;
         let chars: usize = 8;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", correct_result);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_eq!(result, correct_result);
@@ -796,9 +832,13 @@ mod tests {
         let theme = Theme::dark();
         let part: f64 = 12.5;
         let chars: usize = 8;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", correct_result);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_eq!(result, correct_result);
@@ -808,11 +848,22 @@ mod tests {
         let theme = Theme::dark();
         let part: f64 = 20.0;
         let chars: usize = 8;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let incorrect_result_a = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let incorrect_result_a = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", incorrect_result_a);
-        let incorrect_result_b = theme.bar_full_char.to_string().repeat(full_chars as usize +1 as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize -1 as usize);
+        let incorrect_result_b = theme
+            .bar_full_char
+            .to_string()
+            .repeat(full_chars as usize + 1 as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize - 1 as usize);
         print!("{}", incorrect_result_b);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_ne!(result, incorrect_result_a);
@@ -832,9 +883,13 @@ mod tests {
         let theme = Theme::ansi4bit();
         let part: f64 = 25.0;
         let chars: usize = 8;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", correct_result);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_eq!(result, correct_result);
@@ -844,9 +899,13 @@ mod tests {
         let theme = Theme::dark();
         let part: f64 = 25.0;
         let chars: usize = 800;
-        let full_chars: f64 = chars as f64*part/100.0;
-        let empty_chars: f64 = chars as f64*(1 as f64 - part/100.0);
-        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize) + &theme.bar_empty_char.to_string().repeat(empty_chars as usize);
+        let full_chars: f64 = chars as f64 * part / 100.0;
+        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
+            + &theme
+                .bar_empty_char
+                .to_string()
+                .repeat(empty_chars as usize);
         print!("{}", correct_result);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_eq!(result, correct_result);
