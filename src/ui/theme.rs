@@ -166,15 +166,15 @@ impl Theme {
             info: Color::Indexed(Ansi::dark_blue as u8),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Indexed(Ansi::dark_green as u8), // Fresh green
+            mem_excellent: Color::Indexed(Ansi::aqua as u8), // Fresh green
             mem_good: Color::Indexed(Ansi::green as u8),           // Lime
             mem_moderate: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
             mem_high: Color::Indexed(Ansi::dark_red as u8),        // Orange
             mem_critical: Color::Indexed(Ansi::red as u8),         // Coral red
 
             // UI elements - blue borders and gray selections
-            border: Color::Indexed(Ansi::dark_blue as u8),
-            border_focused: Color::Indexed(Ansi::blue as u8),
+            border: Color::Indexed(Ansi::blue as u8),
+            border_focused: Color::Indexed(Ansi::aqua as u8),
             selection_bg: Color::Indexed(Ansi::gray as u8),
             selection_fg: Color::Indexed(Ansi::white as u8),
             header_bg: Color::Indexed(Ansi::gray as u8),
@@ -188,7 +188,7 @@ impl Theme {
             //row_alt_bg: Color::Rgb(22, 22, 30),
             rank_top: Color::Indexed(Ansi::yellow as u8), // Yellow for #1
             rank_high: Color::Indexed(Ansi::dark_yellow as u8), // dark yellow for top 3
-            rank_top_symbol: "*, ".to_string(),
+            rank_top_symbol: "* ".to_string(),
             rank_high_symbol: "° ".to_string(),
             // Use basic chars as a stylistic choice
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
