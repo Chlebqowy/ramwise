@@ -208,7 +208,11 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 ];
                 if !is_selected && self.theme.use_list_gradient
                 {
-                let bar_gradient = Theme::generate_gradient(bar_width as u8, self.theme.primary, self.theme.primary_dim);
+                let bar_gradient = if self.theme.use_mem_color {
+                    Theme::generate_gradient(bar_width as u8, mem_color, mem_color)
+                } else {
+                    Theme::generate_gradient(bar_width as u8, self.theme.primary, self.theme.primary_dim)
+                };
                 let bar_char_array: Vec<char> = bar.chars().collect();
                 for index in 0..bar_width
                 {
@@ -220,8 +224,10 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 } else {
                     let bar_style = if is_selected {
                         Style::default().fg(self.theme.selection_fg)
-                    } else {
+                    } else if self.theme.use_mem_color {
                         Style::default().fg(mem_color)
+                    } else {
+                        Style::default().fg(self.theme.primary)
                     };
                     let span = Span::styled(bar, bar_style);
                     spans.push(span);
