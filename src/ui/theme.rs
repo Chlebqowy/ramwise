@@ -87,7 +87,17 @@ pub struct Theme {
     pub full_circle: String, //●
     pub empty_circle: String, //○
     pub semicircle: String, //◐ 
-    pub diamond: String, //◈ 
+    pub diamond: String, //◈
+
+    // Detail panel chars (state_chip) 
+    pub running: String,
+    pub sleeping: String,
+    pub disk_wait: String,
+    pub zombie: String,
+    pub stopped: String,
+    pub tracing: String,
+    pub idle: String,
+    pub unknown: String,
 }
 
 impl Theme {
@@ -153,6 +163,16 @@ impl Theme {
             semicircle: "◐".to_string(),
             diamond: "◈".to_string(),
 
+            // Detail panel chars
+            running: "●".to_string(),
+            sleeping: "○".to_string(),
+            disk_wait: "◐".to_string(),
+            zombie: "✕".to_string(),
+            stopped: "◼".to_string(),
+            tracing: "◻".to_string(),
+            idle: "◌".to_string(),
+            unknown: "?".to_string(),
+
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
         }
     }
@@ -216,6 +236,16 @@ impl Theme {
             empty_circle: "○".to_string(),
             semicircle: "◐".to_string(),
             diamond: "◈".to_string(),
+
+            // Detail panel chars
+            running: "●".to_string(),
+            sleeping: "○".to_string(),
+            disk_wait: "◐".to_string(),
+            zombie: "✕".to_string(),
+            stopped: "◼".to_string(),
+            tracing: "◻".to_string(),
+            idle: "◌".to_string(),
+            unknown: "?".to_string(),
 
             border_subtle: Color::Indexed(Ansi::red as u8), // Not subtle, but I prefer it
         }
@@ -281,6 +311,16 @@ impl Theme {
             empty_circle: "○".to_string(),
             semicircle: "◐".to_string(),
             diamond: "◈".to_string(),
+
+            // Detail panel chars
+            running: "●".to_string(),
+            sleeping: "○".to_string(),
+            disk_wait: "◐".to_string(),
+            zombie: "✕".to_string(),
+            stopped: "◼".to_string(),
+            tracing: "◻".to_string(),
+            idle: "◌".to_string(),
+            unknown: "?".to_string(),
 
             border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
         }

@@ -92,14 +92,14 @@ impl<'a> Widget for DetailPanelWidget<'a> {
 
         let state_chip =
             match proc.state {
-                'R' => "● Running".to_string(),
-                'S' => "○ Sleeping".to_string(),
-                'D' => "◐ Disk Wait".to_string(),
-                'Z' => "✕ Zombie".to_string(),
-                'T' => "◼ Stopped".to_string(),
-                't' => "◻ Tracing".to_string(),
-                'I' => "◌ Idle".to_string(),
-                _ => format!("? {}", proc.state),
+                'R' => format!("{} Running", self.theme.running),
+                'S' => format!("{} Sleeping", self.theme.sleeping),
+                'D' => format!("{} Disk Wait", self.theme.disk_wait),
+                'Z' => format!("{} Zombie", self.theme.zombie),
+                'T' => format!("{} Stopped", self.theme.stopped),
+                't' => format!("{} Tracing", self.theme.tracing),
+                'I' => format!("{} Idle", self.theme.idle),
+                _ => format!("{} {}", self.theme.unknown, proc.state),
             };
 
         // Process info row with status chip
