@@ -309,6 +309,20 @@ impl Theme {
         };
         Style::default().fg(color)
     }
+    pub fn generate_gradient(sections: u8, color1: Color, color2: Color) -> Vec<Color> {
+        if let Color::Rgb (r1, g1, b1) = color1
+            && let Color::Rgb (r2, g2, b2) = color2
+        {
+            let difference = vec![
+                r1.abs_diff(r2),
+                g1.abs_diff(g2),
+                b1.abs_diff(b2), //used ai to find the abs_diff function because I knew something like that had to be builtin
+            ];
+            vec![Color::Rgb(difference[0], difference[1], difference[2])]
+        } else {
+            vec![color1, color2] // in the future repeat them to fill sections
+        }
+    }
     /// Create a sleek progress bar with partial block characters
     pub fn create_sleek_bar(&self, percent: f64, width: usize) -> String {
         let total_eighths =
