@@ -114,6 +114,12 @@ pub struct Theme {
 impl Theme {
     /// Modern dark theme - Material Design 3 inspired
     pub fn dark() -> Self {
+        let mem_excellent_vec: Vec<f32> = vec![100.0, 230.0, 140.0];
+        let mem_good_vec: Vec<f32> = vec![140.0, 220.0, 100.0];
+        let mem_moderate_vec: Vec<f32> = vec![255.0, 210.0, 80.0];
+        let mem_high_vec: Vec<f32> = vec![255.0, 150.0, 80.0];
+        let mem_critical_vec: Vec<f32> = vec![255.0, 90.0, 90.0];
+        let dim_mult: f32 = 0.75;
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
@@ -138,18 +144,18 @@ impl Theme {
             info: Color::Rgb(100, 180, 255),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(100, 230, 140), // Fresh green
-            mem_good: Color::Rgb(140, 220, 100),      // Lime
-            mem_moderate: Color::Rgb(255, 210, 80),   // Golden yellow
-            mem_high: Color::Rgb(255, 150, 80),       // Orange
-            mem_critical: Color::Rgb(255, 90, 90),    // Coral red
+            mem_excellent: Color::Rgb(mem_excellent_vec[0] as u8, mem_excellent_vec[1] as u8, mem_excellent_vec[2] as u8), // Fresh green
+            mem_good: Color::Rgb(mem_good_vec[0] as u8, mem_good_vec[1] as u8, mem_good_vec[2] as u8), // Lime
+            mem_moderate: Color::Rgb(mem_moderate_vec[0] as u8, mem_moderate_vec[1] as u8, mem_moderate_vec[2] as u8), // Golden yellow
+            mem_high: Color::Rgb(mem_high_vec[0] as u8, mem_high_vec[1] as u8, mem_high_vec[2] as u8), // Orange
+            mem_critical: Color::Rgb(mem_critical_vec[0] as u8, mem_critical_vec[1] as u8, mem_critical_vec[2] as u8), // Coral red
 
             // Dim memory gradient - Smooth color progression
-            mem_excellent_dim: Color::Rgb(75, 170, 120), // Fresh green
-            mem_good_dim: Color::Rgb(100, 180, 80),      // Lime
-            mem_moderate_dim: Color::Rgb(200, 130, 60),  // Golden yellow
-            mem_high_dim: Color::Rgb(200, 110, 60),      // Orange
-            mem_critical_dim: Color::Rgb(200, 60, 60),   // Coral red
+            mem_excellent_dim: Color::Rgb((mem_excellent_vec[0]*dim_mult) as u8, (mem_excellent_vec[1]*dim_mult) as u8, (mem_excellent_vec[2]*dim_mult) as u8), // Fresh green
+            mem_good_dim: Color::Rgb((mem_good_vec[0]*dim_mult) as u8, (mem_good_vec[1]*dim_mult) as u8, (mem_good_vec[2]*dim_mult) as u8), // Lime
+            mem_moderate_dim: Color::Rgb((mem_moderate_vec[0]*dim_mult) as u8, (mem_moderate_vec[1]*dim_mult) as u8, (mem_moderate_vec[2]*dim_mult) as u8), // Golden yellow
+            mem_high_dim: Color::Rgb((mem_high_vec[0]*dim_mult) as u8, (mem_high_vec[1]*dim_mult) as u8, (mem_high_vec[2]*dim_mult) as u8), // Orange
+            mem_critical_dim: Color::Rgb((mem_critical_vec[0]*dim_mult) as u8, (mem_critical_vec[1]*dim_mult) as u8, (mem_critical_vec[2]*dim_mult) as u8), // Coral red
 
             // UI elements
             border: Color::Rgb(55, 55, 70),
@@ -283,6 +289,12 @@ impl Theme {
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
     pub fn light() -> Self {
+        let mem_excellent_vec: Vec<f32> = vec![100.0, 230.0, 140.0];
+        let mem_good_vec: Vec<f32> = vec![0x98 as f32, 0x97 as f32, 0x1a as f32];
+        let mem_moderate_vec: Vec<f32> = vec![0xf7 as f32, 0x99 as f32, 0x21 as f32];
+        let mem_high_vec: Vec<f32> = vec![0xfe as f32, 0x80 as f32, 0x19 as f32];
+        let mem_critical_vec: Vec<f32> = vec![0xaf as f32, 0x3a as f32, 0x03 as f32];
+        let dim_mult: f32 = 0.9;
         Self {
             // Base - Very light gray with a yellow tint
             bg: Color::Rgb(0xfb, 0xf1, 0xc7),
@@ -307,18 +319,18 @@ impl Theme {
             info: Color::Rgb(0x83, 0xa5, 0x98),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(100, 230, 140), // Fresh green - not gruvbox, their green is too lime
-            mem_good: Color::Rgb(0x98, 0x97, 0x1a),   // Lime
-            mem_moderate: Color::Rgb(0xf7, 0x99, 0x21), // Middle yellow
-            mem_high: Color::Rgb(0xfe, 0x80, 0x19),   // Light orange
-            mem_critical: Color::Rgb(0xaf, 0x3a, 0x03), // Dark orange
+            mem_excellent: Color::Rgb(mem_excellent_vec[0] as u8, mem_excellent_vec[1] as u8, mem_excellent_vec[2] as u8), // Fresh green - not gruvbox, their green is too lime
+            mem_good: Color::Rgb(mem_good_vec[0] as u8, mem_good_vec[1] as u8, mem_good_vec[2] as u8), // Lime
+            mem_moderate: Color::Rgb(mem_moderate_vec[0] as u8, mem_moderate_vec[1] as u8, mem_moderate_vec[2] as u8), // Middle yellow
+            mem_high: Color::Rgb(mem_high_vec[0] as u8, mem_high_vec[1] as u8, mem_high_vec[2] as u8), // Light orange
+            mem_critical: Color::Rgb(mem_critical_vec[0] as u8, mem_critical_vec[1] as u8, mem_critical_vec[2] as u8), // Dark orange
 
             // Memory gradient - Smooth color progression - modifiedbased on vibes, not directly from gruvbox
-            mem_excellent_dim: Color::Rgb(100, 210, 140),
-            mem_good_dim: Color::Rgb(0x90, 0x87, 0x10),
-            mem_moderate_dim: Color::Rgb(0xe7, 0x89, 0x18),
-            mem_high_dim: Color::Rgb(0xde, 0x70, 0x19),
-            mem_critical_dim: Color::Rgb(0x8f, 0x2a, 0x00),
+            mem_excellent_dim: Color::Rgb((mem_excellent_vec[0]*dim_mult) as u8, (mem_excellent_vec[1]*dim_mult) as u8, (mem_excellent_vec[2]*dim_mult) as u8),
+            mem_good_dim: Color::Rgb((mem_good_vec[0]*dim_mult) as u8, (mem_good_vec[1]*dim_mult) as u8, (mem_good_vec[2]*dim_mult) as u8),
+            mem_moderate_dim: Color::Rgb((mem_moderate_vec[0]*dim_mult) as u8, (mem_moderate_vec[1]*dim_mult) as u8, (mem_moderate_vec[2]*dim_mult) as u8),
+            mem_high_dim: Color::Rgb((mem_high_vec[0]*dim_mult) as u8, (mem_high_vec[1]*dim_mult) as u8, (mem_high_vec[2]*dim_mult) as u8),
+            mem_critical_dim: Color::Rgb((mem_critical_vec[0]*dim_mult) as u8, (mem_critical_vec[1]*dim_mult) as u8, (mem_critical_vec[2]*dim_mult) as u8),
 
             // UI elements - GruvBox aqua and fg/bg, taken from light
             border: Color::Rgb(0x7c, 0x6f, 0x64),
