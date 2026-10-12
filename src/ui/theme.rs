@@ -313,12 +313,28 @@ impl Theme {
         if let Color::Rgb(r1, g1, b1) = color1
             && let Color::Rgb(r2, g2, b2) = color2
         {
-            let difference = vec![
-                r1.abs_diff(r2),
-                g1.abs_diff(g2),
-                b1.abs_diff(b2), //used ai to find the abs_diff function because I knew something like that had to be builtin
+            let diff = vec![
+                r2 as f32 - r1 as f32,
+                g2 as f32 - g1 as f32,
+                b2 as f32 - b1 as f32,
             ];
-            vec![Color::Rgb(difference[0], difference[1], difference[2])]
+            let mut result = vec![];
+            for segment in 0..=sections {
+                let part = segment as f32 / sections as f32;
+                let part_of_diff = vec![part * diff[0], part * diff[1], part * diff[2]];
+                let part_color_i16 = vec![
+                    r1 as f32 + part_of_diff[0],
+                    g1 as f32 + part_of_diff[1],
+                    b1 as f32 + part_of_diff[2],
+                ];
+                let part_color = Color::Rgb(
+                    part_color_i16[0] as u8,
+                    part_color_i16[1] as u8,
+                    part_color_i16[2] as u8,
+                );
+                result.push(part_color);
+            }
+            result
         } else {
             vec![color1, color2] // in the future repeat them to fill sections
         }
