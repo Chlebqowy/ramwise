@@ -46,39 +46,32 @@ impl<'a> Widget for HeaderWidget<'a> {
                 .add_modifier(Modifier::BOLD),
         );
 
-        let dot = Span::styled(format!(" { } ", self.theme.header_dot), self.theme.muted_style());
+        let dot = Span::styled(
+            format!(" { } ", self.theme.header_dot),
+            self.theme.muted_style(),
+        );
 
         // RAM usage with truly smooth gradient bar
         let ram_percent = sys.usage_percent();
         let ram_color = self.theme.mem_color_interpolated(ram_percent);
         let ram_color_dim = self.theme.mem_color_dim(ram_percent);
         let ram_bar = Theme::create_sleek_bar(&self.theme, ram_percent, RAM_BAR_WIDTH);
-                if self.theme.use_bar_gradient {
-                        
-                        Theme::create_gradient_bar(
-                            ram_bar,
-                            RAM_BAR_WIDTH,
-                            ram_color,
-                            ram_color_dim,
-                            &mut ram,
-                        );
-                    
-                } else {
-                    let ram_bar_style = Style::default().fg(ram_color);
-                    let span = Span::styled(ram_bar, ram_bar_style);
-                    ram.push(span);
-                };
+        if self.theme.use_bar_gradient {
+            Theme::create_gradient_bar(ram_bar, RAM_BAR_WIDTH, ram_color, ram_color_dim, &mut ram);
+        } else {
+            let ram_bar_style = Style::default().fg(ram_color);
+            let span = Span::styled(ram_bar, ram_bar_style);
+            ram.push(span);
+        };
 
-            ram.push(
-            Span::styled(
-                format!(" {}/{} ", format_bytes(sys.used()), format_bytes(sys.total),),
-                Style::default().fg(self.theme.fg),
-            ));
-            ram.push(
-            Span::styled(
-                format!("{:.0}%", ram_percent),
-                Style::default().fg(ram_color).add_modifier(Modifier::BOLD),
-            ));
+        ram.push(Span::styled(
+            format!(" {}/{} ", format_bytes(sys.used()), format_bytes(sys.total),),
+            Style::default().fg(self.theme.fg),
+        ));
+        ram.push(Span::styled(
+            format!("{:.0}%", ram_percent),
+            Style::default().fg(ram_color).add_modifier(Modifier::BOLD),
+        ));
 
         // Swap usage with status indicator
         let swap_percent = sys.swap_percent();

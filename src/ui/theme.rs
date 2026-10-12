@@ -144,18 +144,58 @@ impl Theme {
             info: Color::Rgb(100, 180, 255),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(mem_excellent_vec[0] as u8, mem_excellent_vec[1] as u8, mem_excellent_vec[2] as u8), // Fresh green
-            mem_good: Color::Rgb(mem_good_vec[0] as u8, mem_good_vec[1] as u8, mem_good_vec[2] as u8), // Lime
-            mem_moderate: Color::Rgb(mem_moderate_vec[0] as u8, mem_moderate_vec[1] as u8, mem_moderate_vec[2] as u8), // Golden yellow
-            mem_high: Color::Rgb(mem_high_vec[0] as u8, mem_high_vec[1] as u8, mem_high_vec[2] as u8), // Orange
-            mem_critical: Color::Rgb(mem_critical_vec[0] as u8, mem_critical_vec[1] as u8, mem_critical_vec[2] as u8), // Coral red
+            mem_excellent: Color::Rgb(
+                mem_excellent_vec[0] as u8,
+                mem_excellent_vec[1] as u8,
+                mem_excellent_vec[2] as u8,
+            ), // Fresh green
+            mem_good: Color::Rgb(
+                mem_good_vec[0] as u8,
+                mem_good_vec[1] as u8,
+                mem_good_vec[2] as u8,
+            ), // Lime
+            mem_moderate: Color::Rgb(
+                mem_moderate_vec[0] as u8,
+                mem_moderate_vec[1] as u8,
+                mem_moderate_vec[2] as u8,
+            ), // Golden yellow
+            mem_high: Color::Rgb(
+                mem_high_vec[0] as u8,
+                mem_high_vec[1] as u8,
+                mem_high_vec[2] as u8,
+            ), // Orange
+            mem_critical: Color::Rgb(
+                mem_critical_vec[0] as u8,
+                mem_critical_vec[1] as u8,
+                mem_critical_vec[2] as u8,
+            ), // Coral red
 
             // Dim memory gradient - Smooth color progression
-            mem_excellent_dim: Color::Rgb((mem_excellent_vec[0]*dim_mult) as u8, (mem_excellent_vec[1]*dim_mult) as u8, (mem_excellent_vec[2]*dim_mult) as u8), // Fresh green
-            mem_good_dim: Color::Rgb((mem_good_vec[0]*dim_mult) as u8, (mem_good_vec[1]*dim_mult) as u8, (mem_good_vec[2]*dim_mult) as u8), // Lime
-            mem_moderate_dim: Color::Rgb((mem_moderate_vec[0]*dim_mult) as u8, (mem_moderate_vec[1]*dim_mult) as u8, (mem_moderate_vec[2]*dim_mult) as u8), // Golden yellow
-            mem_high_dim: Color::Rgb((mem_high_vec[0]*dim_mult) as u8, (mem_high_vec[1]*dim_mult) as u8, (mem_high_vec[2]*dim_mult) as u8), // Orange
-            mem_critical_dim: Color::Rgb((mem_critical_vec[0]*dim_mult) as u8, (mem_critical_vec[1]*dim_mult) as u8, (mem_critical_vec[2]*dim_mult) as u8), // Coral red
+            mem_excellent_dim: Color::Rgb(
+                (mem_excellent_vec[0] * dim_mult) as u8,
+                (mem_excellent_vec[1] * dim_mult) as u8,
+                (mem_excellent_vec[2] * dim_mult) as u8,
+            ), // Fresh green
+            mem_good_dim: Color::Rgb(
+                (mem_good_vec[0] * dim_mult) as u8,
+                (mem_good_vec[1] * dim_mult) as u8,
+                (mem_good_vec[2] * dim_mult) as u8,
+            ), // Lime
+            mem_moderate_dim: Color::Rgb(
+                (mem_moderate_vec[0] * dim_mult) as u8,
+                (mem_moderate_vec[1] * dim_mult) as u8,
+                (mem_moderate_vec[2] * dim_mult) as u8,
+            ), // Golden yellow
+            mem_high_dim: Color::Rgb(
+                (mem_high_vec[0] * dim_mult) as u8,
+                (mem_high_vec[1] * dim_mult) as u8,
+                (mem_high_vec[2] * dim_mult) as u8,
+            ), // Orange
+            mem_critical_dim: Color::Rgb(
+                (mem_critical_vec[0] * dim_mult) as u8,
+                (mem_critical_vec[1] * dim_mult) as u8,
+                (mem_critical_vec[2] * dim_mult) as u8,
+            ), // Coral red
 
             // UI elements
             border: Color::Rgb(55, 55, 70),
@@ -319,18 +359,58 @@ impl Theme {
             info: Color::Rgb(0x83, 0xa5, 0x98),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Rgb(mem_excellent_vec[0] as u8, mem_excellent_vec[1] as u8, mem_excellent_vec[2] as u8), // Fresh green - not gruvbox, their green is too lime
-            mem_good: Color::Rgb(mem_good_vec[0] as u8, mem_good_vec[1] as u8, mem_good_vec[2] as u8), // Lime
-            mem_moderate: Color::Rgb(mem_moderate_vec[0] as u8, mem_moderate_vec[1] as u8, mem_moderate_vec[2] as u8), // Middle yellow
-            mem_high: Color::Rgb(mem_high_vec[0] as u8, mem_high_vec[1] as u8, mem_high_vec[2] as u8), // Light orange
-            mem_critical: Color::Rgb(mem_critical_vec[0] as u8, mem_critical_vec[1] as u8, mem_critical_vec[2] as u8), // Dark orange
+            mem_excellent: Color::Rgb(
+                mem_excellent_vec[0] as u8,
+                mem_excellent_vec[1] as u8,
+                mem_excellent_vec[2] as u8,
+            ), // Fresh green - not gruvbox, their green is too lime
+            mem_good: Color::Rgb(
+                mem_good_vec[0] as u8,
+                mem_good_vec[1] as u8,
+                mem_good_vec[2] as u8,
+            ), // Lime
+            mem_moderate: Color::Rgb(
+                mem_moderate_vec[0] as u8,
+                mem_moderate_vec[1] as u8,
+                mem_moderate_vec[2] as u8,
+            ), // Middle yellow
+            mem_high: Color::Rgb(
+                mem_high_vec[0] as u8,
+                mem_high_vec[1] as u8,
+                mem_high_vec[2] as u8,
+            ), // Light orange
+            mem_critical: Color::Rgb(
+                mem_critical_vec[0] as u8,
+                mem_critical_vec[1] as u8,
+                mem_critical_vec[2] as u8,
+            ), // Dark orange
 
             // Memory gradient - Smooth color progression - modifiedbased on vibes, not directly from gruvbox
-            mem_excellent_dim: Color::Rgb((mem_excellent_vec[0]*dim_mult) as u8, (mem_excellent_vec[1]*dim_mult) as u8, (mem_excellent_vec[2]*dim_mult) as u8),
-            mem_good_dim: Color::Rgb((mem_good_vec[0]*dim_mult) as u8, (mem_good_vec[1]*dim_mult) as u8, (mem_good_vec[2]*dim_mult) as u8),
-            mem_moderate_dim: Color::Rgb((mem_moderate_vec[0]*dim_mult) as u8, (mem_moderate_vec[1]*dim_mult) as u8, (mem_moderate_vec[2]*dim_mult) as u8),
-            mem_high_dim: Color::Rgb((mem_high_vec[0]*dim_mult) as u8, (mem_high_vec[1]*dim_mult) as u8, (mem_high_vec[2]*dim_mult) as u8),
-            mem_critical_dim: Color::Rgb((mem_critical_vec[0]*dim_mult) as u8, (mem_critical_vec[1]*dim_mult) as u8, (mem_critical_vec[2]*dim_mult) as u8),
+            mem_excellent_dim: Color::Rgb(
+                (mem_excellent_vec[0] * dim_mult) as u8,
+                (mem_excellent_vec[1] * dim_mult) as u8,
+                (mem_excellent_vec[2] * dim_mult) as u8,
+            ),
+            mem_good_dim: Color::Rgb(
+                (mem_good_vec[0] * dim_mult) as u8,
+                (mem_good_vec[1] * dim_mult) as u8,
+                (mem_good_vec[2] * dim_mult) as u8,
+            ),
+            mem_moderate_dim: Color::Rgb(
+                (mem_moderate_vec[0] * dim_mult) as u8,
+                (mem_moderate_vec[1] * dim_mult) as u8,
+                (mem_moderate_vec[2] * dim_mult) as u8,
+            ),
+            mem_high_dim: Color::Rgb(
+                (mem_high_vec[0] * dim_mult) as u8,
+                (mem_high_vec[1] * dim_mult) as u8,
+                (mem_high_vec[2] * dim_mult) as u8,
+            ),
+            mem_critical_dim: Color::Rgb(
+                (mem_critical_vec[0] * dim_mult) as u8,
+                (mem_critical_vec[1] * dim_mult) as u8,
+                (mem_critical_vec[2] * dim_mult) as u8,
+            ),
 
             // UI elements - GruvBox aqua and fg/bg, taken from light
             border: Color::Rgb(0x7c, 0x6f, 0x64),

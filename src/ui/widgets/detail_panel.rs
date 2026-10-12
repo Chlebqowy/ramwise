@@ -313,13 +313,7 @@ fn create_memory_row<'a>(
         Style::default().fg(color),
     ));
     if theme.use_bar_gradient {
-            Theme::create_gradient_bar(
-                bar,
-                bar_width,
-                color,
-                secondary_color,
-                &mut span_row,
-            );
+        Theme::create_gradient_bar(bar, bar_width, color, secondary_color, &mut span_row);
     } else {
         let span = Span::styled(bar, Style::default().fg(color));
         span_row.push(span);
