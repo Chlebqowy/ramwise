@@ -312,7 +312,7 @@ fn create_memory_row<'a>(
         format!("{:<4}", label),
         Style::default().fg(color),
     ));
-    if theme.use_list_gradient {
+    if theme.use_bar_gradient {
             Theme::create_gradient_bar(
                 bar,
                 bar_width,

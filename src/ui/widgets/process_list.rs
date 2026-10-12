@@ -208,7 +208,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
                 ];
-                if !is_selected && self.theme.use_list_gradient {
+                if !is_selected && self.theme.use_bar_gradient {
                     if self.theme.use_mem_color {
                         let mem_color_dim = self.theme.mem_color_dim(mem_percent);
                         Theme::create_gradient_bar(
