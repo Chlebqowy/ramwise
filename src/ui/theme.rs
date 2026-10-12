@@ -57,6 +57,13 @@ pub struct Theme {
     pub mem_high: Color,      // 70-85%
     pub mem_critical: Color,  // > 85%
 
+    // Memory usage gradient (smooth transitions)
+    pub mem_excellent_dim: Color, // < 30%
+    pub mem_good_dim: Color,      // 30-50%
+    pub mem_moderate_dim: Color,  // 50-70%
+    pub mem_high_dim: Color,      // 70-85%
+    pub mem_critical_dim: Color,  // > 85%
+
     // UI elements
     pub border: Color,
     pub border_focused: Color,
@@ -136,6 +143,13 @@ impl Theme {
             mem_high: Color::Rgb(255, 150, 80),       // Orange
             mem_critical: Color::Rgb(255, 90, 90),    // Coral red
 
+            // Dim memory gradient - Smooth color progression
+            mem_excellent_dim: Color::Rgb(90, 200, 130), // Fresh green
+            mem_good_dim: Color::Rgb(120, 200, 90),      // Lime
+            mem_moderate_dim: Color::Rgb(225, 100, 70),   // Golden yellow
+            mem_high_dim: Color::Rgb(200, 120, 70),       // Orange
+            mem_critical_dim: Color::Rgb(200, 70, 70),    // Coral red
+
             // UI elements
             border: Color::Rgb(55, 55, 70),
             border_focused: Color::Rgb(180, 130, 255),
@@ -212,6 +226,13 @@ impl Theme {
             mem_moderate: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
             mem_high: Color::Indexed(Ansi::dark_red as u8),        // Orange
             mem_critical: Color::Indexed(Ansi::red as u8),         // Coral red
+
+            // Dim memory gradient - Smooth color progression
+            mem_excellent_dim: Color::Indexed(Ansi::dark_green as u8), // Fresh green
+            mem_good_dim: Color::Indexed(Ansi::dark_green as u8),           // Lime
+            mem_moderate_dim: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
+            mem_high_dim: Color::Indexed(Ansi::dark_red as u8),        // Orange
+            mem_critical_dim: Color::Indexed(Ansi::dark_red as u8),         // Coral red
 
             // UI elements - blue borders and gray selections
             border: Color::Indexed(Ansi::dark_blue as u8),
@@ -291,6 +312,13 @@ impl Theme {
             mem_high: Color::Rgb(0xfe, 0x80, 0x19),   // Light orange
             mem_critical: Color::Rgb(0xaf, 0x3a, 0x03), // Dark orange
 
+            // Memory gradient - Smooth color progression - modifiedbased on vibes, not directly from gruvbox
+            mem_excellent_dim: Color::Rgb(100, 210, 140), 
+            mem_good_dim: Color::Rgb(0x90, 0x87, 0x10),   
+            mem_moderate_dim: Color::Rgb(0xe7, 0x89, 0x18), 
+            mem_high_dim: Color::Rgb(0xde, 0x70, 0x19),   
+            mem_critical_dim: Color::Rgb(0x8f, 0x2a, 0x00), 
+
             // UI elements - GruvBox aqua and fg/bg, taken from light
             border: Color::Rgb(0x7c, 0x6f, 0x64),
             border_focused: Color::Rgb(0x68, 0x9d, 0x6a),
@@ -350,6 +378,20 @@ impl Theme {
             self.mem_good
         } else {
             self.mem_excellent
+        }
+    }
+
+    pub fn mem_color_dim(&self, percent: f64) -> Color {
+        if percent >= 85.0 {
+            self.mem_critical_dim
+        } else if percent >= 70.0 {
+            self.mem_high_dim
+        } else if percent >= 50.0 {
+            self.mem_moderate_dim
+        } else if percent >= 30.0 {
+            self.mem_good_dim
+        } else {
+            self.mem_excellent_dim
         }
     }
 

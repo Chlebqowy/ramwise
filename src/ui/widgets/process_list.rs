@@ -209,7 +209,8 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 if !is_selected && self.theme.use_list_gradient
                 {
                 let bar_gradient = if self.theme.use_mem_color {
-                    Theme::generate_gradient(bar_width as u8, mem_color, mem_color)
+                    let mem_color_dim = self.theme.mem_color_dim(mem_percent);
+                    Theme::generate_gradient(bar_width as u8, mem_color, mem_color_dim)
                 } else {
                     Theme::generate_gradient(bar_width as u8, self.theme.primary, self.theme.primary_dim)
                 };
