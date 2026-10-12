@@ -194,7 +194,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if proc.swap > 0 {
             lines.push(Line::from(""));
             lines.push(Line::from(vec![
-                Span::styled("▲ ", Style::default().fg(self.theme.warning)),
+                Span::styled(self.theme.triangle.clone(), Style::default().fg(self.theme.warning)),
                 Span::styled("Swap: ", self.theme.dim_style()),
                 Span::styled(format_bytes(proc.swap), self.theme.warning_style()),
             ]));
@@ -204,7 +204,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if proc.major_faults > 100 {
             lines.push(Line::from(vec![
                 Span::styled(
-                    "● ",
+                    self.theme.full_circle.clone(),
                     Style::default().fg(if proc.major_faults > 1000 {
                         self.theme.warning
                     } else {
@@ -228,7 +228,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if frag_ratio > 5.0 {
             lines.push(Line::from(vec![
                 Span::styled(
-                    "◐ ",
+                    self.theme.semicircle.clone(),
                     Style::default().fg(if frag_ratio > 15.0 {
                         self.theme.warning
                     } else {

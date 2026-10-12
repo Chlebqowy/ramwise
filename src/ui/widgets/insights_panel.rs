@@ -110,7 +110,7 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
         if self.insights.is_empty() {
             // Show success state with icon
             let lines = vec![Line::from(vec![
-                Span::styled("  ✓ ", Style::default().fg(self.theme.success)),
+                Span::styled(self.theme.checkmark.clone(), Style::default().fg(self.theme.success)),
                 Span::styled(
                     "System looks healthy",
                     Style::default().fg(self.theme.fg_dim),
@@ -130,13 +130,13 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
                 // Severity icon with color
                 let (icon, icon_style) = match insight.severity {
                     Severity::Critical => (
-                        "▲",
+                        self.theme.triangle.clone(),
                         Style::default()
                             .fg(self.theme.error)
                             .add_modifier(Modifier::BOLD),
                     ),
-                    Severity::Warning => ("●", Style::default().fg(self.theme.warning)),
-                    Severity::Info => ("○", Style::default().fg(self.theme.info)),
+                    Severity::Warning => (self.theme.full_circle.clone(), Style::default().fg(self.theme.warning)),
+                    Severity::Info => (self.theme.empty_circle.clone(), Style::default().fg(self.theme.info)),
                 };
 
                 // Process target with PID

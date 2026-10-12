@@ -75,11 +75,19 @@ pub struct Theme {
     pub rank_high: Color,
     pub rank_top_symbol: String,
     pub rank_high_symbol: String,
+    pub border_subtle: Color,
 
+    // Chars
     pub bar_partial_chars: Vec<char>,
     pub bar_full_char: String,
     pub bar_empty_char: String,
-    pub border_subtle: Color,
+    pub header_dot: String, // · 
+    pub checkmark: String, //  ✓ 
+    pub triangle: String, //▲
+    pub full_circle: String, //●
+    pub empty_circle: String, //○
+    pub semicircle: String, //◐ 
+    pub diamond: String, //◈ 
 }
 
 impl Theme {
@@ -137,6 +145,13 @@ impl Theme {
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "░".to_string(),
+            header_dot: "·".to_string(),
+            checkmark: "✓".to_string(),
+            triangle: "▲".to_string(),
+            full_circle: "●".to_string(),
+            empty_circle: "○".to_string(),
+            semicircle: "◐".to_string(),
+            diamond: "◈".to_string(),
 
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
         }
@@ -194,6 +209,13 @@ impl Theme {
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "-".to_string(),
+            header_dot: "·".to_string(),
+            checkmark: "✓".to_string(),
+            triangle: "▲".to_string(),
+            full_circle: "●".to_string(),
+            empty_circle: "○".to_string(),
+            semicircle: "◐".to_string(),
+            diamond: "◈".to_string(),
 
             border_subtle: Color::Indexed(Ansi::red as u8), // Not subtle, but I prefer it
         }
@@ -252,6 +274,13 @@ impl Theme {
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "░".to_string(),
+            header_dot: "·".to_string(),
+            checkmark: "✓".to_string(),
+            triangle: "▲".to_string(),
+            full_circle: "●".to_string(),
+            empty_circle: "○".to_string(),
+            semicircle: "◐".to_string(),
+            diamond: "◈".to_string(),
 
             border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
         }
