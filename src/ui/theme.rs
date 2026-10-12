@@ -268,10 +268,10 @@ impl Theme {
 
             // Memory gradient - Smooth color progression
             mem_excellent: Color::Indexed(Ansi::DarkGreen as u8), // Fresh green
-            mem_good: Color::Indexed(Ansi::Green as u8),           // Lime
+            mem_good: Color::Indexed(Ansi::Green as u8),          // Lime
             mem_moderate: Color::Indexed(Ansi::DarkYellow as u8), // Golden yellow
             mem_high: Color::Indexed(Ansi::DarkRed as u8),        // Orange
-            mem_critical: Color::Indexed(Ansi::Red as u8),         // Coral red
+            mem_critical: Color::Indexed(Ansi::Red as u8),        // Coral red
 
             // Dim memory gradient - Smooth color progression
             mem_excellent_dim: Color::Indexed(Ansi::DarkGreen as u8), // Fresh green
