@@ -26,7 +26,7 @@ URL:            https://github.com/parasunc/ramwise
 %global debug_package %{nil}
 Source0:        https://github.com/parasunc/ramwise/archive/refs/tags/ramwise-v0.1.0.tar.gz
 BuildRequires:  cargo, make
-BuildArch:      x86_64
+BuildArch:      x86_64, aarch64
 
 %description
 ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory monitoring. It provides deep memory introspection, intelligent leak detection, and beautiful visualization all in a lightweight TUI application.
@@ -35,7 +35,10 @@ ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory m
 %setup -q
 
 %build
+%ifarch x86_64
 make build-x86_64 %{?_smp_mflags}
+%ifarch aarch64
+make build-aarch64 %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
