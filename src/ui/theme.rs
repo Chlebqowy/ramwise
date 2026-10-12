@@ -274,31 +274,7 @@ impl Theme {
 
     /// Get memory color with interpolation for smooth gradients
     pub fn mem_color_interpolated(&self, percent: f64) -> Color {
-        // Clamp to 0-100
-        let p = percent.clamp(0.0, 100.0);
-
-        // Define color stops
-        let (r, g, b) = if p < 30.0 {
-            // Excellent zone: fresh green
-            (100, 230, 140)
-        } else if p < 50.0 {
-            // Good zone: transition green -> yellow
-            let t = (p - 30.0) / 20.0;
-            lerp_rgb((100, 230, 140), (255, 210, 80), t)
-        } else if p < 70.0 {
-            // Moderate zone: transition yellow -> orange
-            let t = (p - 50.0) / 20.0;
-            lerp_rgb((255, 210, 80), (255, 150, 80), t)
-        } else if p < 85.0 {
-            // High zone: transition orange -> red
-            let t = (p - 70.0) / 15.0;
-            lerp_rgb((255, 150, 80), (255, 90, 90), t)
-        } else {
-            // Critical: red
-            (255, 90, 90)
-        };
-
-        Color::Rgb(r, g, b)
+        self.mem_color(percent)
     }
 
     /// Get severity color
