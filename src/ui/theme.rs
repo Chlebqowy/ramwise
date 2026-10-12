@@ -5,6 +5,7 @@
 use clap::builder::ValueRange;
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
+use ratatui::text::Span;
 
 enum Ansi {
     black = 0,
@@ -91,15 +92,15 @@ pub struct Theme {
     pub bar_partial_chars: Vec<char>,
     pub bar_full_char: String,
     pub bar_empty_char: String,
-    pub header_dot: String, // · 
-    pub checkmark: String, //  ✓ 
-    pub triangle: String, //▲
-    pub full_circle: String, //●
+    pub header_dot: String,   // ·
+    pub checkmark: String,    //  ✓
+    pub triangle: String,     //▲
+    pub full_circle: String,  //●
     pub empty_circle: String, //○
-    pub semicircle: String, //◐ 
-    pub diamond: String, //◈
+    pub semicircle: String,   //◐
+    pub diamond: String,      //◈
 
-    // Detail panel chars (state_chip) 
+    // Detail panel chars (state_chip)
     pub running: String,
     pub sleeping: String,
     pub disk_wait: String,
@@ -146,9 +147,9 @@ impl Theme {
             // Dim memory gradient - Smooth color progression
             mem_excellent_dim: Color::Rgb(90, 200, 130), // Fresh green
             mem_good_dim: Color::Rgb(120, 200, 90),      // Lime
-            mem_moderate_dim: Color::Rgb(225, 100, 70),   // Golden yellow
-            mem_high_dim: Color::Rgb(200, 120, 70),       // Orange
-            mem_critical_dim: Color::Rgb(200, 70, 70),    // Coral red
+            mem_moderate_dim: Color::Rgb(225, 100, 70),  // Golden yellow
+            mem_high_dim: Color::Rgb(200, 120, 70),      // Orange
+            mem_critical_dim: Color::Rgb(200, 70, 70),   // Coral red
 
             // UI elements
             border: Color::Rgb(55, 55, 70),
@@ -170,7 +171,7 @@ impl Theme {
             rank_high_symbol: "⊗ ".to_string(),
             chosen: "▶".to_string(),
             use_list_gradient: true,
-            use_mem_color: true,
+            use_mem_color: false,
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
@@ -229,10 +230,10 @@ impl Theme {
 
             // Dim memory gradient - Smooth color progression
             mem_excellent_dim: Color::Indexed(Ansi::dark_green as u8), // Fresh green
-            mem_good_dim: Color::Indexed(Ansi::dark_green as u8),           // Lime
+            mem_good_dim: Color::Indexed(Ansi::dark_green as u8),      // Lime
             mem_moderate_dim: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
             mem_high_dim: Color::Indexed(Ansi::dark_red as u8),        // Orange
-            mem_critical_dim: Color::Indexed(Ansi::dark_red as u8),         // Coral red
+            mem_critical_dim: Color::Indexed(Ansi::dark_red as u8),    // Coral red
 
             // UI elements - blue borders and gray selections
             border: Color::Indexed(Ansi::dark_blue as u8),
@@ -313,11 +314,11 @@ impl Theme {
             mem_critical: Color::Rgb(0xaf, 0x3a, 0x03), // Dark orange
 
             // Memory gradient - Smooth color progression - modifiedbased on vibes, not directly from gruvbox
-            mem_excellent_dim: Color::Rgb(100, 210, 140), 
-            mem_good_dim: Color::Rgb(0x90, 0x87, 0x10),   
-            mem_moderate_dim: Color::Rgb(0xe7, 0x89, 0x18), 
-            mem_high_dim: Color::Rgb(0xde, 0x70, 0x19),   
-            mem_critical_dim: Color::Rgb(0x8f, 0x2a, 0x00), 
+            mem_excellent_dim: Color::Rgb(100, 210, 140),
+            mem_good_dim: Color::Rgb(0x90, 0x87, 0x10),
+            mem_moderate_dim: Color::Rgb(0xe7, 0x89, 0x18),
+            mem_high_dim: Color::Rgb(0xde, 0x70, 0x19),
+            mem_critical_dim: Color::Rgb(0x8f, 0x2a, 0x00),
 
             // UI elements - GruvBox aqua and fg/bg, taken from light
             border: Color::Rgb(0x7c, 0x6f, 0x64),
@@ -484,6 +485,7 @@ impl Theme {
         };
         Style::default().fg(color)
     }
+
     pub fn generate_gradient(segments: u8, color1: Color, color2: Color) -> Vec<Color> {
         if let Color::Rgb(r1, g1, b1) = color1
             && let Color::Rgb(r2, g2, b2) = color2
@@ -529,6 +531,23 @@ impl Theme {
                 result.push(color2);
             }
             result
+        }
+    }
+
+    pub fn create_gradient_bar(
+        bar: String,
+        bar_width: usize,
+        color1: Color,
+        color2: Color,
+        spans: &mut Vec<Span>,
+    ) {
+        let bar_gradient = Theme::generate_gradient(bar_width as u8, color1, color2);
+        let bar_char_array: Vec<char> = bar.chars().collect();
+        for index in 0..bar_width {
+            let bar_char = bar_char_array[index];
+            let bar_char_style = Style::default().fg(bar_gradient[index]);
+            let span = Span::styled(bar_char.to_string(), bar_char_style);
+            spans.push(span); // make this a toggle 
         }
     }
     /// Create a sleek progress bar with partial block characters

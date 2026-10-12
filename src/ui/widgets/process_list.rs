@@ -192,8 +192,10 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Style::default()
                         .fg(self.theme.selection_fg)
                         .add_modifier(Modifier::BOLD)
-                } else {
+                } else if self.theme.use_mem_color {
                     Style::default().fg(mem_color)
+                } else {
+                    Style::default().fg(self.theme.primary)
                 };
 
                 // Sleek usage bar with gradient
@@ -206,22 +208,25 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
                 ];
-                if !is_selected && self.theme.use_list_gradient
-                {
-                let bar_gradient = if self.theme.use_mem_color {
-                    let mem_color_dim = self.theme.mem_color_dim(mem_percent);
-                    Theme::generate_gradient(bar_width as u8, mem_color, mem_color_dim)
-                } else {
-                    Theme::generate_gradient(bar_width as u8, self.theme.primary, self.theme.primary_dim)
-                };
-                let bar_char_array: Vec<char> = bar.chars().collect();
-                for index in 0..bar_width
-                {
-                    let bar_char = bar_char_array[index];
-                    let bar_char_style = Style::default().fg(bar_gradient[index]);
-                    let span = Span::styled(bar_char.to_string(), bar_char_style);
-                    spans.push(span); // make this a toggle 
-                };
+                if !is_selected && self.theme.use_list_gradient {
+                    if self.theme.use_mem_color {
+                        let mem_color_dim = self.theme.mem_color_dim(mem_percent);
+                        Theme::create_gradient_bar(
+                            bar,
+                            bar_width,
+                            mem_color,
+                            mem_color_dim,
+                            &mut spans,
+                        );
+                    } else {
+                        Theme::create_gradient_bar(
+                            bar,
+                            bar_width,
+                            self.theme.primary,
+                            self.theme.primary_dim,
+                            &mut spans,
+                        );
+                    };
                 } else {
                     let bar_style = if is_selected {
                         Style::default().fg(self.theme.selection_fg)

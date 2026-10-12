@@ -39,7 +39,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Modern title with icon-like prefix
         let title = match &self.process {
             Some(p) => Line::from(vec![
-                Span::styled(format!("{ } ", self.theme.diamond.clone()), Style::default().fg(self.theme.primary)),
+                Span::styled(
+                    format!("{ } ", self.theme.diamond.clone()),
+                    Style::default().fg(self.theme.primary),
+                ),
                 Span::styled(
                     &p.name,
                     Style::default()
@@ -90,17 +93,16 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Build content with modern sections
         let mut lines = Vec::new();
 
-        let state_chip =
-            match proc.state {
-                'R' => format!("{} Running", self.theme.running),
-                'S' => format!("{} Sleeping", self.theme.sleeping),
-                'D' => format!("{} Disk Wait", self.theme.disk_wait),
-                'Z' => format!("{} Zombie", self.theme.zombie),
-                'T' => format!("{} Stopped", self.theme.stopped),
-                't' => format!("{} Tracing", self.theme.tracing),
-                'I' => format!("{} Idle", self.theme.idle),
-                _ => format!("{} {}", self.theme.unknown, proc.state),
-            };
+        let state_chip = match proc.state {
+            'R' => format!("{} Running", self.theme.running),
+            'S' => format!("{} Sleeping", self.theme.sleeping),
+            'D' => format!("{} Disk Wait", self.theme.disk_wait),
+            'Z' => format!("{} Zombie", self.theme.zombie),
+            'T' => format!("{} Stopped", self.theme.stopped),
+            't' => format!("{} Tracing", self.theme.tracing),
+            'I' => format!("{} Idle", self.theme.idle),
+            _ => format!("{} {}", self.theme.unknown, proc.state),
+        };
 
         // Process info row with status chip
         let state_style = match proc.state {
@@ -206,7 +208,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if proc.swap > 0 {
             lines.push(Line::from(""));
             lines.push(Line::from(vec![
-                Span::styled(self.theme.triangle.clone(), Style::default().fg(self.theme.warning)),
+                Span::styled(
+                    self.theme.triangle.clone(),
+                    Style::default().fg(self.theme.warning),
+                ),
                 Span::styled("Swap: ", self.theme.dim_style()),
                 Span::styled(format_bytes(proc.swap), self.theme.warning_style()),
             ]));
@@ -303,21 +308,21 @@ fn create_memory_row<'a>(
     } else {
         theme.fg_muted
     };
-    span_row.push(Span::styled(format!("{:<4}", label), Style::default().fg(color)));
-        //Span::styled(bar, Style::default().fg(color)),
-        // maybe make the whole sleek_bar optional
-    span_row.push(
-        Span::raw(" "));
-    span_row.push(
-        Span::styled(
-            format!("{:>9}", format_bytes(value)),
-            if is_primary {
-                Style::default().fg(theme.fg).add_modifier(Modifier::BOLD)
-            } else {
-                Style::default().fg(theme.fg_dim)
-            },
-        ),
-    );
+    span_row.push(Span::styled(
+        format!("{:<4}", label),
+        Style::default().fg(color),
+    ));
+    //Span::styled(bar, Style::default().fg(color)),
+    // maybe make the whole sleek_bar optional
+    span_row.push(Span::raw(" "));
+    span_row.push(Span::styled(
+        format!("{:>9}", format_bytes(value)),
+        if is_primary {
+            Style::default().fg(theme.fg).add_modifier(Modifier::BOLD)
+        } else {
+            Style::default().fg(theme.fg_dim)
+        },
+    ));
     Line::from(span_row)
 }
 
