@@ -166,7 +166,7 @@ impl Theme {
             info: Color::Indexed(Ansi::dark_blue as u8),
 
             // Memory gradient - Smooth color progression
-            mem_excellent: Color::Indexed(Ansi::aqua as u8), // Fresh green
+            mem_excellent: Color::Indexed(Ansi::dark_green as u8), // Fresh green
             mem_good: Color::Indexed(Ansi::green as u8),           // Lime
             mem_moderate: Color::Indexed(Ansi::dark_yellow as u8), // Golden yellow
             mem_high: Color::Indexed(Ansi::dark_red as u8),        // Orange
