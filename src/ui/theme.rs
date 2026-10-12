@@ -16,6 +16,7 @@ where
 
 /// Modern color theme - Material Design 3 inspired
 #[derive(Debug, Clone, Deserialize)]
+#[serde(default)]
 pub struct Theme {
     // Base colors - Deep dark with slight blue undertone
     #[serde(deserialize_with = "deserialize_color")]
