@@ -204,14 +204,25 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Style::default().fg(mem_color)
                 };
 
-                let spans = vec![
+                let mut spans = vec![
                     rank_indicator,
                     Span::styled(name, name_style),
                     Span::raw(" "),
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
-                    Span::styled(bar, bar_style),
                 ];
+                if !is_selected
+                {
+                let bar_gradient = Theme::generate_gradient(bar_width as u8, self.theme.primary, self.theme.primary_dim);
+                let bar_char_array: Vec<char> = bar.chars().collect();
+                for index in 0..bar_width
+                {
+                    let bar_char = bar_char_array[index];
+                    let bar_char_style = Style::default().fg(bar_gradient[index]);
+                    let span = Span::styled(bar_char.to_string(), bar_char_style);
+                    spans.push(span); // make this a toggle 
+                };
+                };
 
                 ListItem::new(Line::from(spans))
             })
