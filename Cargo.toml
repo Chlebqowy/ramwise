@@ -21,6 +21,10 @@ tokio = { version = "1", features = ["rt-multi-thread", "time", "sync", "macros"
 # System info - procfs for Linux /proc parsing
 procfs = "0.17"
 
+# System info for windows
+windows = "0.61.2"
+windows-sys = "0.61.2"
+
 # Error handling
 anyhow = "1.0"
 thiserror = "2.0"
