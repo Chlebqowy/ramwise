@@ -12,6 +12,8 @@ use crate::collector::SystemMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
 
+use crate::ui::theme::BarType;
+
 /// Modern header bar widget
 pub struct HeaderWidget<'a> {
     system: &'a SystemMemory,
@@ -55,7 +57,13 @@ impl<'a> Widget for HeaderWidget<'a> {
         let ram_percent = sys.usage_percent();
         let ram_color = self.theme.mem_color_interpolated(ram_percent);
         let ram_color_dim = self.theme.mem_color_dim(ram_percent);
-        let ram_bar = Theme::create_sleek_bar(&self.theme, ram_percent, RAM_BAR_WIDTH);
+        let ram_bar = match self.theme.header_bar_type
+        {
+            BarType::Standard => Theme::create_sleek_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
+            BarType::Gradient => Theme::create_sleek_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
+            BarType::Fancy => Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
+            BarType::FancyGradient => Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
+        };
         if self.theme.use_bar_gradient {
             Theme::create_gradient_bar(ram_bar, RAM_BAR_WIDTH, ram_color, ram_color_dim, &mut ram);
         } else {

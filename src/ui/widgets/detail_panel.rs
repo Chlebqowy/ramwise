@@ -12,6 +12,8 @@ use crate::collector::ProcessMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
 
+use crate::ui::theme::BarType;
+
 /// Modern detail panel widget
 pub struct DetailPanelWidget<'a> {
     process: Option<&'a ProcessMemory>,
@@ -296,7 +298,14 @@ fn create_memory_row<'a>(
         0.0
     };
 
-    let bar = Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width);
+    let bar = match theme.detail_panel_bar_type
+        {
+            BarType::Standard => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
+            BarType::Gradient => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
+            BarType::Fancy => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+            BarType::FancyGradient => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+        };
+
     let mut span_row = vec![];
     let color = if is_primary {
         theme.primary

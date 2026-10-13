@@ -94,7 +94,10 @@ pub struct Theme {
     pub chosen: String,
     pub use_bar_gradient: bool,
     pub use_mem_color: bool,
+
     pub process_list_bar_type: BarType,
+    pub detail_panel_bar_type: BarType,
+    pub header_bar_type: BarType,
 
     // Chars
     pub bar_partial_chars: Vec<char>,
@@ -240,13 +243,19 @@ impl Theme {
             chosen: "▶".to_string(),
             use_bar_gradient: true,
             use_mem_color: true,
+
             process_list_bar_type: BarType::FancyGradient,
+            //process_list_bar_type: BarType::Gradient,
+            detail_panel_bar_type: BarType::Gradient,
+            header_bar_type: BarType::FancyGradient,
+            //header_bar_type: BarType::Gradient,
 
             bar_partial_chars,
             bar_full_char,
             bar_empty_char,
             bar_all_chars,
-            fancy_bar_chars: ['<', '', '>', ''],
+            fancy_bar_chars: ['<', '<', '>', '>'],
+            //fancy_bar_chars: ['', '', bar_empty_char_pre, bar_full_char_pre],
 
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
@@ -337,14 +346,16 @@ impl Theme {
             chosen: "▶".to_string(),
             use_bar_gradient: true,
             use_mem_color: false,
-            process_list_bar_type: BarType::Gradient,
+            process_list_bar_type: BarType::FancyGradient,
+            detail_panel_bar_type: BarType::Gradient,
+            header_bar_type: BarType::FancyGradient,
 
             // Use basic chars as a stylistic choice
             bar_partial_chars,
             bar_full_char,
             bar_empty_char,
             bar_all_chars,
-            fancy_bar_chars: ['<', '<', '>', '>'],
+            fancy_bar_chars: [bar_empty_char_pre, bar_full_char_pre, '>', '>'],
 
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
@@ -484,6 +495,8 @@ impl Theme {
             use_bar_gradient: false,
             use_mem_color: true,
             process_list_bar_type: BarType::Standard,
+            detail_panel_bar_type: BarType::Standard,
+            header_bar_type: BarType::Standard,
 
             bar_partial_chars,
             bar_full_char,
