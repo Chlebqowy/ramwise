@@ -139,9 +139,9 @@ impl Theme {
 
         let bar_full_char: String = bar_full_char_pre.to_string();
         let bar_empty_char: String = bar_empty_char_pre.to_string();
-        let mut bar_all_chars: Vec<char> = vec![bar_full_char_pre];
+        let mut bar_all_chars: Vec<char> = vec![bar_empty_char_pre];
         bar_all_chars.extend(bar_partial_chars.iter().cloned());
-        bar_all_chars.push(bar_empty_char_pre);
+        bar_all_chars.push(bar_full_char_pre);
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
@@ -246,7 +246,7 @@ impl Theme {
             bar_full_char,
             bar_empty_char,
             bar_all_chars,
-            fancy_bar_chars: ['<', '<', '>', '>'],
+            fancy_bar_chars: ['<', '', '>', ''],
 
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
@@ -276,9 +276,9 @@ impl Theme {
 
         let bar_full_char: String = bar_full_char_pre.to_string();
         let bar_empty_char: String = bar_empty_char_pre.to_string();
-        let mut bar_all_chars: Vec<char> = vec![bar_full_char_pre];
+        let mut bar_all_chars: Vec<char> = vec![bar_empty_char_pre];
         bar_all_chars.extend(bar_partial_chars.iter().cloned());
-        bar_all_chars.push(bar_empty_char_pre);
+        bar_all_chars.push(bar_full_char_pre);
         Self {
             // Base - Basic monochrome l
             bg: Color::Indexed(Ansi::Black as u8),
@@ -382,9 +382,9 @@ impl Theme {
 
         let bar_full_char: String = bar_full_char_pre.to_string();
         let bar_empty_char: String = bar_empty_char_pre.to_string();
-        let mut bar_all_chars: Vec<char> = vec![bar_full_char_pre];
+        let mut bar_all_chars: Vec<char> = vec![bar_empty_char_pre];
         bar_all_chars.extend(bar_partial_chars.iter().cloned());
-        bar_all_chars.push(bar_empty_char_pre);
+        bar_all_chars.push(bar_full_char_pre);
         Self {
             // Base - Very light gray with a yellow tint
             bg: Color::Rgb(0xfb, 0xf1, 0xc7),
@@ -714,14 +714,14 @@ impl Theme {
             let len = self.bar_all_chars.len() as f32;
             let is_full = fpos / len;
             if is_full >= 0.5 {
-                self.fancy_bar_chars[0]
-            } else if is_full >= 0.0 {
                 self.fancy_bar_chars[1]
+            } else if is_full >= 0.0 {
+                self.fancy_bar_chars[0]
             } else {
                 'e'
             }
         };
-        let last: usize = bar.len() - 1 as usize;
+        let last: usize = width - 1 as usize;
         bar[last] = {
             let pos = self.bar_all_chars.iter().position(|&x| x == bar[last]);
             let fpos: f32 = if let Some(pos) = pos {
@@ -732,9 +732,9 @@ impl Theme {
             let len = self.bar_all_chars.len() as f32;
             let is_full = fpos / len;
             if is_full >= 0.5 {
-                self.fancy_bar_chars[2]
-            } else if is_full >= 0.0 {
                 self.fancy_bar_chars[3]
+            } else if is_full >= 0.0 {
+                self.fancy_bar_chars[2]
             } else {
                 'e'
             }
