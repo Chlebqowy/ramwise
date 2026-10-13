@@ -136,7 +136,7 @@ impl Theme {
         let dim_mult: f32 = 0.75;
 
         let bar_full_char_pre: char = '█';
-        let bar_empty_char_pre: char = '░';
+        let bar_empty_char_pre: char = ' ';
         let bar_partial_chars: Vec<char> = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
 
         let bar_full_char: String = bar_full_char_pre.to_string();
@@ -245,14 +245,15 @@ impl Theme {
             //process_list_bar_type: BarType::FancyGradient,
             process_list_bar_type: BarType::Gradient,
             detail_panel_bar_type: BarType::Gradient,
-            header_bar_type: BarType::FancyGradient,
-            //header_bar_type: BarType::Gradient,
+            //header_bar_type: BarType::FancyGradient,
+            header_bar_type: BarType::Gradient,
+            // only change to fancy if you have a nerd font or changed fancy_bar_chars
             bar_partial_chars,
             bar_full_char,
             bar_empty_char,
             bar_all_chars,
             //fancy_bar_chars: ['<', '<', '>', '>'],
-            fancy_bar_chars: ['', '', bar_empty_char_pre, bar_full_char_pre],
+            fancy_bar_chars: ['', '', '', ''],
 
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
