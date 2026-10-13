@@ -122,6 +122,7 @@ pub type SnapshotExport = ExportSnapshot;
 
 impl ExportSnapshot {
     /// Reject a payload from a schema version this binary does not understand.
+    #[allow(dead_code)]
     pub fn validate(&self) -> Result<(), String> {
         if self.schema_version == SNAPSHOT_SCHEMA_VERSION {
             Ok(())
@@ -163,6 +164,7 @@ impl ExportSnapshot {
     }
 
     /// Deterministic fixture for compatibility and serialization tests.
+    #[allow(dead_code)]
     pub fn fixture() -> Self {
         let mut fixture = Self::from_runtime(&MemorySnapshot::default());
         fixture.captured_at_unix_ms = 1_700_000_000_000;
