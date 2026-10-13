@@ -242,18 +242,17 @@ impl Theme {
             chosen: "▶".to_string(),
             use_mem_color: true,
 
-            process_list_bar_type: BarType::FancyGradient,
-            //process_list_bar_type: BarType::Gradient,
+            //process_list_bar_type: BarType::FancyGradient,
+            process_list_bar_type: BarType::Gradient,
             detail_panel_bar_type: BarType::Gradient,
             header_bar_type: BarType::FancyGradient,
             //header_bar_type: BarType::Gradient,
-
             bar_partial_chars,
             bar_full_char,
             bar_empty_char,
             bar_all_chars,
-            fancy_bar_chars: ['<', '<', '>', '>'],
-            //fancy_bar_chars: ['', '', bar_empty_char_pre, bar_full_char_pre],
+            //fancy_bar_chars: ['<', '<', '>', '>'],
+            fancy_bar_chars: ['', '', bar_empty_char_pre, bar_full_char_pre],
 
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),

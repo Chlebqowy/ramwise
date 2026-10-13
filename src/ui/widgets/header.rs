@@ -57,14 +57,17 @@ impl<'a> Widget for HeaderWidget<'a> {
         let ram_percent = sys.usage_percent();
         let ram_color = self.theme.mem_color_interpolated(ram_percent);
         let ram_color_dim = self.theme.mem_color_dim(ram_percent);
-        let ram_bar = match self.theme.header_bar_type
-        {
+        let ram_bar = match self.theme.header_bar_type {
             BarType::Standard => Theme::create_sleek_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
             BarType::Gradient => Theme::create_sleek_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
             BarType::Fancy => Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
-            BarType::FancyGradient => Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
+            BarType::FancyGradient => {
+                Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH)
+            }
         };
-        if self.theme.header_bar_type == BarType::Gradient || self.theme.header_bar_type == BarType::FancyGradient {
+        if self.theme.header_bar_type == BarType::Gradient
+            || self.theme.header_bar_type == BarType::FancyGradient
+        {
             Theme::create_gradient_bar(ram_bar, RAM_BAR_WIDTH, ram_color, ram_color_dim, &mut ram);
         } else {
             let ram_bar_style = Style::default().fg(ram_color);

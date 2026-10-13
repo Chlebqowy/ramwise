@@ -298,13 +298,12 @@ fn create_memory_row<'a>(
         0.0
     };
 
-    let bar = match theme.detail_panel_bar_type
-        {
-            BarType::Standard => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
-            BarType::Gradient => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
-            BarType::Fancy => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
-            BarType::FancyGradient => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
-        };
+    let bar = match theme.detail_panel_bar_type {
+        BarType::Standard => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
+        BarType::Gradient => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
+        BarType::Fancy => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+        BarType::FancyGradient => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+    };
 
     let mut span_row = vec![];
     let color = if is_primary {
@@ -321,7 +320,9 @@ fn create_memory_row<'a>(
         format!("{:<4}", label),
         Style::default().fg(color),
     ));
-    if theme.detail_panel_bar_type == BarType::Gradient || theme.detail_panel_bar_type == BarType::FancyGradient {
+    if theme.detail_panel_bar_type == BarType::Gradient
+        || theme.detail_panel_bar_type == BarType::FancyGradient
+    {
         Theme::create_gradient_bar(bar, bar_width, color, secondary_color, &mut span_row);
     } else {
         let span = Span::styled(bar, Style::default().fg(color));

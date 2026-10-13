@@ -201,12 +201,17 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 };
 
                 // Sleek usage bar with gradient
-                let bar = match self.theme.process_list_bar_type
-                {
-                    BarType::Standard => Theme::create_sleek_bar(&self.theme, mem_percent, bar_width),
-                    BarType::Gradient => Theme::create_sleek_bar(&self.theme, mem_percent, bar_width),
+                let bar = match self.theme.process_list_bar_type {
+                    BarType::Standard => {
+                        Theme::create_sleek_bar(&self.theme, mem_percent, bar_width)
+                    }
+                    BarType::Gradient => {
+                        Theme::create_sleek_bar(&self.theme, mem_percent, bar_width)
+                    }
                     BarType::Fancy => Theme::create_fancy_bar(&self.theme, mem_percent, bar_width),
-                    BarType::FancyGradient => Theme::create_fancy_bar(&self.theme, mem_percent, bar_width),
+                    BarType::FancyGradient => {
+                        Theme::create_fancy_bar(&self.theme, mem_percent, bar_width)
+                    }
                 };
 
                 let mut spans = vec![
@@ -216,7 +221,10 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
                 ];
-                if !is_selected && (self.theme.process_list_bar_type == BarType::Gradient || self.theme.process_list_bar_type == BarType::FancyGradient) {
+                if !is_selected
+                    && (self.theme.process_list_bar_type == BarType::Gradient
+                        || self.theme.process_list_bar_type == BarType::FancyGradient)
+                {
                     if self.theme.use_mem_color {
                         let mem_color_dim = self.theme.mem_color_dim(mem_percent);
                         Theme::create_gradient_bar(
