@@ -138,7 +138,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
         // Column widths
         let name_width = inner_width.saturating_sub(22).min(20);
         let mem_width = 8;
-        let bar_width = inner_width.saturating_sub(name_width + mem_width + 4);
+        let bar_width = inner_width.saturating_sub(name_width + mem_width + 5);
 
         // Build list items with modern styling
         let items: Vec<ListItem> = self
