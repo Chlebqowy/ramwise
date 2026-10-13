@@ -136,7 +136,8 @@ impl Theme {
         let dim_mult: f32 = 0.75;
 
         let bar_full_char_pre: char = '█';
-        let bar_empty_char_pre: char = ' ';
+        let bar_empty_char_pre: char = '░';
+        //let bar_empty_char_pre: char = '·'; // recommend changing for this if you want fancy bar
         let bar_partial_chars: Vec<char> = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
 
         let bar_full_char: String = bar_full_char_pre.to_string();
@@ -343,9 +344,9 @@ impl Theme {
             rank_high_symbol: "° ".to_string(),
             chosen: "▶".to_string(),
             use_mem_color: false,
-            process_list_bar_type: BarType::FancyGradient,
+            process_list_bar_type: BarType::Gradient,
             detail_panel_bar_type: BarType::Gradient,
-            header_bar_type: BarType::FancyGradient,
+            header_bar_type: BarType::Gradient,
 
             // Use basic chars as a stylistic choice
             bar_partial_chars,
