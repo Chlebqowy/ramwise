@@ -92,7 +92,7 @@ pub struct Theme {
     pub bar_partial_chars: Vec<char>,
     pub bar_full_char: String,
     pub bar_empty_char: String,
-    pub bar_all_chars: Vec<char>
+    pub bar_all_chars: Vec<char>,
     pub fancy_bar_chars: [char; 4],
 
     // [Start empty, start full, end empty, end full]
@@ -131,7 +131,9 @@ impl Theme {
         let mem_critical_vec: Vec<f32> = vec![255.0, 90.0, 90.0];
         let dim_mult: f32 = 0.75;
 
-        let bar_full_char: char = '
+        let bar_full_char: char = '█';
+        let bar_empty_char: char = '░';
+        let bar_partial_chars: Vec<char> = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
@@ -231,11 +233,13 @@ impl Theme {
             use_bar_gradient: true,
             use_mem_color: true,
             process_list_bar_type: self.BarType::FancyBarGradient,
-
-            bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
-            bar_full_char: "█".to_string(),
-            bar_empty_char: "░".to_string(),
+            
+            bar_partial_chars,
+            bar_full_char: bar_full_char.to_string(),
+            bar_empty_char: bar_empty_char.to_string(),
+            bar_all_chars: vec![bar_full_char].append(&mut bar_partial_chars.clone()).push(bar_empty_char),
             fancy_bar_chars: ['<', '<', '>', '>'],
+
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
             triangle: "▲".to_string(),
@@ -258,6 +262,9 @@ impl Theme {
         }
     }
     pub fn ansi4bit() -> Self {
+        let bar_full_char = '█';
+        let bar_empty_char = '-';
+        let bar_partial_chars = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
         Self {
             // Base - Basic monochrome l
             bg: Color::Indexed(Ansi::Black as u8),
@@ -319,10 +326,12 @@ impl Theme {
             process_list_bar_type: self.BarType::Gradient,
 
             // Use basic chars as a stylistic choice
-            bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
-            bar_full_char: "█".to_string(),
-            bar_empty_char: "-".to_string(),
+            bar_partial_chars,
+            bar_full_char: bar_full_char.to_string(),
+            bar_empty_char: bar_empty_char.to_string(),
+            bar_all_chars: vec![bar_full_char].append(&mut bar_partial_chars.clone()).push(bar_empty_char),
             fancy_bar_chars: ['<', '<', '>', '>'],
+
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
             triangle: "▲".to_string(),
@@ -352,6 +361,10 @@ impl Theme {
         let mem_high_vec: Vec<f32> = vec![0xfe as f32, 0x80 as f32, 0x19 as f32];
         let mem_critical_vec: Vec<f32> = vec![0xaf as f32, 0x3a as f32, 0x03 as f32];
         let dim_mult: f32 = 0.9;
+
+        let bar_full_char = '█';
+        let bar_empty_char = '░';
+        let bar_partial_chars = vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
         Self {
             // Base - Very light gray with a yellow tint
             bg: Color::Rgb(0xfb, 0xf1, 0xc7),
@@ -452,9 +465,10 @@ impl Theme {
             use_mem_color: true,
             process_list_bar_type: self.BarType::Standard,
 
-            bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
-            bar_full_char: "█".to_string(),
-            bar_empty_char: "░".to_string(),
+            bar_partial_chars,
+            bar_full_char: bar_full_char.to_string(),
+            bar_empty_char: bar_empty_char.to_string(),
+            bar_all_chars: vec![bar_full_char].append(&mut bar_partial_chars.clone()).push(bar_empty_char),
             fancy_bar_chars: ['<', '<', '>', '>'],
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
@@ -670,13 +684,21 @@ impl Theme {
     }
     pub fn create_fancy_bar(&self, percent: f64, width: usize)
     {
-        let mut bar = create_sleek_bar(percent, width)
+        let mut bar: Vec<char> = self.create_sleek_bar(percent, width).chars().collect();
         bar[0] = {
-            let pos = self.bar_partial_chars.position(bar[0]) as f32;
-            let len = self.bar_partial_chars.len() as f32
-            let is_full = pos/len
-            if is_full >= 0.5 { self.fancy_bar_chars[0] } else { fancy_bar_chars[2]} 
+            let pos = self.bar_all_chars.position(bar[0]) as f32;
+            let len = self.bar_all_chars.len() as f32;
+            let is_full = pos/len;
+            if is_full >= 0.5 { self.fancy_bar_chars[0] } else { self.fancy_bar_chars[1]} 
         }
+        let last: usize = bar.len() - 1 as usize;
+        bar[last] = {
+            let pos = self.bar_all_chars.position(bar[last]) as f32;
+            let len = self.bar_all_chars.len() as f32;
+            let is_full = pos/len;
+            if is_full >= 0.5 { self.fancy_bar_chars[2] } else { self.fancy_bar_chars[3]} 
+        }
+
     }
 }
 /// Linear interpolation between two RGB colors
