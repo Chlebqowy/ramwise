@@ -2,4 +2,4 @@
 
 mod format;
 
-pub use format::format_bytes;
+pub use format::{format_bytes, format_percent};
