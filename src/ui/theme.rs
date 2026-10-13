@@ -86,11 +86,16 @@ pub struct Theme {
     pub chosen: String,
     pub use_bar_gradient: bool,
     pub use_mem_color: bool,
+    pub process_list_bar_type: self.BarType,
 
     // Chars
     pub bar_partial_chars: Vec<char>,
     pub bar_full_char: String,
     pub bar_empty_char: String,
+    pub bar_all_chars: Vec<char>
+    pub fancy_bar_chars: [char; 4],
+
+    // [Start empty, start full, end empty, end full]
     pub header_dot: String,   // ·
     pub checkmark: String,    //  ✓
     pub triangle: String,     //▲
@@ -111,6 +116,12 @@ pub struct Theme {
 }
 
 impl Theme {
+    enum BarType {
+        Standard,
+        Gradient,
+        Fancy,
+        FancyGradient,
+    }
     /// Modern dark theme - Material Design 3 inspired
     pub fn dark() -> Self {
         let mem_excellent_vec: Vec<f32> = vec![100.0, 230.0, 140.0];
@@ -119,6 +130,8 @@ impl Theme {
         let mem_high_vec: Vec<f32> = vec![255.0, 150.0, 80.0];
         let mem_critical_vec: Vec<f32> = vec![255.0, 90.0, 90.0];
         let dim_mult: f32 = 0.75;
+
+        let bar_full_char: char = '
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
@@ -217,10 +230,12 @@ impl Theme {
             chosen: "▶".to_string(),
             use_bar_gradient: true,
             use_mem_color: true,
+            process_list_bar_type: self.BarType::FancyBarGradient,
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "░".to_string(),
+            fancy_bar_chars: ['<', '<', '>', '>'],
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
             triangle: "▲".to_string(),
@@ -301,10 +316,13 @@ impl Theme {
             chosen: "▶".to_string(),
             use_bar_gradient: true,
             use_mem_color: false,
+            process_list_bar_type: self.BarType::Gradient,
+
             // Use basic chars as a stylistic choice
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "-".to_string(),
+            fancy_bar_chars: ['<', '<', '>', '>'],
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
             triangle: "▲".to_string(),
@@ -432,10 +450,12 @@ impl Theme {
             chosen: "▶".to_string(),
             use_bar_gradient: false,
             use_mem_color: true,
+            process_list_bar_type: self.BarType::Standard,
 
             bar_partial_chars: vec!['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'],
             bar_full_char: "█".to_string(),
             bar_empty_char: "░".to_string(),
+            fancy_bar_chars: ['<', '<', '>', '>'],
             header_dot: "·".to_string(),
             checkmark: "✓".to_string(),
             triangle: "▲".to_string(),
@@ -647,6 +667,16 @@ impl Theme {
         bar.push_str(&self.bar_empty_char.repeat(remaining));
 
         bar
+    }
+    pub fn create_fancy_bar(&self, percent: f64, width: usize)
+    {
+        let mut bar = create_sleek_bar(percent, width)
+        bar[0] = {
+            let pos = self.bar_partial_chars.position(bar[0]) as f32;
+            let len = self.bar_partial_chars.len() as f32
+            let is_full = pos/len
+            if is_full >= 0.5 { self.fancy_bar_chars[0] } else { fancy_bar_chars[2]} 
+        }
     }
 }
 /// Linear interpolation between two RGB colors
