@@ -38,8 +38,10 @@ ramwise is a terminal-based RAM usage visualizer that goes beyond basic memory m
 %build
 %ifarch x86_64
 make build-x86_64 %{?_smp_mflags}
+%endif
 %ifarch aarch64
 make build-aarch64 %{?_smp_mflags}
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
