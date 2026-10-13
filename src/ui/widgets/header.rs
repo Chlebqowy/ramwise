@@ -64,7 +64,7 @@ impl<'a> Widget for HeaderWidget<'a> {
             BarType::Fancy => Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
             BarType::FancyGradient => Theme::create_fancy_bar(&self.theme, ram_percent, RAM_BAR_WIDTH),
         };
-        if self.theme.use_bar_gradient {
+        if self.theme.header_bar_type == BarType::Gradient || self.theme.header_bar_type == BarType::FancyGradient {
             Theme::create_gradient_bar(ram_bar, RAM_BAR_WIDTH, ram_color, ram_color_dim, &mut ram);
         } else {
             let ram_bar_style = Style::default().fg(ram_color);

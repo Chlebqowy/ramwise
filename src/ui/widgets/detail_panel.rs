@@ -321,7 +321,7 @@ fn create_memory_row<'a>(
         format!("{:<4}", label),
         Style::default().fg(color),
     ));
-    if theme.use_bar_gradient {
+    if theme.detail_panel_bar_type == BarType::Gradient || theme.detail_panel_bar_type == BarType::FancyGradient {
         Theme::create_gradient_bar(bar, bar_width, color, secondary_color, &mut span_row);
     } else {
         let span = Span::styled(bar, Style::default().fg(color));

@@ -25,7 +25,7 @@ enum Ansi {
     White = 15,
 }
 
-#[derive(Debug, Clone)] // not sure what this does but the error told me
+#[derive(Debug, Clone, PartialEq)] // not sure what this does but the error told me
 pub enum BarType {
     Standard,
     Gradient,
@@ -92,7 +92,6 @@ pub struct Theme {
     pub rank_high_symbol: String,
     pub border_subtle: Color,
     pub chosen: String,
-    pub use_bar_gradient: bool,
     pub use_mem_color: bool,
 
     pub process_list_bar_type: BarType,
@@ -241,7 +240,6 @@ impl Theme {
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
             chosen: "▶".to_string(),
-            use_bar_gradient: true,
             use_mem_color: true,
 
             process_list_bar_type: BarType::FancyGradient,
@@ -344,7 +342,6 @@ impl Theme {
             rank_top_symbol: "* ".to_string(),
             rank_high_symbol: "° ".to_string(),
             chosen: "▶".to_string(),
-            use_bar_gradient: true,
             use_mem_color: false,
             process_list_bar_type: BarType::FancyGradient,
             detail_panel_bar_type: BarType::Gradient,
@@ -492,7 +489,6 @@ impl Theme {
             rank_top_symbol: "● ".to_string(),
             rank_high_symbol: "⊗ ".to_string(),
             chosen: "▶".to_string(),
-            use_bar_gradient: false,
             use_mem_color: true,
             process_list_bar_type: BarType::Standard,
             detail_panel_bar_type: BarType::Standard,
