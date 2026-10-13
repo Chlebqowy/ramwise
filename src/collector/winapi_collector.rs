@@ -116,7 +116,7 @@ impl Collector {
         Ok(SystemMemory {
             total: mem_status.ullTotalPhys,
             available: mem_status.ullAvailPhys,
-            free: 0, // can't find, https://learn.microsoft.com/en-us/windows/win32/memory/memory-performance-information has no direct api listed and I can't find one. it is not the same as avail but avail should normally be enough so it's usually justified 
+            free: 0, // can't find, https://learn.microsoft.com/en-us/windows/win32/memory/memory-performance-information has no direct api listed and I can't find one. it is not the same as avail but avail should normally be enough so it's justified to not include it 
             buffers: meminfo.buffers, //can't find. all buffer memory things in the windows https://microsoft.github.io/windows-rs/features/#/0.59.0 list are for individual apps that want to use a buffer
             cached: meminfo.cached, // _PERFORMANCE_INFORMATION.SystemCache
             swap_total: mem_status.ullTotalPageFile,
