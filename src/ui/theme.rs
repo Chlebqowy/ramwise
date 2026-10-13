@@ -25,6 +25,7 @@ enum Ansi {
     White = 15,
 }
 
+#[derive(Debug, Clone)] // not sure what this does but the error told me
 pub enum BarType {
     Standard,
     Gradient,
@@ -93,7 +94,6 @@ pub struct Theme {
     pub chosen: String,
     pub use_bar_gradient: bool,
     pub use_mem_color: bool,
-    #[derive(Debug)] // not sure what this does but the error told me
     pub process_list_bar_type: BarType,
 
     // Chars
@@ -139,9 +139,9 @@ impl Theme {
 
         let bar_full_char: String = bar_full_char_pre.to_string();
         let bar_empty_char: String = bar_empty_char_pre.to_string();
-        let bar_all_chars: Vec<char> = vec![bar_full_char_pre]
-            .append(&mut bar_partial_chars.clone())
-            .push(bar_empty_char_pre);
+        let mut bar_all_chars: Vec<char> = vec![bar_full_char_pre];
+        bar_all_chars.extend(bar_partial_chars.iter().cloned());
+        bar_all_chars.push(bar_empty_char_pre);
         Self {
             // Base - Rich dark with subtle warmth
             bg: Color::Rgb(18, 18, 24),
@@ -276,9 +276,9 @@ impl Theme {
 
         let bar_full_char: String = bar_full_char_pre.to_string();
         let bar_empty_char: String = bar_empty_char_pre.to_string();
-        let bar_all_chars: Vec<char> = vec![bar_full_char_pre]
-            .append(&mut bar_partial_chars.clone())
-            .push(bar_empty_char_pre);
+        let mut bar_all_chars: Vec<char> = vec![bar_full_char_pre];
+        bar_all_chars.extend(bar_partial_chars.iter().cloned());
+        bar_all_chars.push(bar_empty_char_pre);
         Self {
             // Base - Basic monochrome l
             bg: Color::Indexed(Ansi::Black as u8),
@@ -382,9 +382,9 @@ impl Theme {
 
         let bar_full_char: String = bar_full_char_pre.to_string();
         let bar_empty_char: String = bar_empty_char_pre.to_string();
-        let bar_all_chars: Vec<char> = vec![bar_full_char_pre]
-            .append(&mut bar_partial_chars.clone())
-            .push(bar_empty_char_pre);
+        let mut bar_all_chars: Vec<char> = vec![bar_full_char_pre];
+        bar_all_chars.extend(bar_partial_chars.iter().cloned());
+        bar_all_chars.push(bar_empty_char_pre);
         Self {
             // Base - Very light gray with a yellow tint
             bg: Color::Rgb(0xfb, 0xf1, 0xc7),
@@ -705,24 +705,38 @@ impl Theme {
     pub fn create_fancy_bar(&self, percent: f64, width: usize) -> String {
         let mut bar: Vec<char> = self.create_sleek_bar(percent, width).chars().collect();
         bar[0] = {
-            let pos = self.bar_all_chars.position(bar[0]) as f32;
+            let pos = self.bar_all_chars.iter().position(|&x| x == bar[0]);
+            let fpos: f32 = if let Some(pos) = pos {
+                pos as f32
+            } else {
+                -1.0
+            };
             let len = self.bar_all_chars.len() as f32;
-            let is_full = pos / len;
+            let is_full = fpos / len;
             if is_full >= 0.5 {
                 self.fancy_bar_chars[0]
-            } else {
+            } else if is_full >= 0.0 {
                 self.fancy_bar_chars[1]
+            } else {
+                'e'
             }
         };
         let last: usize = bar.len() - 1 as usize;
         bar[last] = {
-            let pos = self.bar_all_chars.position(bar[last]) as f32;
+            let pos = self.bar_all_chars.iter().position(|&x| x == bar[last]);
+            let fpos: f32 = if let Some(pos) = pos {
+                pos as f32
+            } else {
+                -1.0
+            };
             let len = self.bar_all_chars.len() as f32;
-            let is_full = pos / len;
+            let is_full = fpos / len;
             if is_full >= 0.5 {
                 self.fancy_bar_chars[2]
-            } else {
+            } else if is_full >= 0.0 {
                 self.fancy_bar_chars[3]
+            } else {
+                'e'
             }
         };
         let fancy_bar: String = bar.iter().collect();
