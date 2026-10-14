@@ -37,7 +37,8 @@ impl<'a> Widget for SystemBarWidget<'a> {
         let used_pct = sys.used() as f64 / total;
         let cached_pct = sys.cached as f64 / total;
         let buffers_pct = sys.buffers as f64 / total;
-        let _free_pct = sys.free as f64 / total;
+        let _free_pct = 
+            if let Some(free) = sys.free {free as f64 / total} else {sys.available as f64 / total};
 
         // Calculate bar segments (leave space for labels)
         let label_width = 30u16;
@@ -88,12 +89,21 @@ impl<'a> Widget for SystemBarWidget<'a> {
         }
 
         // Legend
-        let legend = format!(
+        
+        let legend = if let Some(free) = sys.free {
+        format!(
             " Used:{} Cache:{} Free:{}",
             format_bytes(sys.used()),
             format_bytes(sys.cached),
-            format_bytes(sys.free)
-        );
+            format_bytes(free)
+        ) } else {
+            format!(
+            " Used:{} Cache:{} Avail:{}",
+            format_bytes(sys.used()),
+            format_bytes(sys.cached),
+            format_bytes(sys.available)
+        )
+        };
 
         let legend_x = area.x + bar_width as u16 + 1;
         if legend_x + legend.len() as u16 <= area.x + area.width {

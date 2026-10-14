@@ -40,7 +40,7 @@ pub struct CollectorMetadata {
 pub struct ExportSystemMemory {
     pub total_bytes: u64,
     pub available_bytes: u64,
-    pub free_bytes: u64,
+    pub free_bytes: Option<u64>,
     pub buffers_bytes: u64,
     pub cached_bytes: u64,
     pub swap_total_bytes: u64,
@@ -52,25 +52,25 @@ pub struct ExportSystemMemory {
     pub swap_out_pages: u64,
     pub swap_in_rate_per_sec: Option<f64>,
     pub swap_out_rate_per_sec: Option<f64>,
-    pub slab_bytes: u64,
+    pub slab_bytes: Option<u64>,
     /// Added after schema 1 shipped: defaulted on read so older files parse.
     #[serde(default)]
-    pub slab_reclaimable_bytes: u64,
+    pub slab_reclaimable_bytes: Option<u64>,
     #[serde(default)]
-    pub slab_unreclaimable_bytes: u64,
+    pub slab_unreclaimable_bytes: Option<u64>,
     #[serde(default)]
-    pub kernel_stack_bytes: u64,
+    pub kernel_stack_bytes: Option<u64>,
     pub pressure_some_avg10: Option<f32>,
     pub pressure_some_avg60: Option<f32>,
     pub pressure_some_avg300: Option<f32>,
     pub pressure_full_avg10: Option<f32>,
     pub pressure_full_avg60: Option<f32>,
     pub pressure_full_avg300: Option<f32>,
-    pub shared_bytes: u64,
-    pub active_bytes: u64,
-    pub inactive_bytes: u64,
+    pub shared_bytes: Option<u64>,
+    pub active_bytes: Option<u64>,
+    pub inactive_bytes: Option<u64>,
     pub dirty_bytes: u64,
-    pub writeback_bytes: u64,
+    pub writeback_bytes: Option<u64>,
     pub mapped_bytes: u64,
 }
 
@@ -174,7 +174,9 @@ impl ExportSnapshot {
         .into_iter()
         .flatten()
         .all(f32::is_finite);
-        if finite && pressures {
+        if finite && pressures && cfg!(target_os = "linux") {
+            Ok(())
+        } else if finite && cfg!(target_os = "windows") {
             Ok(())
         } else {
             Err("non-finite swap rate or pressure value".to_string())
@@ -199,9 +201,10 @@ impl ExportSnapshot {
         if snapshot.system.swap_in_rate.is_some() && snapshot.system.swap_out_rate.is_some() {
             capabilities.insert("swap_rates".to_string(), Capability::Available);
         }
-        if snapshot.system.pressure.is_available() {
+        if let Some(pressure) = snapshot.system.pressure {
+            if pressure.is_available(){
             capabilities.insert("pressure".to_string(), Capability::Available);
-        }
+        }}
         Self {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
             captured_at_unix_ms: wall_clock_ms(),
@@ -245,6 +248,27 @@ fn wall_clock_ms() -> u64 {
 
 impl From<&SystemMemory> for ExportSystemMemory {
     fn from(value: &SystemMemory) -> Self {
+        let pressure_some_avg10: Option<f32>;
+        let pressure_some_avg60: Option<f32>;
+        let pressure_some_avg300: Option<f32>;
+        let pressure_full_avg10: Option<f32>;
+        let pressure_full_avg60: Option<f32>;
+        let pressure_full_avg300: Option<f32>;
+        if let Some(pressure) = value.pressure {
+            pressure_some_avg10 = pressure.some_avg10;
+            pressure_some_avg60 = pressure.some_avg60;
+            pressure_some_avg300 = pressure.some_avg300;
+            pressure_full_avg10 = pressure.full_avg10;
+            pressure_full_avg60 = pressure.full_avg60;
+            pressure_full_avg300 = pressure.full_avg300;
+        } else {
+            pressure_some_avg10 = None;
+            pressure_some_avg60 = None;
+            pressure_some_avg300 = None;
+            pressure_full_avg10 = None;
+            pressure_full_avg60 = None;
+            pressure_full_avg300 = None;
+        };
         Self {
             total_bytes: value.total,
             available_bytes: value.available,
@@ -261,12 +285,12 @@ impl From<&SystemMemory> for ExportSystemMemory {
             slab_reclaimable_bytes: value.slab_reclaimable,
             slab_unreclaimable_bytes: value.slab_unreclaimable,
             kernel_stack_bytes: value.kernel_stack,
-            pressure_some_avg10: value.pressure.some_avg10,
-            pressure_some_avg60: value.pressure.some_avg60,
-            pressure_some_avg300: value.pressure.some_avg300,
-            pressure_full_avg10: value.pressure.full_avg10,
-            pressure_full_avg60: value.pressure.full_avg60,
-            pressure_full_avg300: value.pressure.full_avg300,
+            pressure_some_avg10,
+            pressure_some_avg60,
+            pressure_some_avg300,
+            pressure_full_avg10,
+            pressure_full_avg60,
+            pressure_full_avg300,
             shared_bytes: value.shared,
             active_bytes: value.active,
             inactive_bytes: value.inactive,

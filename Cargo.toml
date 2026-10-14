@@ -18,13 +18,6 @@ crossterm = "0.28"
 # Async runtime
 tokio = { version = "1", features = ["rt-multi-thread", "time", "sync", "macros", "signal"] }
 
-# System info - procfs for Linux /proc parsing
-procfs = "0.17"
-
-# System info for windows
-windows = "0.61.2"
-windows-sys = "0.61.2"
-
 # Error handling
 anyhow = "1.0"
 thiserror = "2.0"
@@ -43,6 +36,15 @@ directories = "6"
 # Logging (optional, for debugging)
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# System info - procfs for Linux /proc parsing
+[target.'cfg(target_os = "linux")'.dependencies]
+procfs = "0.17"
+
+# System info for windows
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = "0.61.2"
+windows-sys = "0.61.2"
 
 [profile.release]
 lto = true

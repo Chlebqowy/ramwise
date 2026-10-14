@@ -41,7 +41,7 @@ pub struct SystemMemory {
     /// Memory available for starting new applications
     pub available: u64,
     /// Completely unused memory
-    pub free: u64,
+    pub free: Option<u64>,
     /// Memory used for disk block buffers
     pub buffers: u64,
     /// Memory used for page cache (file contents)
@@ -60,26 +60,26 @@ pub struct SystemMemory {
     /// Swap-out rate in pages per second; `None` under the same conditions
     pub swap_out_rate: Option<f64>,
     /// Kernel slab allocator memory
-    pub slab: u64,
+    pub slab: Option<u64>,
     /// Reclaimable part of slab (`SReclaimable`); zero when the kernel omits it
-    pub slab_reclaimable: u64,
+    pub slab_reclaimable: Option<u64>,
     /// Unreclaimable part of slab (`SUnreclaim`); zero when the kernel omits it
-    pub slab_unreclaimable: u64,
+    pub slab_unreclaimable: Option<u64>,
     /// Memory allocated to kernel stacks; zero when the kernel omits it
-    pub kernel_stack: u64,
+    pub kernel_stack: Option<u64>,
     /// Memory-pressure (PSI) inputs; all `None` when `/proc/pressure/memory`
     /// is missing, which downstream marks as an explicit capability gap
-    pub pressure: MemoryPressure,
+    pub pressure: Option<MemoryPressure>,
     /// Shared memory (shmem, tmpfs)
-    pub shared: u64,
+    pub shared: Option<u64>,
     /// Memory actively being used
-    pub active: u64,
+    pub active: Option<u64>,
     /// Memory not recently used (candidate for reclaim)
-    pub inactive: u64,
+    pub inactive: Option<u64>,
     /// Dirty pages waiting to be written to disk
     pub dirty: u64,
     /// Memory being actively written to disk
-    pub writeback: u64,
+    pub writeback: Option<u64>,
     /// Memory mapped into page tables
     pub mapped: u64,
 }

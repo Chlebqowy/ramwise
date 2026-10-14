@@ -3,7 +3,6 @@
 use anyhow::{Context, Result};
 use windows::Win32::System::SystemInformation::GlobalMemoryStatusEx;
 use windows::Win32::System::SystemInformation::MEMORYSTATUSEX;
-use windows-sys::{};
 use tokio::sync::mpsc;
 use tokio::time::interval;
 
@@ -126,17 +125,17 @@ impl Collector {
             swap_in_rate: 0,
             swap_out_rate: 0,
             // maybe calculate them manually
-            slab: 0, // windows doesn't slab
+            /*slab: 0, // windows doesn't slab
             slab_reclaimable: 0, // windows doesn't slab
             slab_unreclaimable: 0, // windows doesn't slab
             kernel_stack, // linux thing, not the same as KernelTotal
-            pressure, // linux thing, don't include
-            shared: meminfo.shmem.unwrap_or(0), // could not find. I can find per process but I am concerned with them overlapping
-            active: meminfo.active, // could not find
-            inactive: meminfo.inactive, // also could not find, could probably base it on active if there was any though
-            dirty: meminfo.dirty, // CC_DIRTY_PAGES_INFO.CurrentDirtyPages but can't find api
-            writeback: meminfo.writeback, //can't find
-            mapped: meminfo.mapped, // seems to be per-process. have to compute later
+            pressure, // linux thing, don't include*/
+            //shared: meminfo.shmem.unwrap_or(0), // could not find. I can find per process but I am concerned with them overlapping
+            /*active: meminfo.active, // could not find
+            inactive: meminfo.inactive, // also could not find, could probably base it on active if there was any though*/
+            dirty: 0, // CC_DIRTY_PAGES_INFO.CurrentDirtyPages but can't find api
+            /*writeback: meminfo.writeback, //can't find*/
+            mapped: 0, // seems to be per-process. have to compute later
             // add virtual memory things
             // add kernel memory (total, could also add a paged and non-paged field seperately)
             // add standby memory, maybe warn if low in the future
