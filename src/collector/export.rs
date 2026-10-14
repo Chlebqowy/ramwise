@@ -491,6 +491,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(unused_assignments)]`
     fn present_rates_and_pressure_mark_capabilities_available() {
         let mut snapshot = MemorySnapshot::default();
         snapshot.system.swap_in_pages = 1200;
