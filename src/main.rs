@@ -41,7 +41,7 @@ use ui::widgets::{
     DetailPanelWidget, GraphWidget, HeaderWidget, InsightsPanelWidget, ProcessListWidget,
 };
 
-use crate::ui::globals::{SIGKILL_NAME};
+use crate::ui::globals::SIGKILL_NAME;
 
 /// Intelligent RAM usage visualizer for Arch Linux
 #[derive(Parser, Debug)]
@@ -659,7 +659,10 @@ fn render_kill_confirm_overlay(frame: &mut ratatui::Frame, app: &App) {
     frame.render_widget(Clear, modal_area);
 
     let label = if let Some(proc_) = app.selected_process() {
-        format!("Kill {} (PID {}) with {SIGKILL_NAME}?", proc_.name, proc_.pid)
+        format!(
+            "Kill {} (PID {}) with {SIGKILL_NAME}?",
+            proc_.name, proc_.pid
+        )
     } else {
         "No process selected".to_string()
     };

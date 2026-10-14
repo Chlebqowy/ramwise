@@ -146,9 +146,9 @@ impl Collector {
                 uid: proc.uid(),
                 rss: rss_bytes,
                 vss: vss_bytes,
-                shared,         // SharedCommitUsage;
-                private,        // PrivateUsage;
-                swap,           // PagefileUsage;
+                shared,  // SharedCommitUsage;
+                private, // PrivateUsage;
+                swap,    // PagefileUsage;
                 faults, //   DWORD   PageFaultCount;https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
                         // TODO get a handle and use GetProcessMemoryInfo
             };

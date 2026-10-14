@@ -1,7 +1,7 @@
 //! Process signal helpers for stop/kill actions.
 
-use std::io;
 use crate::ui::globals::{SIGKILL_NAME, SIGTERM_NAME};
+use std::io;
 
 /// User action mapped to a Unix signal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -45,7 +45,7 @@ pub fn send_signal(pid: i32, action: SignalAction) -> SignalResult {
     let signal = match action {
         // both of these need handles
         SignalAction::Terminate => a, // DestroyWindow and something for console
-        SignalAction::Kill => a, //TerminateProcess
+        SignalAction::Kill => a,      //TerminateProcess
     };
 
     map_signal_result(send_raw_signal(pid, signal))

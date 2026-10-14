@@ -32,4 +32,3 @@ pub const SIGTERM_NAME: &str = if cfg!(target_os = "linux") {
 } else {
     "Ask to exit"
 };
-
