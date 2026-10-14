@@ -240,19 +240,17 @@ impl Collector {
                 ppid: proc.parent,
                 // uid unavailable, make it Option<>
                 rss: rss_bytes,
-                vss: vss_bytes,
+                vss: vss_bytes, // rename to real and virtual for windows 
                 shared,  // SharedCommitUsage;
                 private, // PrivateUsage;
                 swap,    // PagefileUsage;
-                heap,    // unavailable
-                stack,   // unavailable
-                libs,    // unavailable
+                heap: None,    // unavailable
+                stack: None,   // unavailable
+                libs: None,    // unavailable
                 faults, //   DWORD   PageFaultCount;https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
                         // make this comatible with linux version
                         // TODO get a handle and use GetProcessMemoryInfo
-                        // pss and uss is used in linux, but windows doesn't have that. but everything that uses it will be different in windows anyways.
-                        // you could maybe make the bars private and shared instead
-                        // and put the rest in breakdown.
+                        // pss and uss is used in linux, but windows doesn't have that. but everything that uses it will be different in windows anyways. maybe leave them out
             };
 
             // Collect smaps_rollup for PSS/USS if enabled (requires read permission)
