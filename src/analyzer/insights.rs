@@ -2,8 +2,9 @@
 
 #![allow(dead_code)]
 
-use std::time::Instant;
-
+#[allow(unused_imports)]
+use crate::ui::globals::RSS_NAME;
+use std::time::Instant; // necessary for tests
 /// Severity level of an insight
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Severity {

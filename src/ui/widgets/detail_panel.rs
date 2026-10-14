@@ -196,7 +196,6 @@ impl<'a> Widget for DetailPanelWidget<'a> {
                 ("Anon", proc.anonymous.unwrap()),
                 self.theme,
             ));
-        } else {
         }
 
         // Swap indicator (if any)

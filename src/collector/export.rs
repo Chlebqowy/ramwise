@@ -428,8 +428,8 @@ mod tests {
             pid: 7,
             name: "worker".into(),
             rss: 2048,
-            pss: 1536,
-            uss: 1024,
+            pss: Some(1536),
+            uss: Same(1024),
             regions: Some(vec![RegionMemory {
                 region_type: Some(MemoryRegion::Heap),
                 path: Some("[heap]".into()),
