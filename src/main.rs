@@ -41,8 +41,7 @@ use ui::widgets::{
     DetailPanelWidget, GraphWidget, HeaderWidget, InsightsPanelWidget, ProcessListWidget,
 };
 
-use crate::ui::globals::SIGKILL_NAME;
-
+use crate::ui::globals::{SIGKILL_NAME, SIGTERM_NAME};
 /// Intelligent RAM usage visualizer for Arch Linux
 #[derive(Parser, Debug)]
 #[command(name = "ramwise")]
@@ -612,7 +611,8 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     // Clear background
     frame.render_widget(Clear, help_area);
 
-    let help_text = r#"
+    let help_text = format!(
+        r#"
   KEYBOARD SHORTCUTS
 
   Navigation:
@@ -624,8 +624,8 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     s            Cycle sort mode
     g            Go to top
     G            Go to bottom
-    x            Send graceful termination (SIGTERM on Linux, DestroyWindow and x on Windows)
-    X            Confirm + send forceful kill signal (SIGKILL on Linux, TerminateProcess on Windows)
+    x            Send {SIGTERM_NAME}
+    X            Confirm + send {SIGKILL_NAME}
 
   General:
     ?            Toggle this help
@@ -633,7 +633,8 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     Ctrl+C       Force quit
 
   Press ESC or ? to close
-"#;
+"#
+    );
 
     let help = Paragraph::new(help_text)
         .block(
