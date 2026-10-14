@@ -146,7 +146,7 @@ pub struct ProcessMemory {
     /// Full command line
     pub cmdline: String,
     /// Process state (R, S, D, Z, T, etc.)
-    pub state: char,
+    pub state: Option<char>,
     /// Parent process ID
     pub ppid: i32,
     /// User ID
@@ -200,7 +200,7 @@ impl Default for ProcessMemory {
             pid: 0,
             name: String::new(),
             cmdline: String::new(),
-            state: '?',
+            state: Some('?'),
             ppid: 0,
             uid: 0,
             rss: 0,

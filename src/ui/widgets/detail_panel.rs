@@ -92,16 +92,21 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         let mut lines = Vec::new();
 
         // Process info row with status chip
-        let state_style = match proc.state {
+        let mut state_text = "".to_string();
+        let mut state_style = Style::default().fg(self.theme.fg_dim);
+        if let Some(state) = proc.state {
+        state_style = match state {
             'R' => Style::default().fg(self.theme.success),
             'S' => Style::default().fg(self.theme.info),
             'D' => Style::default().fg(self.theme.warning),
             'Z' => Style::default().fg(self.theme.error),
-            _ => Style::default().fg(self.theme.fg_dim),
+            _ => state_style,
         };
+        state_text = state_chip(state);
+        }
 
         lines.push(Line::from(vec![
-            Span::styled(state_chip(proc.state), state_style),
+            Span::styled(state_text, state_style),
             Span::styled("  ", Style::default()),
             Span::styled("PPID ", self.theme.muted_style()),
             Span::styled(

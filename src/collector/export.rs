@@ -113,7 +113,7 @@ pub struct ExportProcessMemory {
     pub name: String,
     /// May contain sensitive command-line arguments; callers should sanitize before sharing.
     pub cmdline: String,
-    pub state: char,
+    pub state: Option<char>,
     pub ppid: i32,
     pub uid: u32,
     pub rss_bytes: u64,
@@ -429,7 +429,7 @@ mod tests {
             name: "worker".into(),
             rss: 2048,
             pss: Some(1536),
-            uss: Same(1024),
+            uss: Some(1024),
             regions: Some(vec![RegionMemory {
                 region_type: Some(MemoryRegion::Heap),
                 path: Some("[heap]".into()),

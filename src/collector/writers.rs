@@ -185,7 +185,7 @@ pub fn render_csv(snapshot: &ExportSnapshot, include_details: bool) -> Result<St
         let mut row = vec![
             process.pid.to_string(),
             escape_csv(&process.name),
-            escape_csv(&process.state.to_string()),
+            escape_csv(&process.state.unwrap_or('?').to_string()),
             process.ppid.to_string(),
             process.uid.to_string(),
             process.rss_bytes.to_string(),

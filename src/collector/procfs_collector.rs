@@ -221,7 +221,7 @@ impl Collector {
                 pid: proc.pid(),
                 name: stat.comm.clone(),
                 cmdline,
-                state: status.state.chars().next().unwrap_or('?'),
+                state: Some(status.state.chars().next().unwrap_or('?')),
                 ppid: stat.ppid,
                 uid: status.ruid,
                 rss: rss_bytes,
