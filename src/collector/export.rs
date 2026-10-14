@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::types::{MemoryRegion, MemorySnapshot, ProcessMemory, RegionMemory, SystemMemory};
+use super::types::{MemoryRegion, MemorySnapshot, ProcessMemory, RegionMemory, SystemMemory, MemoryPressure};
 
 /// Current wire-format version for exported snapshots.
 pub const SNAPSHOT_SCHEMA_VERSION: u32 = 1;
@@ -499,7 +499,10 @@ mod tests {
         snapshot.system.swap_in_rate = Some(10.0);
         snapshot.system.swap_out_rate = Some(20.0);
         if cfg!(target_os = "linux") {
-            snapshot.system.pressure.unwrap().some_avg10 = Some(1.25);
+            snapshot.system.pressure = Some(MemoryPressure {
+                some_avg10: Some(1.25),
+                ..Default::default()
+            });
         }
         let export = ExportSnapshot::from_runtime(&snapshot);
         assert_eq!(export.capabilities["swap_rates"], Capability::Available);
