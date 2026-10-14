@@ -6,6 +6,7 @@ use windows::Win32::System::SystemInformation::MEMORYSTATUSEX;
 use windows_sys::Win32::System::ProcessStatus::{GetPerformanceInfo};
 use tokio::sync::mpsc;
 use tokio::time::interval;
+use sysinfo::System;
 
 //use super::system_inputs::{
 //    PRESSURE_MEMORY_PATH, TimedSample, VMSTAT_PATH, read_memory_pressure, read_vmstat_sample,
@@ -19,9 +20,9 @@ pub struct Collector {
     /// Interval between collections
     interval: Duration,
     /// Whether to collect detailed smaps data (slower but more accurate)
-    collect_smaps: bool,
+    //collect_smaps: bool, //useless for windows
     /// Whether to collect per-mapping details for export.
-    collect_regions: bool,
+    //collect_regions: bool,
     /// Minimum RSS to include a process (filter out tiny processes) - in bytes
     min_rss_bytes: u64,
     /// Previous vmstat reading for sample-to-sample swap rates; `None` until
@@ -38,8 +39,8 @@ impl Collector {
     pub fn new() -> Self {
         Self {
             interval: Duration::from_secs(1),
-            collect_smaps: true,
-            collect_regions: false,
+            //collect_smaps: true,
+            //collect_regions: false, // seems like it needs kernel permissions
             min_rss_bytes: 1024 * 1024, // 1 MB minimum
             // needs to use windows names but first have to modify process
             //prev_vmstat: None,
@@ -127,7 +128,7 @@ impl Collector {
             swap_total: pagefiled_mem_total,
             swap_used: mem_status.pagefiled_mem_total.saturating_sub(pagefiled_mem_free),
             swap_in_pages: 0,
-            swap_out_pages: 0, // can't find
+            swap_out_pages: 0, // can't find, probably available
             //swap_in_rate: 0,
             //swap_out_rate: 0,
             // maybe calculate them manually
@@ -177,11 +178,12 @@ impl Collector {
     /// Collect memory information for all processes
     // TODO use windows options for this instead, use different sames unless identical to linux. maybe even make this struct different
     fn collect_processes(&self) -> Result<(Vec<ProcessMemory>, usize, usize)> {
+        let s = System::new_all();
         let mut processes = Vec::new();
         let mut total_count = 0;
-        let mut running_count = 0;
+        let mut running_count = None;
 
-        for proc_result in all_processes().context("Failed to enumerate processes")? {
+        for proc_result in s.processes() {
             total_count += 1;
 
             let proc = match proc_result {
@@ -190,31 +192,13 @@ impl Collector {
             };
 
             // Get process status
-            let status = match proc.status() {
-                Ok(s) => s,
-                Err(_) => continue,
-            };
-
-            // Count running processes
-            if status.state.starts_with('R') {
-                running_count += 1;
-            }
-
-            // Get basic stats
-            let stat = match proc.stat() {
-                Ok(s) => s,
-                Err(_) => continue,
-            };
+            let status = None; // everything but running is not on windows  so it does not make sensehttps://docs.rs/sysinfo/latest/sysinfo/enum.ProcessStatus.html
 
             // IMPORTANT: procfs crate returns VmRSS/VmSize in KILOBYTES, not bytes!
             // We need to convert kB -> bytes by multiplying by 1024
-            let rss_bytes = kib_to_bytes(status.vmrss.unwrap_or(0));
+            let rss_bytes = proc.memory(); //u64
 
-            // Skip kernel threads (no virtual memory)
-            let vss_bytes = kib_to_bytes(status.vmsize.unwrap_or(0));
-            if vss_bytes == 0 {
-                continue;
-            } // rename and change the way it's gotten
+            let vss_bytes = proc.virtual_memory; //u64
 
             // Skip processes below threshold
             if rss_bytes > 0 && rss_bytes < self.min_rss_bytes {
@@ -222,11 +206,10 @@ impl Collector {
             }
 
             // Get command line
-            let cmdline = proc
-                .cmdline()
-                .ok()
-                .map(|v| v.join(" "))
-                .unwrap_or_else(|| stat.comm.clone()); // adapt for windows
+            let cmdline = proc.exe().unwrap_or(Path::new("not_found")).file_name().unwrap().to_string_lossy().to_string(); //cmd needs admin
+            if cmdline == "not_found" {
+                cmdline = proc.name()
+            }
 
             // Get memory values from status (all in kB from procfs, convert to bytes)
             let shared = kib_to_bytes(status.rssfile.unwrap_or(0) + status.rssshmem.unwrap_or(0));
@@ -236,88 +219,91 @@ impl Collector {
             let stack = kib_to_bytes(status.vmstk.unwrap_or(0));
             let libs = kib_to_bytes(status.vmlib.unwrap_or(0));
 
+            let pid = proc.pid();
+
             let mut process = ProcessMemory {
-                pid: proc.pid(), // windoes doesn't have pids
-                name: stat.comm.clone(), // adapt for windows
+                pid, // turns out windows has pids https://learn.microsoft.com/en-us/windows/win32/procthread/process-handles-and-identifiers
+                name: proc.name(),
                 cmdline,
-                state: status.state.chars().next().unwrap_or('?'),
-                ppid: stat.ppid,
-                uid: status.ruid,
+                state: None,
+                ppid: proc.parent, 
+                // uid unavailable, make it Option<>
                 rss: rss_bytes,
                 vss: vss_bytes,
-                shared,
-                private,
-                swap,
-                heap,
-                stack,
-                libs,
-                minor_faults: stat.minflt, // windows has just plain pagefaults, no minor-major seperation
-                major_faults: stat.majflt, // windows has just plain pagefaults
-                ..Default::default()
+                shared, // SharedCommitUsage;
+                private, // PrivateUsage;
+                swap, // PagefileUsage;
+                heap, // unavailable
+                stack, // unavailable
+                libs, // unavailable
+                faults//   DWORD   PageFaultCount;https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
+                // make this comatible with linux version
+                // TODO get a handle and use GetProcessMemoryInfo 
             };
 
             // Collect smaps_rollup for PSS/USS if enabled (requires read permission)
-            if self.collect_smaps
-                && let Ok(smaps) = proc.smaps_rollup()
-            {
-                // SmapsRollup contains a MemoryMaps which is Vec<MemoryMap>
-                if let Some(rollup) = smaps.memory_map_rollup.0.first() {
-                    let ext = &rollup.extension.map;
-
-                    // Get values from the HashMap
-                    // procfs parses smaps values with their `kB` suffix into bytes.
-                    process.pss = ext.get("Pss").copied().unwrap_or(0);
-
-                    let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
-                    let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
-                    process.uss = private_clean + private_dirty;
-
-                    process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
-
-                    let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
-                    let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
-                    process.shared = shared_clean + shared_dirty;
-                    process.private = private_clean + private_dirty;
-                }
-            }
-            if self.collect_regions
-                && self.collect_smaps
-                && let Ok(smaps) = proc.smaps()
-            {
-                process.regions = Some(
-                    smaps
-                        .0
-                        .into_iter()
-                        .map(|region| {
-                            let path = region.pathname;
-                            let region_type = match &path {
-                                MMapPath::Heap => Some(MemoryRegion::Heap),
-                                MMapPath::Stack | MMapPath::TStack(_) => Some(MemoryRegion::Stack),
-                                MMapPath::Vdso => Some(MemoryRegion::Vdso),
-                                MMapPath::Anonymous => Some(MemoryRegion::Anonymous),
-                                MMapPath::Path(_) => Some(MemoryRegion::MappedFile),
-                                _ => Some(MemoryRegion::Other),
-                            };
-                            let ext = region.extension.map;
-                            RegionMemory {
-                                region_type,
-                                path: match path {
-                                    MMapPath::Path(path) => {
-                                        Some(path.to_string_lossy().into_owned())
-                                    }
-                                    _ => None,
-                                },
-                                size: region.address.1.saturating_sub(region.address.0),
-                                rss: ext.get("Rss").copied().unwrap_or(0),
-                                pss: ext.get("Pss").copied().unwrap_or(0),
-                                shared_clean: ext.get("Shared_Clean").copied().unwrap_or(0),
-                                shared_dirty: ext.get("Shared_Dirty").copied().unwrap_or(0),
-                                private_clean: ext.get("Private_Clean").copied().unwrap_or(0),
-                                private_dirty: ext.get("Private_Dirty").copied().unwrap_or(0),
-                            }
-                        })
-                        .collect(),
-                );
+            // seems like it's not useful for windows
+//            if self.collect_smaps
+//                && let Ok(smaps) = proc.smaps_rollup()
+//            {
+//                // SmapsRollup contains a MemoryMaps which is Vec<MemoryMap>
+//                if let Some(rollup) = smaps.memory_map_rollup.0.first() {
+//                    let ext = &rollup.extension.map;
+//
+//                    // Get values from the HashMap
+//                    // procfs parses smaps values with their `kB` suffix into bytes.
+//                    process.pss = ext.get("Pss").copied().unwrap_or(0);
+//
+//                    let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
+//                    let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
+//                    process.uss = private_clean + private_dirty;
+//
+//                    process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
+//
+//                    let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
+//                    let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
+//                    process.shared = shared_clean + shared_dirty;
+//                    process.private = private_clean + private_dirty;
+//                }
+//            }
+//            if self.collect_regions
+//                && self.collect_smaps
+//                && let Ok(smaps) = proc.smaps()
+//            {
+//                process.regions = Some(
+//                    smaps
+//                        .0
+//                        .into_iter()
+//                        .map(|region| {
+//                            let path = region.pathname;
+//                            let region_type = match &path {
+//                                MMapPath::Heap => Some(MemoryRegion::Heap),
+//                                MMapPath::Stack | MMapPath::TStack(_) => Some(MemoryRegion::Stack),
+//                                MMapPath::Vdso => Some(MemoryRegion::Vdso),
+//                                MMapPath::Anonymous => Some(MemoryRegion::Anonymous),
+//                                MMapPath::Path(_) => Some(MemoryRegion::MappedFile),
+//                                _ => Some(MemoryRegion::Other),
+//                            };
+//                            let ext = region.extension.map;
+//                            RegionMemory {
+//                                region_type,
+//                                path: match path {
+//                                    MMapPath::Path(path) => {
+//                                        Some(path.to_string_lossy().into_owned())
+//                                    }
+//                                    _ => None,
+//                                },
+//                                size: region.address.1.saturating_sub(region.address.0),
+//                                rss: ext.get("Rss").copied().unwrap_or(0),
+//                                pss: ext.get("Pss").copied().unwrap_or(0),
+//                                shared_clean: ext.get("Shared_Clean").copied().unwrap_or(0),
+//                                shared_dirty: ext.get("Shared_Dirty").copied().unwrap_or(0),
+//                                private_clean: ext.get("Private_Clean").copied().unwrap_or(0),
+//                                private_dirty: ext.get("Private_Dirty").copied().unwrap_or(0),
+//                            }
+//                        })
+//                        .collect(),
+//                );
             }
 
             processes.push(process);
@@ -403,6 +389,7 @@ mod tests {
         assert_eq!(kib_to_bytes(u64::MAX), u64::MAX);
     }
 
+    // should work on windows
     #[test]
     fn test_system_memory_calculations() {
         let mem = SystemMemory {
@@ -417,6 +404,7 @@ mod tests {
     }
 
     #[test]
+    // definitely broken on windows
     fn fixture_inputs_flow_into_the_snapshot() {
         let (dir, vmstat, pressure) = fixture_inputs("flow", 1200, 3400);
         let mut collector = Collector::new();
