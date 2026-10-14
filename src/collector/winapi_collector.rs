@@ -1,12 +1,12 @@
 //! Procfs-based memory data collector
 
 use anyhow::{Context, Result};
-use windows::Win32::System::SystemInformation::GlobalMemoryStatusEx;
-use windows::Win32::System::SystemInformation::MEMORYSTATUSEX;
-use windows_sys::Win32::System::ProcessStatus::{GetPerformanceInfo};
+use sysinfo::System;
 use tokio::sync::mpsc;
 use tokio::time::interval;
-use sysinfo::System;
+use windows::Win32::System::SystemInformation::GlobalMemoryStatusEx;
+use windows::Win32::System::SystemInformation::MEMORYSTATUSEX;
+use windows_sys::Win32::System::ProcessStatus::GetPerformanceInfo;
 
 //use super::system_inputs::{
 //    PRESSURE_MEMORY_PATH, TimedSample, VMSTAT_PATH, read_memory_pressure, read_vmstat_sample,
@@ -19,18 +19,18 @@ use super::types::{MemoryRegion, MemorySnapshot, ProcessMemory, RegionMemory, Sy
 pub struct Collector {
     /// Interval between collections
     interval: Duration,
-    /// Whether to collect detailed smaps data (slower but more accurate)
+    // /// Whether to collect detailed smaps data (slower but more accurate)
     //collect_smaps: bool, //useless for windows
-    /// Whether to collect per-mapping details for export.
+    // /// Whether to collect per-mapping details for export.
     //collect_regions: bool,
     /// Minimum RSS to include a process (filter out tiny processes) - in bytes
     min_rss_bytes: u64,
-    /// Previous vmstat reading for sample-to-sample swap rates; `None` until
-    /// the first successful read so the first snapshot reports unknown rates
+    // /// Previous vmstat reading for sample-to-sample swap rates; `None` until
+    // /// the first successful read so the first snapshot reports unknown rates
     //prev_vmstat: Option<TimedSample>,
-    /// vmstat input path (well-known `/proc/vmstat` live; fixture in tests)
+    // /// vmstat input path (well-known `/proc/vmstat` live; fixture in tests)
     //vmstat_path: PathBuf, // not used in linux
-    /// memory-pressure input path (well-known `/proc/pressure/memory` live)
+    // /// memory-pressure input path (well-known `/proc/pressure/memory` live)
     //pressure_path: PathBuf, // not used in linux
 }
 
@@ -42,10 +42,10 @@ impl Collector {
             //collect_smaps: true,
             //collect_regions: false, // seems like it needs kernel permissions
             min_rss_bytes: 1024 * 1024, // 1 MB minimum
-            // needs to use windows names but first have to modify process
-            //prev_vmstat: None,
-            //vmstat_path: PathBuf::from(VMSTAT_PATH),
-            //pressure_path: PathBuf::from(PRESSURE_MEMORY_PATH),
+                                        // needs to use windows names but first have to modify process
+                                        //prev_vmstat: None,
+                                        //vmstat_path: PathBuf::from(VMSTAT_PATH),
+                                        //pressure_path: PathBuf::from(PRESSURE_MEMORY_PATH),
         }
     }
 
@@ -107,7 +107,10 @@ impl Collector {
 
         unsafe {
             GlobalMemoryStatusEx(&mut mem_status);
-            GetPerformanceInfo(&mut perf_info, std::mem::size_of::<PERFORMANCE_INFORMATION>());
+            GetPerformanceInfo(
+                &mut perf_info,
+                std::mem::size_of::<PERFORMANCE_INFORMATION>(),
+            );
         } // needs to be ran each time
 
         //let meminfo = Meminfo::current().context("Failed to read /proc/meminfo")?;
@@ -116,17 +119,19 @@ impl Collector {
         let page_size = perf_info.PageSize;
 
         let (swap_in_pages, swap_out_pages, swap_in_rate, swap_out_rate) =
-            self.update_pagefile_tracking(Instant::now(),);
+            self.update_pagefile_tracking(Instant::now());
 
         //let pressure = read_memory_pressure(&self.pressure_path).unwrap_or_default(); linux thing
         Ok(SystemMemory {
             total: mem_status.ullTotalPhys,
             available: mem_status.ullAvailPhys,
-            //free: 0, // can't find, https://learn.microsoft.com/en-us/windows/win32/memory/memory-performance-information has no direct api listed and I can't find one. it is not the same as avail but avail should normally be enough so it's justified to not include it 
+            //free: 0, // can't find, https://learn.microsoft.com/en-us/windows/win32/memory/memory-performance-information has no direct api listed and I can't find one. it is not the same as avail but avail should normally be enough so it's justified to not include it
             //buffers: meminfo.buffers, //can't find. all buffer memory things in the windows https://microsoft.github.io/windows-rs/features/#/0.59.0 list are for individual apps that want to use a buffer
             cached: perf_info.SystemCache * page_size, // _PERFORMANCE_INFORMATION.SystemCache
             swap_total: pagefiled_mem_total,
-            swap_used: mem_status.pagefiled_mem_total.saturating_sub(pagefiled_mem_free),
+            swap_used: mem_status
+                .pagefiled_mem_total
+                .saturating_sub(pagefiled_mem_free),
             swap_in_pages: 0,
             swap_out_pages: 0, // can't find, probably available
             //swap_in_rate: 0,
@@ -206,7 +211,13 @@ impl Collector {
             }
 
             // Get command line
-            let cmdline = proc.exe().unwrap_or(Path::new("not_found")).file_name().unwrap().to_string_lossy().to_string(); //cmd needs admin
+            let cmdline = proc
+                .exe()
+                .unwrap_or(Path::new("not_found"))
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string(); //cmd needs admin
             if cmdline == "not_found" {
                 cmdline = proc.name()
             }
@@ -226,86 +237,84 @@ impl Collector {
                 name: proc.name(),
                 cmdline,
                 state: None,
-                ppid: proc.parent, 
+                ppid: proc.parent,
                 // uid unavailable, make it Option<>
                 rss: rss_bytes,
                 vss: vss_bytes,
-                shared, // SharedCommitUsage;
+                shared,  // SharedCommitUsage;
                 private, // PrivateUsage;
-                swap, // PagefileUsage;
-                heap, // unavailable
-                stack, // unavailable
-                libs, // unavailable
-                faults//   DWORD   PageFaultCount;https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
-                // make this comatible with linux version
-                // TODO get a handle and use GetProcessMemoryInfo 
+                swap,    // PagefileUsage;
+                heap,    // unavailable
+                stack,   // unavailable
+                libs,    // unavailable
+                faults, //   DWORD   PageFaultCount;https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
+                        // make this comatible with linux version
+                        // TODO get a handle and use GetProcessMemoryInfo
             };
 
             // Collect smaps_rollup for PSS/USS if enabled (requires read permission)
             // seems like it's not useful for windows
-//            if self.collect_smaps
-//                && let Ok(smaps) = proc.smaps_rollup()
-//            {
-//                // SmapsRollup contains a MemoryMaps which is Vec<MemoryMap>
-//                if let Some(rollup) = smaps.memory_map_rollup.0.first() {
-//                    let ext = &rollup.extension.map;
-//
-//                    // Get values from the HashMap
-//                    // procfs parses smaps values with their `kB` suffix into bytes.
-//                    process.pss = ext.get("Pss").copied().unwrap_or(0);
-//
-//                    let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
-//                    let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
-//                    process.uss = private_clean + private_dirty;
-//
-//                    process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
-//
-//                    let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
-//                    let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
-//                    process.shared = shared_clean + shared_dirty;
-//                    process.private = private_clean + private_dirty;
-//                }
-//            }
-//            if self.collect_regions
-//                && self.collect_smaps
-//                && let Ok(smaps) = proc.smaps()
-//            {
-//                process.regions = Some(
-//                    smaps
-//                        .0
-//                        .into_iter()
-//                        .map(|region| {
-//                            let path = region.pathname;
-//                            let region_type = match &path {
-//                                MMapPath::Heap => Some(MemoryRegion::Heap),
-//                                MMapPath::Stack | MMapPath::TStack(_) => Some(MemoryRegion::Stack),
-//                                MMapPath::Vdso => Some(MemoryRegion::Vdso),
-//                                MMapPath::Anonymous => Some(MemoryRegion::Anonymous),
-//                                MMapPath::Path(_) => Some(MemoryRegion::MappedFile),
-//                                _ => Some(MemoryRegion::Other),
-//                            };
-//                            let ext = region.extension.map;
-//                            RegionMemory {
-//                                region_type,
-//                                path: match path {
-//                                    MMapPath::Path(path) => {
-//                                        Some(path.to_string_lossy().into_owned())
-//                                    }
-//                                    _ => None,
-//                                },
-//                                size: region.address.1.saturating_sub(region.address.0),
-//                                rss: ext.get("Rss").copied().unwrap_or(0),
-//                                pss: ext.get("Pss").copied().unwrap_or(0),
-//                                shared_clean: ext.get("Shared_Clean").copied().unwrap_or(0),
-//                                shared_dirty: ext.get("Shared_Dirty").copied().unwrap_or(0),
-//                                private_clean: ext.get("Private_Clean").copied().unwrap_or(0),
-//                                private_dirty: ext.get("Private_Dirty").copied().unwrap_or(0),
-//                            }
-//                        })
-//                        .collect(),
-//                );
-            }
-
+            //            if self.collect_smaps
+            //                && let Ok(smaps) = proc.smaps_rollup()
+            //            {
+            //                // SmapsRollup contains a MemoryMaps which is Vec<MemoryMap>
+            //                if let Some(rollup) = smaps.memory_map_rollup.0.first() {
+            //                    let ext = &rollup.extension.map;
+            //
+            //                    // Get values from the HashMap
+            //                    // procfs parses smaps values with their `kB` suffix into bytes.
+            //                    process.pss = ext.get("Pss").copied().unwrap_or(0);
+            //
+            //                    let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
+            //                    let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
+            //                    process.uss = private_clean + private_dirty;
+            //
+            //                    process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
+            //
+            //                    let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
+            //                    let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
+            //                    process.shared = shared_clean + shared_dirty;
+            //                    process.private = private_clean + private_dirty;
+            //                }
+            //            }
+            //            if self.collect_regions
+            //                && self.collect_smaps
+            //                && let Ok(smaps) = proc.smaps()
+            //            {
+            //                process.regions = Some(
+            //                    smaps
+            //                        .0
+            //                        .into_iter()
+            //                        .map(|region| {
+            //                            let path = region.pathname;
+            //                            let region_type = match &path {
+            //                                MMapPath::Heap => Some(MemoryRegion::Heap),
+            //                                MMapPath::Stack | MMapPath::TStack(_) => Some(MemoryRegion::Stack),
+            //                                MMapPath::Vdso => Some(MemoryRegion::Vdso),
+            //                                MMapPath::Anonymous => Some(MemoryRegion::Anonymous),
+            //                                MMapPath::Path(_) => Some(MemoryRegion::MappedFile),
+            //                                _ => Some(MemoryRegion::Other),
+            //                            };
+            //                            let ext = region.extension.map;
+            //                            RegionMemory {
+            //                                region_type,
+            //                                path: match path {
+            //                                    MMapPath::Path(path) => {
+            //                                        Some(path.to_string_lossy().into_owned())
+            //                                    }
+            //                                    _ => None,
+            //                                },
+            //                                size: region.address.1.saturating_sub(region.address.0),
+            //                                rss: ext.get("Rss").copied().unwrap_or(0),
+            //                                pss: ext.get("Pss").copied().unwrap_or(0),
+            //                                shared_clean: ext.get("Shared_Clean").copied().unwrap_or(0),
+            //                                shared_dirty: ext.get("Shared_Dirty").copied().unwrap_or(0),
+            //                                private_clean: ext.get("Private_Clean").copied().unwrap_or(0),
+            //                                private_dirty: ext.get("Private_Dirty").copied().unwrap_or(0),
+            //                            }
+            //                        })
+            //                        .collect(),
+            //                );
             processes.push(process);
         }
 

@@ -21,7 +21,7 @@ pub use export::{
 };
 #[cfg(target_os = "linux")]
 pub use procfs_collector::Collector;
+pub use types::{MemorySnapshot, ProcessMemory, SystemMemory};
 #[cfg(target_os = "windows")]
 pub use winapi_collector::Collector;
-pub use types::{MemorySnapshot, ProcessMemory, SystemMemory};
 pub use writers::{render_csv, render_json, write_target, write_targets};

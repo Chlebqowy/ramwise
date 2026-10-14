@@ -202,9 +202,10 @@ impl ExportSnapshot {
             capabilities.insert("swap_rates".to_string(), Capability::Available);
         }
         if let Some(pressure) = snapshot.system.pressure {
-            if pressure.is_available(){
-            capabilities.insert("pressure".to_string(), Capability::Available);
-        }}
+            if pressure.is_available() {
+                capabilities.insert("pressure".to_string(), Capability::Available);
+            }
+        }
         Self {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
             captured_at_unix_ms: wall_clock_ms(),
