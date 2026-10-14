@@ -199,8 +199,10 @@ impl ExportSnapshot {
         if snapshot.system.swap_in_rate.is_some() && snapshot.system.swap_out_rate.is_some() {
             capabilities.insert("swap_rates".to_string(), Capability::Available);
         }
-        if let Some(pressure) = snapshot.system.pressure && pressure.is_available() {
-                capabilities.insert("pressure".to_string(), Capability::Available);
+        if let Some(pressure) = snapshot.system.pressure
+            && pressure.is_available()
+        {
+            capabilities.insert("pressure".to_string(), Capability::Available);
         }
         Self {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
@@ -496,7 +498,8 @@ mod tests {
         snapshot.system.swap_in_rate = Some(10.0);
         snapshot.system.swap_out_rate = Some(20.0);
         if let Some(mut pressure) = snapshot.system.pressure {
-        pressure.some_avg10 = Some(1.25);}
+            pressure.some_avg10 = Some(1.25);
+        }
         let export = ExportSnapshot::from_runtime(&snapshot);
         assert_eq!(export.capabilities["swap_rates"], Capability::Available);
         assert_eq!(export.capabilities["pressure"], Capability::Available);
