@@ -178,7 +178,7 @@ ramwise/
 
 ## Requirements
 
-- Linux kernel 2.6.28+ (for `/proc/[pid]/smaps_rollup`)
+- Linux kernel 2.6.28+ (for `/proc/[pid]/smaps_rollup`) or Windows 10 22H2+ or Windows 11 
 - Terminal with color support
 
 ## Contributing
