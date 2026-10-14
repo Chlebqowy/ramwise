@@ -485,7 +485,7 @@ mod tests {
         }
         let decoded: ExportSnapshot = serde_json::from_value(json).unwrap();
         assert_eq!(decoded.system.swap_in_pages, 0);
-        assert_eq!(decoded.system.kernel_stack_bytes, Some(0));
+        assert_eq!(decoded.system.kernel_stack_bytes, None); //used to be 0 but it's now none because the app respects that there can be no kernel_stack_bytes instead of forcing 0. This is correct though.
         assert_eq!(decoded.system.pressure_full_avg300, None);
         assert!(decoded.validate().is_ok());
     }
@@ -498,12 +498,14 @@ mod tests {
         snapshot.system.swap_out_pages = 3400;
         snapshot.system.swap_in_rate = Some(10.0);
         snapshot.system.swap_out_rate = Some(20.0);
-        if let Some(mut pressure) = snapshot.system.pressure {
-            pressure.some_avg10 = Some(1.25);
+        if cfg!(target_os = "linux") {
+            snapshot.system.pressure.unwrap().some_avg10 = Some(1.25);
         }
         let export = ExportSnapshot::from_runtime(&snapshot);
         assert_eq!(export.capabilities["swap_rates"], Capability::Available);
-        assert_eq!(export.capabilities["pressure"], Capability::Available);
+        if cfg!(target_os = "linux") {
+            assert_eq!(export.capabilities["pressure"], Capability::Available);
+        }
         assert_eq!(export.system.swap_in_pages, 1200);
         assert_eq!(export.system.swap_in_rate_per_sec, Some(10.0));
         assert_eq!(export.system.pressure_some_avg10, Some(1.25));
