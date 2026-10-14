@@ -7,7 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::types::{MemoryRegion, MemorySnapshot, ProcessMemory, RegionMemory, SystemMemory, MemoryPressure};
+use super::types::{
+    MemoryPressure, MemoryRegion, MemorySnapshot, ProcessMemory, RegionMemory, SystemMemory,
+};
 
 /// Current wire-format version for exported snapshots.
 pub const SNAPSHOT_SCHEMA_VERSION: u32 = 1;
