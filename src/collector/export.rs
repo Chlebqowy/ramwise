@@ -174,9 +174,7 @@ impl ExportSnapshot {
         .into_iter()
         .flatten()
         .all(f32::is_finite);
-        if finite && pressures && cfg!(target_os = "linux") {
-            Ok(())
-        } else if finite && cfg!(target_os = "windows") {
+        if finite && ((pressures && cfg!(target_os = "linux")) || cfg!(target_os = "windows")) {
             Ok(())
         } else {
             Err("non-finite swap rate or pressure value".to_string())
@@ -201,10 +199,8 @@ impl ExportSnapshot {
         if snapshot.system.swap_in_rate.is_some() && snapshot.system.swap_out_rate.is_some() {
             capabilities.insert("swap_rates".to_string(), Capability::Available);
         }
-        if let Some(pressure) = snapshot.system.pressure {
-            if pressure.is_available() {
+        if let Some(pressure) = snapshot.system.pressure && pressure.is_available() {
                 capabilities.insert("pressure".to_string(), Capability::Available);
-            }
         }
         Self {
             schema_version: SNAPSHOT_SCHEMA_VERSION,
@@ -487,7 +483,7 @@ mod tests {
         }
         let decoded: ExportSnapshot = serde_json::from_value(json).unwrap();
         assert_eq!(decoded.system.swap_in_pages, 0);
-        assert_eq!(decoded.system.kernel_stack_bytes, 0);
+        assert_eq!(decoded.system.kernel_stack_bytes, Some(0));
         assert_eq!(decoded.system.pressure_full_avg300, None);
         assert!(decoded.validate().is_ok());
     }
@@ -499,7 +495,8 @@ mod tests {
         snapshot.system.swap_out_pages = 3400;
         snapshot.system.swap_in_rate = Some(10.0);
         snapshot.system.swap_out_rate = Some(20.0);
-        snapshot.system.pressure.some_avg10 = Some(1.25);
+        if let Some(mut pressure) = snapshot.system.pressure {
+        pressure.some_avg10 = Some(1.25);}
         let export = ExportSnapshot::from_runtime(&snapshot);
         assert_eq!(export.capabilities["swap_rates"], Capability::Available);
         assert_eq!(export.capabilities["pressure"], Capability::Available);

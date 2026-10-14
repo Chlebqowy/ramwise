@@ -36,7 +36,7 @@ impl<'a> Widget for SystemBarWidget<'a> {
         // Calculate percentages
         let used_pct = sys.used() as f64 / total;
         let cached_pct = sys.cached as f64 / total;
-        let buffers_pct = sys.buffers.unwrap_or(0 as u64) as f64 / total;
+        let buffers_pct = sys.buffers.unwrap_or(0_u64) as f64 / total;
         let _free_pct = if let Some(free) = sys.free {
             free as f64 / total
         } else {

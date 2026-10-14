@@ -8,8 +8,8 @@ pub fn system_memory() -> SystemMemory {
     SystemMemory {
         total: 16 * 1024 * 1024 * 1024,
         available: 8 * 1024 * 1024 * 1024,
-        free: 2 * 1024 * 1024 * 1024,
-        buffers: 256 * 1024 * 1024,
+        free: Some(2 * 1024 * 1024 * 1024),
+        buffers: Some(256 * 1024 * 1024),
         cached: 3 * 1024 * 1024 * 1024,
         swap_total: 4 * 1024 * 1024 * 1024,
         swap_used: 512 * 1024 * 1024,

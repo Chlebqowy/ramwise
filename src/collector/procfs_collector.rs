@@ -406,8 +406,8 @@ mod tests {
         assert_eq!(snapshot.system.swap_in_pages, 1200);
         assert_eq!(snapshot.system.swap_out_pages, 3400);
         assert_eq!(snapshot.system.swap_in_rate, None);
-        assert_eq!(snapshot.system.pressure.some_avg10, Some(1.25));
-        assert_eq!(snapshot.system.pressure.full_avg300, Some(0.02));
+        assert_eq!(snapshot.system.pressure.unwrap().some_avg10, Some(1.25));
+        assert_eq!(snapshot.system.pressure.unwrap().full_avg300, Some(0.02));
         cleanup(&dir);
     }
 
@@ -440,6 +440,6 @@ mod tests {
         let snapshot = collector.collect_snapshot().unwrap();
         assert_eq!(snapshot.system.swap_in_pages, 0);
         assert_eq!(snapshot.system.swap_in_rate, None);
-        assert!(!snapshot.system.pressure.is_available());
+        assert!(!snapshot.system.pressure.unwrap().is_available());
     }
 }
