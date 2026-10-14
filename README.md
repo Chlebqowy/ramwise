@@ -93,18 +93,18 @@ remain on stdout only when `-` is used.
 
 ## Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `j/k` or `↑/↓` | Navigate process list |
-| `Tab` | Cycle focus between panels |
-| `Shift+Tab` | Reverse cycle focus |
-| `s` | Cycle sort mode (RSS/PSS/Private/Name/PID) |
-| `g` | Go to top of list |
-| `G` | Go to bottom of list |
-| `x` | Send `SIGTERM` to selected process |
-| `X` | Confirm and send `SIGKILL` to selected process |
-| `?` | Toggle help overlay |
-| `q` | Quit |
+|       Key      | Action                                             |
+|----------------|------------------------------------------------------|
+| `j/k` or `↑/↓` | Navigate process list or scroll through other panels |
+| `Tab`          | Cycle focus between panels                           |
+| `Shift+Tab`    | Reverse cycle focus                                  |
+| `s`            | Cycle sort mode (RSS/PSS/Private/Name/PID)           |
+| `g`            | Go to top of list                                    |
+| `G`            | Go to bottom of list                                 |
+| `x`            | Send `SIGTERM` to selected process                 |
+| `X`            | Confirm and send `SIGKILL` to selected process     |
+| `?`            | Toggle help overlay                                  |
+| `q`            | Quit                                                 |
 
 Notes:
 - `SIGKILL` requires confirmation in-app (`Enter` confirm, `Esc` cancel).
