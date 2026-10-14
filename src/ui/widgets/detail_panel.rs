@@ -95,14 +95,14 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         let mut state_text = "".to_string();
         let mut state_style = Style::default().fg(self.theme.fg_dim);
         if let Some(state) = proc.state {
-        state_style = match state {
-            'R' => Style::default().fg(self.theme.success),
-            'S' => Style::default().fg(self.theme.info),
-            'D' => Style::default().fg(self.theme.warning),
-            'Z' => Style::default().fg(self.theme.error),
-            _ => state_style,
-        };
-        state_text = state_chip(state);
+            state_style = match state {
+                'R' => Style::default().fg(self.theme.success),
+                'S' => Style::default().fg(self.theme.info),
+                'D' => Style::default().fg(self.theme.warning),
+                'Z' => Style::default().fg(self.theme.error),
+                _ => state_style,
+            };
+            state_text = state_chip(state);
         }
 
         lines.push(Line::from(vec![
