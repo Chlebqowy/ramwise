@@ -43,7 +43,7 @@ pub struct SystemMemory {
     /// Completely unused memory
     pub free: Option<u64>,
     /// Memory used for disk block buffers
-    pub buffers: u64,
+    pub buffers: Option<u64>,
     /// Memory used for page cache (file contents)
     pub cached: u64,
     /// Total swap space
@@ -67,6 +67,8 @@ pub struct SystemMemory {
     pub slab_unreclaimable: Option<u64>,
     /// Memory allocated to kernel stacks; zero when the kernel omits it
     pub kernel_stack: Option<u64>,
+    /// Memory allocated to the windows kernel
+    pub windows_kernel_pool: Option<u64>,
     /// Memory-pressure (PSI) inputs; all `None` when `/proc/pressure/memory`
     /// is missing, which downstream marks as an explicit capability gap
     pub pressure: Option<MemoryPressure>,

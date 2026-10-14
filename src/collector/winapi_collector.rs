@@ -3,6 +3,7 @@
 use anyhow::{Context, Result};
 use windows::Win32::System::SystemInformation::GlobalMemoryStatusEx;
 use windows::Win32::System::SystemInformation::MEMORYSTATUSEX;
+use windows_sys::Win32::System::ProcessStatus::{GetPerformanceInfo};
 use tokio::sync::mpsc;
 use tokio::time::interval;
 
@@ -99,31 +100,36 @@ impl Collector {
     /// capability gaps.
     fn collect_system_memory(&mut self) -> Result<SystemMemory> {
         let mut mem_status = MEMORYSTATUSEX::default();
+        let mut perf_info = PERFORMANCE_INFORMATION::default();
         mem_status.dwLength = std::mem::size_of::<MEMORYSTATUSEX>() as u32;
         // could maybe be in the struct but needs to be mut
 
-        //let meminfo = Meminfo::current().context("Failed to read /proc/meminfo")?;
-
-        let (swap_in_pages, swap_out_pages, swap_in_rate, swap_out_rate) =
-            self.update_swap_tracking(Instant::now());
-
-        //let pressure = read_memory_pressure(&self.pressure_path).unwrap_or_default(); linux thing
         unsafe {
             GlobalMemoryStatusEx(&mut mem_status);
+            GetPerformanceInfo(&mut perf_info, std::mem::size_of::<PERFORMANCE_INFORMATION>());
         } // needs to be ran each time
 
+        //let meminfo = Meminfo::current().context("Failed to read /proc/meminfo")?;
+        let pagefiled_mem_total = mem_status.ullTotalPageFile;
+        let pagefiled_mem_free = mem_status.ullAvailPageFile;
+        let page_size = perf_info.PageSize;
+
+        let (swap_in_pages, swap_out_pages, swap_in_rate, swap_out_rate) =
+            self.update_pagefile_tracking(Instant::now(),);
+
+        //let pressure = read_memory_pressure(&self.pressure_path).unwrap_or_default(); linux thing
         Ok(SystemMemory {
             total: mem_status.ullTotalPhys,
             available: mem_status.ullAvailPhys,
-            free: 0, // can't find, https://learn.microsoft.com/en-us/windows/win32/memory/memory-performance-information has no direct api listed and I can't find one. it is not the same as avail but avail should normally be enough so it's justified to not include it 
-            buffers: meminfo.buffers, //can't find. all buffer memory things in the windows https://microsoft.github.io/windows-rs/features/#/0.59.0 list are for individual apps that want to use a buffer
-            cached: meminfo.cached, // _PERFORMANCE_INFORMATION.SystemCache
-            swap_total: mem_status.ullTotalPageFile,
-            swap_used: mem_status.ullTotalPageFile.saturating_sub(mem_status.ullAvailPageFile),
+            //free: 0, // can't find, https://learn.microsoft.com/en-us/windows/win32/memory/memory-performance-information has no direct api listed and I can't find one. it is not the same as avail but avail should normally be enough so it's justified to not include it 
+            //buffers: meminfo.buffers, //can't find. all buffer memory things in the windows https://microsoft.github.io/windows-rs/features/#/0.59.0 list are for individual apps that want to use a buffer
+            cached: perf_info.SystemCache * page_size, // _PERFORMANCE_INFORMATION.SystemCache
+            swap_total: pagefiled_mem_total,
+            swap_used: mem_status.pagefiled_mem_total.saturating_sub(pagefiled_mem_free),
             swap_in_pages: 0,
-            swap_out_pages: 0,
-            swap_in_rate: 0,
-            swap_out_rate: 0,
+            swap_out_pages: 0, // can't find
+            //swap_in_rate: 0,
+            //swap_out_rate: 0,
             // maybe calculate them manually
             /*slab: 0, // windows doesn't slab
             slab_reclaimable: 0, // windows doesn't slab
@@ -133,12 +139,12 @@ impl Collector {
             //shared: meminfo.shmem.unwrap_or(0), // could not find. I can find per process but I am concerned with them overlapping
             /*active: meminfo.active, // could not find
             inactive: meminfo.inactive, // also could not find, could probably base it on active if there was any though*/
-            dirty: 0, // CC_DIRTY_PAGES_INFO.CurrentDirtyPages but can't find api
+            dirty: 0, // CC_DIRTY_PAGES_INFO.CurrentDirtyPages. CcUpdateExternalCacheInfoEx. Need a cache context which seems to be per program so to get global info I would need to be the kernel
             /*writeback: meminfo.writeback, //can't find*/
             mapped: 0, // seems to be per-process. have to compute later
-            // add virtual memory things
-            // add kernel memory (total, could also add a paged and non-paged field seperately)
-            // add standby memory, maybe warn if low in the future
+            // add virtual memory things - similar to totalpagefile
+            windows_kernel_pool: perf_info.KernelTotal * page_size,
+            // add standby memory, maybe warn if low in the future. lost the api though
 
             // TODO add insight rules for windows stuff, don't apply linux rules unless fields are present
         })
@@ -167,7 +173,6 @@ impl Collector {
     //        None => (0, 0, None, None),
     //    }
     //}
-    // needs to be remade for windows
 
     /// Collect memory information for all processes
     // TODO use windows options for this instead, use different sames unless identical to linux. maybe even make this struct different

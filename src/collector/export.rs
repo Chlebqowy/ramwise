@@ -41,7 +41,7 @@ pub struct ExportSystemMemory {
     pub total_bytes: u64,
     pub available_bytes: u64,
     pub free_bytes: Option<u64>,
-    pub buffers_bytes: u64,
+    pub buffers_bytes: Option<u64>,
     pub cached_bytes: u64,
     pub swap_total_bytes: u64,
     pub swap_used_bytes: u64,

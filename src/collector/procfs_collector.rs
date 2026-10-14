@@ -109,7 +109,7 @@ impl Collector {
             total: meminfo.mem_total,
             available: meminfo.mem_available.unwrap_or(meminfo.mem_free),
             free: Some(meminfo.mem_free),
-            buffers: meminfo.buffers,
+            buffers: Some(meminfo.buffers),
             cached: meminfo.cached,
             swap_total: meminfo.swap_total,
             swap_used: meminfo.swap_total.saturating_sub(meminfo.swap_free),
@@ -128,6 +128,7 @@ impl Collector {
             dirty: meminfo.dirty,
             writeback: Some(meminfo.writeback),
             mapped: meminfo.mapped,
+            windows_kernel_pool: None,
         })
     }
 
