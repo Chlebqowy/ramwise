@@ -16,3 +16,20 @@ pub const VSS_NAME: &str = if cfg!(target_os = "linux") {
 } else {
     "v"
 };
+
+pub const SIGKILL_NAME: &str = if cfg!(target_os = "linux") {
+    "SIGKILL"
+} else if cfg!(target_os = "windows") {
+    "End task"
+} else {
+    "Kill forcefully"
+};
+
+pub const SIGTERM_NAME: &str = if cfg!(target_os = "linux") {
+    "SIGTERM"
+} else if cfg!(target_os = "windows") {
+    "Close gracefully"
+} else {
+    "Ask to exit"
+};
+

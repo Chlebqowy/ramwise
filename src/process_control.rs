@@ -1,6 +1,7 @@
 //! Process signal helpers for stop/kill actions.
 
 use std::io;
+use crate::ui::globals::{SIGKILL_NAME, SIGTERM_NAME};
 
 /// User action mapped to a Unix signal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -12,8 +13,8 @@ pub enum SignalAction {
 impl SignalAction {
     pub fn as_label(&self) -> &'static str {
         match self {
-            SignalAction::Terminate => "SIGTERM",
-            SignalAction::Kill => "SIGKILL",
+            SignalAction::Terminate => SIGTERM_NAME,
+            SignalAction::Kill => SIGKILL_NAME,
         }
     }
 }
@@ -34,9 +35,17 @@ pub fn send_signal(pid: i32, action: SignalAction) -> SignalResult {
         return SignalResult::InvalidTarget;
     }
 
+    #[cfg(target_os = "linux")]
     let signal = match action {
         SignalAction::Terminate => SIGTERM,
         SignalAction::Kill => SIGKILL,
+    };
+    // TODO Finish windows kill
+    #[cfg(target_os = "windows")]
+    let signal = match action {
+        // both of these need handles
+        SignalAction::Terminate => a, // DestroyWindow and something for console
+        SignalAction::Kill => a, //TerminateProcess
     };
 
     map_signal_result(send_raw_signal(pid, signal))
@@ -50,16 +59,17 @@ fn map_signal_result(result: io::Result<()>) -> SignalResult {
         Err(err) => SignalResult::Failed(err.to_string()),
     }
 }
-
+#[cfg(target_os = "linux")]
 const SIGTERM: i32 = 15;
+#[cfg(target_os = "linux")]
 const SIGKILL: i32 = 9;
 const EPERM: i32 = 1;
 const ESRCH: i32 = 3;
-
+#[cfg(target_os = "linux")]
 unsafe extern "C" {
     fn kill(pid: i32, sig: i32) -> i32;
 }
-
+#[cfg(target_os = "linux")]
 fn send_raw_signal(pid: i32, sig: i32) -> io::Result<()> {
     // SAFETY: libc kill is called with plain integer pid/signal values on Linux.
     let rc = unsafe { kill(pid, sig) };

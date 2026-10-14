@@ -41,6 +41,8 @@ use ui::widgets::{
     DetailPanelWidget, GraphWidget, HeaderWidget, InsightsPanelWidget, ProcessListWidget,
 };
 
+use crate::ui::globals::{SIGKILL_NAME, SIGTERM_NAME};
+
 /// Intelligent RAM usage visualizer for Arch Linux
 #[derive(Parser, Debug)]
 #[command(name = "ramwise")]
@@ -622,8 +624,8 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     s            Cycle sort mode
     g            Go to top
     G            Go to bottom
-    x            Send SIGTERM
-    X            Confirm + send SIGKILL
+    x            Send graceful termination (SIGTERM on linux)
+    X            Confirm + send forceful kill signal (SIGKILL on linux)
 
   General:
     ?            Toggle this help
@@ -657,7 +659,7 @@ fn render_kill_confirm_overlay(frame: &mut ratatui::Frame, app: &App) {
     frame.render_widget(Clear, modal_area);
 
     let label = if let Some(proc_) = app.selected_process() {
-        format!("Kill {} (PID {}) with SIGKILL?", proc_.name, proc_.pid)
+        format!("Kill {} (PID {}) with ${SIGKILL_NAME}?", proc_.name, proc_.pid)
     } else {
         "No process selected".to_string()
     };
@@ -670,7 +672,7 @@ fn render_kill_confirm_overlay(frame: &mut ratatui::Frame, app: &App) {
 
     let paragraph = Paragraph::new(message).alignment(Alignment::Center).block(
         Block::default()
-            .title(" Confirm Kill ")
+            .title(format!(" Confirm {SIGKILL_NAME} "))
             .borders(Borders::ALL)
             .border_style(app.theme.border_style(true))
             .style(app.theme.base_style()),

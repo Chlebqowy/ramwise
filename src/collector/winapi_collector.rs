@@ -92,7 +92,7 @@ impl Collector {
             // add standby memory, maybe warn if low in the future. lost the api though
 
             // TODO add insight rules for windows stuff, don't apply linux rules unless fields are present
-            // TODO modify detail_panel
+            // TODO change process control
         })
     }
     /// Collect memory information for all processes
@@ -142,17 +142,15 @@ impl Collector {
                 pid, // turns out windows has pids https://learn.microsoft.com/en-us/windows/win32/procthread/process-handles-and-identifiers
                 name: proc.name(),
                 cmdline,
-                state: None,
                 ppid: proc.parent(),
                 uid: proc.uid(),
                 rss: rss_bytes,
-                vss: vss_bytes, // rename to real and virtual for windows
+                vss: vss_bytes,
                 shared,         // SharedCommitUsage;
                 private,        // PrivateUsage;
                 swap,           // PagefileUsage;
                 faults, //   DWORD   PageFaultCount;https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-process_memory_counters_ex2
                         // TODO get a handle and use GetProcessMemoryInfo
-                        // pss and uss is used in linux, but windows doesn't have that. but everything that uses it will be different in windows anyways. maybe leave them out
             };
             processes.push(process);
         }
