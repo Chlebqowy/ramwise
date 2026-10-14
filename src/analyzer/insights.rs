@@ -145,7 +145,9 @@ mod tests {
         assert_eq!(insight.one_line(), "! worker: High memory");
         assert_eq!(
             insight.detailed(),
-            format!("[WARN] (worker): High memory\n  {RSS_NAME} increased\n  -> Inspect the process")
+            format!(
+                "[WARN] (worker): High memory\n  {RSS_NAME} increased\n  -> Inspect the process"
+            )
         );
         assert_eq!(Severity::Critical.as_str(), "CRIT");
         assert_eq!(Severity::Critical.icon(), "X");

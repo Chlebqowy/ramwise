@@ -10,8 +10,8 @@ use ratatui::{
 
 use crate::collector::ProcessMemory;
 use crate::ui::Theme;
-use crate::utils::format_bytes;
 use crate::ui::globals::{RSS_NAME, VSS_NAME};
+use crate::utils::format_bytes;
 
 /// Modern detail panel widget
 pub struct DetailPanelWidget<'a> {
@@ -263,7 +263,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
                         Style::default().fg(self.theme.fg_dim)
                     },
                 ),
-                Span::styled(format!(" {VSS_NAME}/{RSS_NAME} ratio"), self.theme.muted_style()),
+                Span::styled(
+                    format!(" {VSS_NAME}/{RSS_NAME} ratio"),
+                    self.theme.muted_style(),
+                ),
             ]));
         }
 

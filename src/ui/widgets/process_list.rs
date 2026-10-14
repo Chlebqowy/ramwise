@@ -10,8 +10,8 @@ use ratatui::{
 
 use crate::collector::ProcessMemory;
 use crate::ui::Theme;
+use crate::ui::globals::RSS_NAME;
 use crate::utils::format_bytes;
-use crate::ui::globals::{RSS_NAME};
 
 /// Sorting mode for process list
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
