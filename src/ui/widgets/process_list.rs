@@ -11,6 +11,7 @@ use ratatui::{
 use crate::collector::ProcessMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
+use crate::ui::globals::{RSS_NAME};
 
 /// Sorting mode for process list
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -26,7 +27,7 @@ pub enum SortMode {
 impl SortMode {
     pub fn label(&self) -> &'static str {
         match self {
-            SortMode::Rss => "RSS",
+            SortMode::Rss => RSS_NAME,
             SortMode::Pss => "PSS",
             SortMode::Private => "Private",
             SortMode::Name => "Name",

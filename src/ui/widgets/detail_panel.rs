@@ -11,6 +11,7 @@ use ratatui::{
 use crate::collector::ProcessMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
+use crate::ui::globals::{RSS_NAME, VSS_NAME};
 
 /// Modern detail panel widget
 pub struct DetailPanelWidget<'a> {
@@ -132,7 +133,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         let total_for_bar = proc.vss.max(proc.rss);
 
         lines.push(create_memory_row(
-            "RSS",
+            RSS_NAME,
             proc.rss,
             total_for_bar,
             "Resident memory",
@@ -141,7 +142,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         ));
 
         lines.push(create_memory_row(
-            "VSS",
+            VSS_NAME,
             proc.vss,
             total_for_bar,
             "Virtual size",
@@ -262,7 +263,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
                         Style::default().fg(self.theme.fg_dim)
                     },
                 ),
-                Span::styled(" VSS/RSS ratio", self.theme.muted_style()),
+                Span::styled(format!(" {VSS_NAME}/{RSS_NAME} ratio"), self.theme.muted_style()),
             ]));
         }
 

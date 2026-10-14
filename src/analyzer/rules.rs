@@ -8,6 +8,7 @@ use crate::collector::MemorySnapshot;
 use crate::history::HistoryBuffer;
 
 use super::insights::{Insight, Severity};
+use crate::ui::globals::{RSS_NAME, VSS_NAME};
 
 /// Trait for analysis rules
 pub trait Rule: Send + Sync {
@@ -64,7 +65,7 @@ impl Rule for MemoryLeakDetector {
                             Severity::Warning
                         },
                         format!(
-                            "RSS grew {:.1}% in {:.0}s",
+                            "{RSS_NAME} grew {:.1}% in {:.0}s",
                             stats.percent_change,
                             stats.duration.as_secs_f64()
                         ),
@@ -311,7 +312,7 @@ impl Rule for FragmentationDetector {
                     Insight::new(
                         format!("frag_{}_{}", proc.pid, proc.name),
                         Severity::Info,
-                        format!("High VSS/RSS ratio ({:.1}:1)", ratio),
+                        format!("High {VSS_NAME}/{RSS_NAME} ratio ({:.1}:1)", ratio),
                         format!(
                             "Virtual size {} vs actual {} ({:.1}x)",
                             format_bytes(proc.vss),
