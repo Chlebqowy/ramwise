@@ -624,8 +624,8 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     s            Cycle sort mode
     g            Go to top
     G            Go to bottom
-    x            Send graceful termination (SIGTERM on linux)
-    X            Confirm + send forceful kill signal (SIGKILL on linux)
+    x            Send graceful termination (SIGTERM on Linux, DestroyWindow and x on Windows)
+    X            Confirm + send forceful kill signal (SIGKILL on Linux, TerminateProcess on Windows)
 
   General:
     ?            Toggle this help
