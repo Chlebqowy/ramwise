@@ -149,10 +149,12 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             false,
         ));
 
-        if proc.pss > 0 {
+        if let Some(pss) = proc.pss
+            && pss > 0
+        {
             lines.push(create_memory_row(
                 "PSS",
-                proc.pss,
+                pss,
                 proc.rss,
                 "Proportional",
                 self.theme,
@@ -160,9 +162,11 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             ));
         }
 
-        if proc.uss > 0 {
+        if let Some(uss) = proc.uss
+            && uss > 0
+        {
             lines.push(create_memory_row(
-                "USS", proc.uss, proc.rss, "Unique", self.theme, false,
+                "USS", uss, proc.rss, "Unique", self.theme, false,
             ));
         }
 
@@ -178,17 +182,21 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             self.theme,
         ));
 
-        lines.push(create_two_col(
-            ("Heap", proc.heap),
-            ("Stack", proc.stack),
-            self.theme,
-        ));
+        if !cfg!(target_os = "windows") {
+            // don't add incompatible types
+            lines.push(create_two_col(
+                ("Heap", proc.heap.unwrap()),
+                ("Stack", proc.stack.unwrap()),
+                self.theme,
+            ));
 
-        lines.push(create_two_col(
-            ("Libraries", proc.libs),
-            ("Anon", proc.anonymous),
-            self.theme,
-        ));
+            lines.push(create_two_col(
+                ("Libraries", proc.libs.unwrap()),
+                ("Anon", proc.anonymous.unwrap()),
+                self.theme,
+            ));
+        } else {
+        }
 
         // Swap indicator (if any)
         if proc.swap > 0 {
@@ -201,11 +209,21 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         }
 
         // Page faults with severity indication
-        if proc.major_faults > 100 {
+        let mut fault_type = "";
+        let faults_of_interest = if let Some(maj_faults) = proc.major_faults {
+            fault_type = "Major";
+            maj_faults
+        } else if let Some(faults) = proc.faults {
+            faults
+        } else {
+            fault_type = "e";
+            0
+        };
+        if faults_of_interest > 100 {
             lines.push(Line::from(vec![
                 Span::styled(
                     "● ",
-                    Style::default().fg(if proc.major_faults > 1000 {
+                    Style::default().fg(if faults_of_interest > 1000 {
                         self.theme.warning
                     } else {
                         self.theme.fg_muted
@@ -213,8 +231,8 @@ impl<'a> Widget for DetailPanelWidget<'a> {
                 ),
                 Span::styled("Page faults: ", self.theme.dim_style()),
                 Span::styled(
-                    format!("{} major", proc.major_faults),
-                    if proc.major_faults > 1000 {
+                    format!("{} {type}", faults_of_interest, type=fault_type),
+                    if faults_of_interest > 1000 {
                         self.theme.warning_style()
                     } else {
                         Style::default().fg(self.theme.fg_dim)

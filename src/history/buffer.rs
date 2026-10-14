@@ -12,7 +12,7 @@ use crate::collector::{MemorySnapshot, SystemMemory};
 pub struct ProcessDataPoint {
     pub timestamp: Instant,
     pub rss: u64,
-    pub pss: u64,
+    pub pss: Option<u64>,
     pub private: u64,
     pub swap: u64,
 }

@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+#[allow(unused_imports)]
 use super::types::{
     MemoryPressure, MemoryRegion, MemorySnapshot, ProcessMemory, RegionMemory, SystemMemory,
 };
@@ -84,7 +85,7 @@ pub struct ExportMemoryRegion {
     pub path: Option<String>,
     pub size_bytes: u64,
     pub rss_bytes: u64,
-    pub pss_bytes: u64,
+    pub pss_bytes: Option<u64>,
     pub shared_clean_bytes: u64,
     pub shared_dirty_bytes: u64,
     pub private_clean_bytes: u64,
@@ -119,16 +120,17 @@ pub struct ExportProcessMemory {
     pub vss_bytes: u64,
     pub shared_bytes: u64,
     pub private_bytes: u64,
-    pub pss_bytes: u64,
-    pub uss_bytes: u64,
+    pub pss_bytes: Option<u64>,
+    pub uss_bytes: Option<u64>,
     pub swap_bytes: u64,
-    pub heap_bytes: u64,
-    pub stack_bytes: u64,
-    pub libs_bytes: u64,
-    pub anonymous_bytes: u64,
-    pub file_mappings_bytes: u64,
-    pub minor_faults: u64,
-    pub major_faults: u64,
+    pub heap_bytes: Option<u64>,
+    pub stack_bytes: Option<u64>,
+    pub libs_bytes: Option<u64>,
+    pub anonymous_bytes: Option<u64>,
+    pub file_mappings_bytes: Option<u64>,
+    pub minor_faults: Option<u64>,
+    pub major_faults: Option<u64>,
+    pub faults: Option<u64>,
     pub regions: Option<Vec<ExportMemoryRegion>>,
 }
 
@@ -192,7 +194,11 @@ impl ExportSnapshot {
             ("swap_rates".to_string(), Capability::Unavailable),
             ("pressure".to_string(), Capability::Unavailable),
         ]);
-        if snapshot.processes.iter().any(|p| p.pss != 0 || p.uss != 0) {
+        if snapshot
+            .processes
+            .iter()
+            .any(|p| p.pss.unwrap_or(0) != 0 || p.uss.unwrap_or(0) != 0)
+        {
             capabilities.insert("smaps_rollup".to_string(), Capability::Available);
         }
         if snapshot.processes.iter().any(|p| p.regions.is_some()) {
@@ -325,6 +331,7 @@ impl From<&ProcessMemory> for ExportProcessMemory {
             file_mappings_bytes: value.file_mappings,
             minor_faults: value.minor_faults,
             major_faults: value.major_faults,
+            faults: value.faults,
             regions: value
                 .regions
                 .as_ref()

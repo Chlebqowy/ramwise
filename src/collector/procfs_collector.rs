@@ -229,11 +229,11 @@ impl Collector {
                 shared,
                 private,
                 swap,
-                heap,
-                stack,
-                libs,
-                minor_faults: stat.minflt,
-                major_faults: stat.majflt,
+                heap: Some(heap),
+                stack: Some(stack),
+                libs: Some(libs),
+                minor_faults: Some(stat.minflt),
+                major_faults: Some(stat.majflt),
                 ..Default::default()
             };
 
@@ -247,13 +247,13 @@ impl Collector {
 
                     // Get values from the HashMap
                     // procfs parses smaps values with their `kB` suffix into bytes.
-                    process.pss = ext.get("Pss").copied().unwrap_or(0);
+                    process.pss = Some(ext.get("Pss").copied().unwrap_or(0));
 
                     let private_clean = ext.get("Private_Clean").copied().unwrap_or(0);
                     let private_dirty = ext.get("Private_Dirty").copied().unwrap_or(0);
-                    process.uss = private_clean + private_dirty;
+                    process.uss = Some(private_clean + private_dirty);
 
-                    process.anonymous = ext.get("Anonymous").copied().unwrap_or(0);
+                    process.anonymous = Some(ext.get("Anonymous").copied().unwrap_or(0));
 
                     let shared_clean = ext.get("Shared_Clean").copied().unwrap_or(0);
                     let shared_dirty = ext.get("Shared_Dirty").copied().unwrap_or(0);
@@ -290,7 +290,7 @@ impl Collector {
                                 },
                                 size: region.address.1.saturating_sub(region.address.0),
                                 rss: ext.get("Rss").copied().unwrap_or(0),
-                                pss: ext.get("Pss").copied().unwrap_or(0),
+                                pss: Some(ext.get("Pss").copied().unwrap_or(0)),
                                 shared_clean: ext.get("Shared_Clean").copied().unwrap_or(0),
                                 shared_dirty: ext.get("Shared_Dirty").copied().unwrap_or(0),
                                 private_clean: ext.get("Private_Clean").copied().unwrap_or(0),

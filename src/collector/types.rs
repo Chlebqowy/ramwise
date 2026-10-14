@@ -129,7 +129,7 @@ pub struct RegionMemory {
     pub path: Option<String>,
     pub size: u64,
     pub rss: u64,
-    pub pss: u64,
+    pub pss: Option<u64>,
     pub shared_clean: u64,
     pub shared_dirty: u64,
     pub private_clean: u64,
@@ -164,31 +164,33 @@ pub struct ProcessMemory {
 
     // === Advanced stats (from smaps_rollup) ===
     /// Proportional Set Size - shared memory divided proportionally
-    pub pss: u64,
+    pub pss: Option<u64>,
     /// Unique Set Size - memory unique to this process
-    pub uss: u64,
+    pub uss: Option<u64>,
     /// Swap usage
     pub swap: u64,
 
     // === Memory breakdown by type ===
     /// Heap memory
-    pub heap: u64,
+    pub heap: Option<u64>,
     /// Stack memory
-    pub stack: u64,
+    pub stack: Option<u64>,
     /// Memory-mapped libraries
-    pub libs: u64,
+    pub libs: Option<u64>,
     /// Anonymous mappings (malloc, etc.)
-    pub anonymous: u64,
+    pub anonymous: Option<u64>,
     /// Memory-mapped files
-    pub file_mappings: u64,
+    pub file_mappings: Option<u64>,
 
     // === Page fault stats ===
-    /// Minor page faults (no disk I/O)
-    pub minor_faults: u64,
-    /// Major page faults (disk I/O required)
-    pub major_faults: u64,
+    /// Minor page faults (no disk I/O) (Linux only)
+    pub minor_faults: Option<u64>,
+    /// Major page faults (disk I/O required) (Linux only)
+    pub major_faults: Option<u64>,
+    /// All page faults (Windows only)
+    pub faults: Option<u64>,
 
-    // === Detailed regions (optional, expensive to collect) ===
+    /// === Detailed regions (optional, expensive to collect, not on windows) ===
     pub regions: Option<Vec<RegionMemory>>,
 }
 
@@ -205,16 +207,17 @@ impl Default for ProcessMemory {
             vss: 0,
             shared: 0,
             private: 0,
-            pss: 0,
-            uss: 0,
+            pss: Some(0),
+            uss: Some(0),
             swap: 0,
-            heap: 0,
-            stack: 0,
-            libs: 0,
-            anonymous: 0,
-            file_mappings: 0,
-            minor_faults: 0,
-            major_faults: 0,
+            heap: Some(0),
+            stack: Some(0),
+            libs: Some(0),
+            anonymous: Some(0),
+            file_mappings: Some(0),
+            minor_faults: Some(0),
+            major_faults: Some(0),
+            faults: None,
             regions: None,
         }
     }
@@ -317,7 +320,7 @@ impl MemorySnapshot {
 
     /// Calculate total PSS (more accurate, accounts for sharing)
     pub fn total_process_pss(&self) -> u64 {
-        self.processes.iter().map(|p| p.pss).sum()
+        self.processes.iter().map(|p| p.pss.unwrap()).sum()
     }
 }
 
