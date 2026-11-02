@@ -995,7 +995,8 @@ impl Theme {
 
     /// Memory color for a single process's share of RAM. A process rarely
     /// uses much of the system, so the steps are far lower than `mem_color`'s:
-    /// critical from 15%, high from 12%, moderate from 9%, good from 5%.
+    /// critical from 15%, high from 12.8%, moderate from 3.2%, good from 1.5%
+    /// (on 32 GB of RAM: about 4.7 GB, 4 GB, 1 GB and 480 MB).
     pub fn process_mem_color(&self, percent: f64) -> Color {
         match process_mem_level(percent) {
             4 => self.mem_critical,
@@ -1263,7 +1264,7 @@ impl Theme {
 }
 /// Color step for a process using `percent` of RAM: 0 (excellent) to 4 (critical)
 fn process_mem_level(percent: f64) -> usize {
-    const STEPS: [f64; 4] = [5.0, 9.0, 12.0, 15.0]; // good, moderate, high, critical
+    const STEPS: [f64; 4] = [1.5, 3.2, 12.8, 15.0]; // good, moderate, high, critical
     STEPS.iter().filter(|&&step| percent >= step).count()
 }
 
@@ -1668,10 +1669,13 @@ mod tests {
         // Colors: critical from 15% of RAM
         assert_eq!(theme.process_mem_color(15.0), theme.mem_critical);
         assert_eq!(theme.process_mem_color(40.0), theme.mem_critical);
-        assert_eq!(theme.process_mem_color(12.0), theme.mem_high);
-        assert_eq!(theme.process_mem_color(9.0), theme.mem_moderate);
-        assert_eq!(theme.process_mem_color(5.0), theme.mem_good);
-        assert_eq!(theme.process_mem_color(4.9), theme.mem_excellent);
+        assert_eq!(theme.process_mem_color(14.9), theme.mem_high);
+        assert_eq!(theme.process_mem_color(12.8), theme.mem_high);
+        assert_eq!(theme.process_mem_color(12.7), theme.mem_moderate);
+        assert_eq!(theme.process_mem_color(3.2), theme.mem_moderate);
+        assert_eq!(theme.process_mem_color(3.1), theme.mem_good);
+        assert_eq!(theme.process_mem_color(1.5), theme.mem_good);
+        assert_eq!(theme.process_mem_color(1.4), theme.mem_excellent);
         assert_eq!(theme.process_mem_color_dim(15.0), theme.mem_critical_dim);
 
         // Bars: full at 50%, or at the biggest process if that uses more
