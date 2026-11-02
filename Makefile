@@ -5,6 +5,11 @@ build-x86_64:
 	mkdir -pv target
 	mkdir -pv target/release
 	cp -f target/x86_64-unknown-linux-gnu/release/ramwise target/release/ramwise
+build-x86_64-musl:
+	cargo build --release --target x86_64-unknown-linux-musl
+	mkdir -pv target
+	mkdir -pv target/release
+	cp -f target/x86_64-unknown-linux-musl/release/ramwise target/release/ramwise
 build-aarch64:
 	cargo build --release --target aarch64-unknown-linux-gnu
 	mkdir -pv target
@@ -17,6 +22,11 @@ debug-x86_64:
 	mkdir -pv target
 	mkdir -pv target/debug
 	cp -f target/x86_64-unknown-linux-gnu/debug/ramwise target/debug/ramwise
+debug-x86_64-musl:
+	cargo build --target x86_64-unknown-linux-musl
+	mkdir -pv target
+	mkdir -pv target/debug
+	cp -f target/x86_64-unknown-linux-musl/debug/ramwise target/debug/ramwise
 debug-aarch64:
 	cargo build --target aarch64-unknown-linux-gnu
 	mkdir -pv target

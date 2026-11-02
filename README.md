@@ -1,5 +1,3 @@
-# This is a copy of NewRPMBuild as I wanted to check whether the rpm build works but idk how to build a selected branch without modifying the script
-
 # ramwise
 
 > Your memory's wise advisor - Intelligent RAM usage visualizer for Linux
