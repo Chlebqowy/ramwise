@@ -11,6 +11,9 @@ mod process_control;
 mod ui;
 mod utils;
 
+/// Version shown to users (header, --version, exports)
+pub const VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), "u");
+
 #[cfg(test)]
 mod test_support;
 
@@ -44,7 +47,7 @@ use ui::widgets::{
 /// Intelligent RAM usage visualizer for Arch Linux
 #[derive(Parser, Debug)]
 #[command(name = "ramwise")]
-#[command(author, version, about, long_about = None)]
+#[command(author, version = VERSION, about, long_about = None)]
 struct Args {
     /// Update interval in milliseconds (must be positive)
     #[arg(short, long, default_value = "1000", value_parser = clap::value_parser!(u64).range(1..))]
@@ -536,49 +539,18 @@ async fn run_app(
                 frame.render_widget(loading, areas.header);
             }
 
-            // Process list
-            if let Some(snapshot) = &app.snapshot {
-                let total_mem = snapshot.system.total;
-                let focus = app.focus;
-                let processes = app.processes().to_vec();
-                let theme = app.theme.clone();
-
-                let process_list = ProcessListWidget::new(
-                    &processes,
-                    &theme,
-                    app.analyzer.ignore_list(),
-                    total_mem,
-                )
-                .focused(focus == Focus::ProcessList);
-
-                frame.render_stateful_widget(
-                    process_list,
-                    areas.left_panel,
-                    &mut app.process_list_state,
-                );
-            } else {
-                let block = Block::default()
-                    .title(" PROCESSES ")
-                    .borders(Borders::ALL)
-                    .border_style(app.theme.border_style(app.focus == Focus::ProcessList));
-                frame.render_widget(block, areas.left_panel);
+            // Panels: the focused one last, so with merged borders its
+            // highlighted border is drawn over the shared edges
+            let mut panels = [
+                Focus::ProcessList,
+                Focus::DetailPanel,
+                Focus::GraphPanel,
+                Focus::InsightsPanel,
+            ];
+            panels.sort_by_key(|panel| *panel == app.focus);
+            for panel in panels {
+                render_panel(frame, app, &areas, panel);
             }
-
-            // Detail panel
-            let detail = DetailPanelWidget::new(app.selected_process(), &app.theme)
-                .focused(app.focus == Focus::DetailPanel);
-            frame.render_widget(detail, areas.detail_panel);
-
-            // Graph panel
-            let graph = GraphWidget::new(&app.history, &app.theme)
-                .selected_pid(app.process_list_state.selected_pid)
-                .focused(app.focus == Focus::GraphPanel);
-            frame.render_widget(graph, areas.graph_panel);
-
-            // Insights panel
-            let insights = InsightsPanelWidget::new(app.analyzer.insights(), &app.theme)
-                .focused(app.focus == Focus::InsightsPanel);
-            frame.render_widget(insights, areas.bottom);
 
             // Help overlay
             if app.show_help {
@@ -627,6 +599,58 @@ async fn run_app(
     Ok(())
 }
 
+/// Draw one of the bordered panels
+fn render_panel(
+    frame: &mut ratatui::Frame,
+    app: &mut App,
+    areas: &ui::layout::LayoutAreas,
+    panel: Focus,
+) {
+    let focused = app.focus == panel;
+    match panel {
+        Focus::ProcessList => {
+            if let Some(snapshot) = &app.snapshot {
+                let total_mem = snapshot.system.total;
+                let processes = app.processes().to_vec();
+                let theme = app.theme.clone();
+
+                let process_list = ProcessListWidget::new(
+                    &processes,
+                    &theme,
+                    app.analyzer.ignore_list(),
+                    total_mem,
+                )
+                .focused(focused);
+
+                frame.render_stateful_widget(
+                    process_list,
+                    areas.left_panel,
+                    &mut app.process_list_state,
+                );
+            } else {
+                let block = app.theme.panel_block(focused).title(" PROCESSES ");
+                frame.render_widget(block, areas.left_panel);
+            }
+        }
+        Focus::DetailPanel => {
+            let detail =
+                DetailPanelWidget::new(app.selected_process(), &app.theme).focused(focused);
+            frame.render_widget(detail, areas.detail_panel);
+        }
+        Focus::GraphPanel => {
+            let graph = GraphWidget::new(&app.history, &app.theme)
+                .selected_pid(app.process_list_state.selected_pid)
+                .focused(focused);
+            frame.render_widget(graph, areas.graph_panel);
+        }
+        Focus::InsightsPanel => {
+            let insights =
+                InsightsPanelWidget::new(app.analyzer.insights(), &app.theme).focused(focused);
+            frame.render_widget(insights, areas.bottom);
+        }
+    }
+}
+
 fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
     let area = frame.area();
 
@@ -670,6 +694,7 @@ fn render_help_overlay(frame: &mut ratatui::Frame, theme: &ui::Theme) {
             Block::default()
                 .title(" Help ")
                 .borders(Borders::ALL)
+                .border_type(theme.border_type(true))
                 .border_style(theme.border_style(true))
                 .style(theme.base_style()),
         )
@@ -704,6 +729,7 @@ fn render_kill_confirm_overlay(frame: &mut ratatui::Frame, app: &App) {
         Block::default()
             .title(" Confirm Kill ")
             .borders(Borders::ALL)
+            .border_type(app.theme.border_type(true))
             .border_style(app.theme.border_style(true))
             .style(app.theme.base_style()),
     );
@@ -740,6 +766,7 @@ fn render_action_status(frame: &mut ratatui::Frame, theme: &ui::Theme, status: &
     let paragraph = Paragraph::new(line).alignment(Alignment::Left).block(
         Block::default()
             .borders(Borders::ALL)
+            .border_type(theme.border_type(true))
             .border_style(Style::default().fg(color))
             .style(theme.base_style()),
     );

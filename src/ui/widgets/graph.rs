@@ -5,7 +5,7 @@ use ratatui::{
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Widget},
+    widgets::{Axis, Chart, Dataset, GraphType, Widget},
 };
 
 use crate::history::HistoryBuffer;
@@ -169,13 +169,7 @@ impl<'a> Widget for GraphWidget<'a> {
         ]);
 
         let chart = Chart::new(datasets)
-            .block(
-                Block::default()
-                    .title(title_line)
-                    .borders(Borders::ALL)
-                    .border_style(self.theme.border_style(self.focused))
-                    .style(Style::default().bg(self.theme.bg)),
-            )
+            .block(self.theme.panel_block(self.focused).title(title_line))
             .x_axis(
                 Axis::default()
                     .style(Style::default().fg(self.theme.graph_border)) // if custom borders commit gets merged, collapse borders here and in y
@@ -207,11 +201,7 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
         Span::styled(" ", Style::default()),
     ]);
 
-    let block = Block::default()
-        .title(title)
-        .borders(Borders::ALL)
-        .border_style(theme.border_style(focused))
-        .style(Style::default().bg(theme.bg));
+    let block = theme.panel_block(focused).title(title);
 
     let inner = block.inner(area);
     block.render(area, buf);

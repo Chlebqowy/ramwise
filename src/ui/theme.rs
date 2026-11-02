@@ -4,7 +4,9 @@
 
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
+use ratatui::symbols::merge::MergeStrategy;
 use ratatui::text::Span;
+use ratatui::widgets::{Block, BorderType, Borders};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::str::FromStr;
 
@@ -122,6 +124,27 @@ pub enum BarType {
     Gradient,
     Fancy,
     FancyGradient,
+}
+
+/// Line style of panel borders
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BorderKind {
+    Rounded,
+    Square,
+    Thick,
+    Double,
+}
+
+impl BorderKind {
+    pub fn border_type(self) -> BorderType {
+        match self {
+            BorderKind::Rounded => BorderType::Rounded,
+            BorderKind::Square => BorderType::Plain,
+            BorderKind::Thick => BorderType::Thick,
+            BorderKind::Double => BorderType::Double,
+        }
+    }
 }
 
 /// How swap usage is shown in the header
@@ -397,6 +420,18 @@ pub struct Theme {
     pub invert_side_vertical_split: bool,
     /// If this value is true, the insights panel will be below the header and above main
     pub put_insights_on_top: bool,
+    /// If true, the process list runs the full height and the insights panel
+    /// sits in the side column (below the graph, or above the details with
+    /// put_insights_on_top)
+    pub extend_process_list: bool,
+
+    // Borders
+    /// Neighbouring panels share one border line instead of drawing two
+    pub merge_borders: bool,
+    /// Border style of unfocused panels: rounded, square, thick or double
+    pub border_type: BorderKind,
+    /// Border style of the focused panel
+    pub focused_border_type: BorderKind,
 }
 
 impl Theme {
@@ -577,6 +612,12 @@ impl Theme {
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
+            extend_process_list: true,
+
+            // Borders
+            merge_borders: true,
+            border_type: BorderKind::Rounded,
+            focused_border_type: BorderKind::Rounded,
         }
     }
     pub fn ansi4bit() -> Self {
@@ -704,6 +745,12 @@ impl Theme {
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
+            extend_process_list: true,
+
+            // Borders
+            merge_borders: true,
+            border_type: BorderKind::Rounded,
+            focused_border_type: BorderKind::Rounded,
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -877,6 +924,12 @@ impl Theme {
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
+            extend_process_list: true,
+
+            // Borders
+            merge_borders: true,
+            border_type: BorderKind::Rounded,
+            focused_border_type: BorderKind::Rounded,
         }
     }
 
@@ -1114,6 +1167,30 @@ impl Theme {
             .fg(self.selection_fg)
             .bg(self.selection_bg)
             .add_modifier(Modifier::BOLD)
+    }
+
+    /// Border line type for a panel
+    pub fn border_type(&self, focused: bool) -> BorderType {
+        if focused {
+            self.focused_border_type.border_type()
+        } else {
+            self.border_type.border_type()
+        }
+    }
+
+    /// Bordered panel block in the theme's style. With `merge_borders`, its
+    /// border joins the borders already drawn by neighbouring panels.
+    pub fn panel_block(&self, focused: bool) -> Block<'static> {
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .border_type(self.border_type(focused))
+            .border_style(self.border_style(focused))
+            .style(Style::default().bg(self.bg));
+        if self.merge_borders {
+            block.merge_borders(MergeStrategy::Fuzzy)
+        } else {
+            block
+        }
     }
 
     pub fn border_style(&self, focused: bool) -> Style {

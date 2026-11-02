@@ -1,7 +1,7 @@
 //! Layout management for the UI
 
 use crate::ui::Theme;
-use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
+use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect, Spacing};
 /// Main layout manager
 #[derive(Debug, Clone)]
 pub struct Layout {
@@ -21,6 +21,11 @@ pub struct Layout {
     pub invert_side_vertical_split: bool,
     /// If this value is true, the insights panel will be below the header and above main
     pub put_insights_on_top: bool,
+    /// If true, the process list runs the full height and the insights panel
+    /// sits in the side column
+    pub extend_process_list: bool,
+    /// If true, neighbouring panels overlap by one cell so they share a border
+    pub merge_borders: bool,
 }
 
 impl Layout {
@@ -29,68 +34,38 @@ impl Layout {
             header_height: theme.header_height,
             center_height: theme.center_height,
             bottom_height: theme.bottom_height,
-            left_width_percent: theme.left_width_percent,
-            side_vertical_split_percent: theme.side_vertical_split_percent,
+            left_width_percent: theme.left_width_percent.min(100),
+            side_vertical_split_percent: theme.side_vertical_split_percent.min(100),
 
             invert_horizontal_split: theme.invert_horizontal_split,
             invert_side_vertical_split: theme.invert_side_vertical_split,
             put_insights_on_top: theme.put_insights_on_top,
+            extend_process_list: theme.extend_process_list,
+            merge_borders: theme.merge_borders,
         }
     }
 
     /// Calculate all layout areas from the terminal size
     pub fn calculate(&self, area: Rect) -> LayoutAreas {
-        // Split into header, main, and bottom (insights)
-        let (header, main, bottom) = if self.put_insights_on_top {
-            let vertical = RatatuiLayout::default()
-                .direction(Direction::Vertical)
-                .constraints([
-                    Constraint::Length(self.header_height),
-                    Constraint::Length(self.bottom_height),
-                    Constraint::Min(self.center_height),
-                ])
-                .split(area);
-            (vertical[0], vertical[2], vertical[1])
-        } else {
-            let vertical = RatatuiLayout::default()
-                .direction(Direction::Vertical)
-                .constraints([
-                    Constraint::Length(self.header_height),
-                    Constraint::Min(self.center_height),
-                    Constraint::Length(self.bottom_height),
-                ])
-                .split(area);
-            (vertical[0], vertical[1], vertical[2])
-        };
-
-        // Split main into left and right panels
-        let horizontal = RatatuiLayout::default()
-            .direction(Direction::Horizontal)
-            .constraints([
-                Constraint::Percentage(self.left_width_percent),
-                Constraint::Percentage(100 - self.left_width_percent),
-            ])
-            .split(main);
-
-        let (left_panel, right_panel) = if self.invert_horizontal_split {
-            (horizontal[1], horizontal[0])
-        } else {
-            (horizontal[0], horizontal[1])
-        };
-
-        // Split right panel into detail and graph
-        let right_split = RatatuiLayout::default()
+        // The header has no border, so it never overlaps the panels
+        let vertical = RatatuiLayout::default()
             .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Percentage(self.side_vertical_split_percent),
-                Constraint::Percentage(100 - self.side_vertical_split_percent),
-            ])
-            .split(right_panel);
+            .constraints([Constraint::Length(self.header_height), Constraint::Fill(1)])
+            .split(area);
+        let (header, body) = (vertical[0], vertical[1]);
 
-        let (detail_panel, graph_panel) = if self.invert_side_vertical_split {
-            (right_split[1], right_split[0])
+        let (left_panel, detail_panel, graph_panel, bottom) = if self.extend_process_list {
+            // Process list | (details, graph and insights)
+            let (left_panel, side) = self.split_columns(body);
+            let (side, bottom) = self.split_insights(side);
+            let (detail_panel, graph_panel) = self.split_side(side);
+            (left_panel, detail_panel, graph_panel, bottom)
         } else {
-            (right_split[0], right_split[1])
+            // (Process list | details and graph) above or below insights
+            let (main, bottom) = self.split_insights(body);
+            let (left_panel, side) = self.split_columns(main);
+            let (detail_panel, graph_panel) = self.split_side(side);
+            (left_panel, detail_panel, graph_panel, bottom)
         };
 
         LayoutAreas {
@@ -99,6 +74,71 @@ impl Layout {
             detail_panel,
             graph_panel,
             bottom,
+        }
+    }
+
+    /// Space between panels: with merged borders, neighbours share a border cell
+    fn spacing(&self) -> Spacing {
+        if self.merge_borders {
+            Spacing::Overlap(1)
+        } else {
+            Spacing::Space(0)
+        }
+    }
+
+    /// Split off the insights panel: returns (rest, insights)
+    fn split_insights(&self, area: Rect) -> (Rect, Rect) {
+        let insights = Constraint::Length(self.bottom_height);
+        let rest = Constraint::Min(self.center_height);
+        let split = |constraints: [Constraint; 2]| {
+            RatatuiLayout::default()
+                .direction(Direction::Vertical)
+                .spacing(self.spacing())
+                .constraints(constraints)
+                .split(area)
+        };
+        if self.put_insights_on_top {
+            let parts = split([insights, rest]);
+            (parts[1], parts[0])
+        } else {
+            let parts = split([rest, insights]);
+            (parts[0], parts[1])
+        }
+    }
+
+    /// Split into the process list and the side column: returns (list, side)
+    fn split_columns(&self, area: Rect) -> (Rect, Rect) {
+        // Fill weights instead of percentages so overlapping borders still
+        // divide the space as configured
+        let parts = RatatuiLayout::default()
+            .direction(Direction::Horizontal)
+            .spacing(self.spacing())
+            .constraints([
+                Constraint::Fill(self.left_width_percent),
+                Constraint::Fill(100 - self.left_width_percent),
+            ])
+            .split(area);
+        if self.invert_horizontal_split {
+            (parts[1], parts[0])
+        } else {
+            (parts[0], parts[1])
+        }
+    }
+
+    /// Split the side column into details and graph: returns (detail, graph)
+    fn split_side(&self, area: Rect) -> (Rect, Rect) {
+        let parts = RatatuiLayout::default()
+            .direction(Direction::Vertical)
+            .spacing(self.spacing())
+            .constraints([
+                Constraint::Fill(self.side_vertical_split_percent),
+                Constraint::Fill(100 - self.side_vertical_split_percent),
+            ])
+            .split(area);
+        if self.invert_side_vertical_split {
+            (parts[1], parts[0])
+        } else {
+            (parts[0], parts[1])
         }
     }
 }
@@ -128,31 +168,88 @@ pub struct LayoutAreas {
 mod tests {
     use super::*;
 
-    #[test]
-    fn default_layout_calculation() {
-        let layout = Layout::new(&Theme::dark());
-        let area = Rect::new(0, 0, 100, 50);
-        let areas = layout.calculate(area);
+    fn layout(configure: impl FnOnce(&mut Layout)) -> LayoutAreas {
+        let mut layout = Layout::new(&Theme::dark());
+        configure(&mut layout);
+        layout.calculate(Rect::new(0, 0, 100, 50))
+    }
 
-        assert_eq!(areas.header.y, 0);
-        assert_eq!(areas.header.height, 1);
+    #[test]
+    fn default_layout_extends_the_process_list() {
+        let areas = layout(|_| {});
+        assert_eq!(areas.header, Rect::new(0, 0, 100, 1));
+        // Process list runs from below the header to the bottom
+        assert_eq!(areas.left_panel.y, 1);
+        assert_eq!(areas.left_panel.bottom(), 50);
+        // Insights sit at the bottom of the side column
+        assert_eq!(areas.bottom.x, areas.detail_panel.x);
+        assert_eq!(areas.bottom.width, areas.detail_panel.width);
         assert_eq!(areas.bottom.height, 4);
-        assert_eq!(areas.bottom.y, 50 - 4);
-        assert!(
-            areas.left_panel.width < areas.detail_panel.width
-                || areas.left_panel.x < areas.detail_panel.x
-        );
+        assert_eq!(areas.bottom.bottom(), 50);
+        assert!(areas.detail_panel.y < areas.graph_panel.y);
+        assert!(areas.graph_panel.y < areas.bottom.y);
+    }
+
+    #[test]
+    fn merged_borders_share_one_cell_between_neighbours() {
+        let areas = layout(|_| {});
+        // Process list and side column share the vertical border
+        assert_eq!(areas.left_panel.right() - 1, areas.detail_panel.x);
+        // Detail/graph and graph/insights share horizontal borders
+        assert_eq!(areas.detail_panel.bottom() - 1, areas.graph_panel.y);
+        assert_eq!(areas.graph_panel.bottom() - 1, areas.bottom.y);
+    }
+
+    #[test]
+    fn separate_borders_do_not_overlap() {
+        let areas = layout(|l| l.merge_borders = false);
+        assert_eq!(areas.left_panel.right(), areas.detail_panel.x);
+        assert_eq!(areas.detail_panel.bottom(), areas.graph_panel.y);
+        assert_eq!(areas.graph_panel.bottom(), areas.bottom.y);
+    }
+
+    #[test]
+    fn insights_never_overlap_other_panels_content() {
+        for merge in [true, false] {
+            for extend in [true, false] {
+                for top in [true, false] {
+                    let areas = layout(|l| {
+                        l.merge_borders = merge;
+                        l.extend_process_list = extend;
+                        l.put_insights_on_top = top;
+                    });
+                    for panel in [areas.left_panel, areas.detail_panel, areas.graph_panel] {
+                        let shared = areas.bottom.intersection(panel);
+                        // At most a shared border row or column, never content
+                        assert!(
+                            shared.is_empty() || shared.height == 1 || shared.width == 1,
+                            "merge={merge} extend={extend} top={top}: {shared:?}"
+                        );
+                    }
+                    assert!(!areas.bottom.intersects(areas.header));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn full_width_insights_when_not_extended() {
+        let areas = layout(|l| {
+            l.extend_process_list = false;
+            l.merge_borders = false;
+        });
+        assert_eq!(areas.bottom, Rect::new(0, 46, 100, 4));
+        assert_eq!(areas.left_panel.y, 1);
+        assert_eq!(areas.left_panel.bottom(), 46);
     }
 
     #[test]
     fn put_insights_on_top_inverts_vertical_order() {
-        let mut layout = Layout::new(&Theme::dark());
-        layout.put_insights_on_top = true;
-        let area = Rect::new(0, 0, 100, 50);
-        let areas = layout.calculate(area);
-
-        assert_eq!(areas.header.y, 0);
-        assert_eq!(areas.header.height, 1);
+        let areas = layout(|l| {
+            l.put_insights_on_top = true;
+            l.extend_process_list = false;
+            l.merge_borders = false;
+        });
         // Insights (bottom area) should be directly below the header
         assert_eq!(areas.bottom.y, 1);
         assert_eq!(areas.bottom.height, 4);
@@ -162,16 +259,26 @@ mod tests {
 
     #[test]
     fn invert_horizontal_and_side_split() {
-        let mut layout = Layout::new(&Theme::dark());
-        layout.invert_horizontal_split = true;
-        layout.invert_side_vertical_split = true;
-        let area = Rect::new(0, 0, 100, 50);
-        let areas = layout.calculate(area);
-
-        // Right panel should now be on the left (x = 0)
+        let areas = layout(|l| {
+            l.invert_horizontal_split = true;
+            l.invert_side_vertical_split = true;
+        });
+        // Side column should now be on the left (x = 0)
         assert_eq!(areas.detail_panel.x, 0);
         assert_eq!(areas.graph_panel.x, 0);
         // Graph panel should be above detail panel
         assert!(areas.graph_panel.y < areas.detail_panel.y);
+    }
+
+    #[test]
+    fn side_split_uses_its_own_percentage() {
+        let areas = layout(|l| {
+            l.merge_borders = false;
+            l.extend_process_list = false;
+            l.side_vertical_split_percent = 75;
+        });
+        let total = f64::from(areas.detail_panel.height + areas.graph_panel.height);
+        let expected = total * 0.75;
+        assert!((f64::from(areas.detail_panel.height) - expected).abs() <= 1.0);
     }
 }

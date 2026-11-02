@@ -26,7 +26,7 @@ impl<'a> HeaderWidget<'a> {
         Self {
             system,
             theme,
-            version: env!("CARGO_PKG_VERSION"),
+            version: crate::VERSION,
         }
     }
 }

@@ -208,7 +208,7 @@ impl ExportSnapshot {
             captured_at_unix_ms: wall_clock_ms(),
             collector: CollectorMetadata {
                 name: "ramwise-procfs".into(),
-                version: env!("CARGO_PKG_VERSION").into(),
+                version: crate::VERSION.into(),
                 platform: std::env::consts::OS.into(),
                 host: std::env::var("HOSTNAME").unwrap_or_else(|_| "unknown".into()),
             },

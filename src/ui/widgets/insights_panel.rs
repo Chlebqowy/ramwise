@@ -5,7 +5,7 @@ use ratatui::{
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Paragraph, Widget, Wrap},
+    widgets::{Paragraph, Widget, Wrap},
 };
 
 use crate::analyzer::{Insight, Severity};
@@ -107,11 +107,7 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
             Line::from(spans)
         };
 
-        let block = Block::default()
-            .title(title)
-            .borders(Borders::ALL)
-            .border_style(self.theme.border_style(self.focused))
-            .style(Style::default().bg(self.theme.bg));
+        let block = self.theme.panel_block(self.focused).title(title);
 
         let inner = block.inner(area);
         block.render(area, buf);

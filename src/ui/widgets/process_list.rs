@@ -5,7 +5,7 @@ use ratatui::{
     layout::Rect,
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, ListState, StatefulWidget},
+    widgets::{List, ListItem, ListState, StatefulWidget},
 };
 
 use crate::collector::ProcessMemory;
@@ -327,11 +327,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
         let title = Line::from(title_spans);
 
         // Build block with rounded corners feel
-        let block = Block::default()
-            .title(title)
-            .borders(Borders::ALL)
-            .border_style(self.theme.border_style(self.focused))
-            .style(Style::default().bg(self.theme.bg));
+        let block = self.theme.panel_block(self.focused).title(title);
 
         // Create list widget
         let list = List::new(items)
