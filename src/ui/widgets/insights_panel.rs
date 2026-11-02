@@ -41,7 +41,10 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
         // Modern title with count badges
         let title = if self.insights.is_empty() {
             Line::from(vec![
-                Span::styled(" ", Style::default()),
+                Span::styled(
+                    format!(" {}", Theme::icon(&self.theme.insights_icon)),
+                    Style::default().fg(self.theme.primary),
+                ),
                 Span::styled(
                     "Insights",
                     Style::default()
@@ -57,7 +60,10 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
             ])
         } else {
             let mut spans = vec![
-                Span::styled(" ", Style::default()),
+                Span::styled(
+                    format!(" {}", Theme::icon(&self.theme.insights_icon)),
+                    Style::default().fg(self.theme.primary),
+                ),
                 Span::styled(
                     "Insights",
                     Style::default()
@@ -114,7 +120,7 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
             // Show success state with icon
             let lines = vec![Line::from(vec![
                 Span::styled(
-                    self.theme.checkmark.clone(),
+                    format!("{} ", self.theme.checkmark),
                     Style::default().fg(self.theme.success),
                 ),
                 Span::styled(

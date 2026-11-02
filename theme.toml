@@ -60,6 +60,9 @@ rank_top = [255, 190, 70]
 rank_high = [180, 130, 255]
 # Color process names/bars by memory usage
 use_mem_color = true
+# Process list scale, in % of total RAM: memory colors reach critical and bars
+# fill up at this usage (bars stretch further if a process uses more)
+process_list_scale_percent = 50.0
 
 ### BARS ###
 
@@ -121,6 +124,17 @@ stopped = "◼"
 tracing = "◻"
 idle = "◌"
 unknown = "?"
+
+# Title and label icons (empty = no icon) #
+app_icon = ""
+ram_icon = ""
+swap_icon = ""
+process_list_icon = ""
+insights_icon = ""
+graph_icon = "◈"
+# Detail panel section headers
+memory_icon = ""
+breakdown_icon = ""
 
 ### LAYOUT ###
 

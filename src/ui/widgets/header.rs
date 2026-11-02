@@ -37,13 +37,20 @@ impl<'a> Widget for HeaderWidget<'a> {
         const SWAP_BAR_WIDTH: usize = 8;
         let sys = self.system;
         let mut ram = vec![];
-        ram.push(Span::styled("RAM ", Style::default().fg(self.theme.fg_dim)));
+        ram.push(Span::styled(
+            format!("{}RAM ", Theme::icon(&self.theme.ram_icon)),
+            Style::default().fg(self.theme.fg_dim),
+        ));
 
         // Build the header line with modern styling
 
         // App title with icon
         let title = Span::styled(
-            format!(" ramwise v{}", self.version),
+            format!(
+                " {}ramwise v{}",
+                Theme::icon(&self.theme.app_icon),
+                self.version
+            ),
             Style::default()
                 .fg(self.theme.primary)
                 .add_modifier(Modifier::BOLD),
@@ -82,7 +89,7 @@ impl<'a> Widget for HeaderWidget<'a> {
             match self.theme.swap_display {
                 SwapDisplay::Bar => {
                     swap.push(Span::styled(
-                        "Swap ",
+                        format!("{}Swap ", Theme::icon(&self.theme.swap_icon)),
                         Style::default().fg(self.theme.fg_dim),
                     ));
                     push_bar(self.theme, swap_percent, SWAP_BAR_WIDTH, &mut swap);
@@ -96,7 +103,7 @@ impl<'a> Widget for HeaderWidget<'a> {
                         self.theme.empty_circle.clone()
                     };
                     swap.push(Span::styled(
-                        "Swap ",
+                        format!("{}Swap ", Theme::icon(&self.theme.swap_icon)),
                         Style::default().fg(self.theme.fg_dim),
                     ));
                     swap.push(Span::styled(status_icon, Style::default().fg(swap_color)));

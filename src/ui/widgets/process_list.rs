@@ -147,17 +147,30 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
         let mem_width = 8;
         let bar_width = inner_width.saturating_sub(name_width + mem_width + 5);
 
+        let share = |rss: u64| {
+            if self.total_memory > 0 {
+                (rss as f64 / self.total_memory as f64) * 100.0
+            } else {
+                0.0
+            }
+        };
+        let highest_percent = self
+            .processes
+            .iter()
+            .map(|p| share(p.rss))
+            .fold(0.0, f64::max);
+
         // Build list items with modern styling
         let items: Vec<ListItem> = self
             .processes
             .iter()
             .enumerate()
             .map(|(idx, proc)| {
-                let mem_percent = if self.total_memory > 0 {
-                    (proc.rss as f64 / self.total_memory as f64) * 100.0
-                } else {
-                    0.0
-                };
+                // Colors use the theme's process list scale; bars fill up at
+                // that scale or at the biggest process, whichever is larger
+                let (color_percent, bar_percent) = self
+                    .theme
+                    .process_list_percents(share(proc.rss), highest_percent);
 
                 let is_selected = state.list_state.selected() == Some(idx);
 
@@ -211,7 +224,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Memory value with color based on usage
                 let mem_str = format!("{:>8}", format_bytes(proc.rss));
-                let mem_color = self.theme.mem_color_interpolated(mem_percent);
+                let mem_color = self.theme.mem_color(color_percent);
                 let mem_style = if is_selected {
                     Style::default()
                         .fg(self.theme.selection_fg)
@@ -225,14 +238,14 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 // Sleek usage bar with gradient
                 let bar = match self.theme.process_list_bar_type {
                     BarType::Standard => {
-                        Theme::create_sleek_bar(self.theme, mem_percent, bar_width)
+                        Theme::create_sleek_bar(self.theme, bar_percent, bar_width)
                     }
                     BarType::Gradient => {
-                        Theme::create_sleek_bar(self.theme, mem_percent, bar_width)
+                        Theme::create_sleek_bar(self.theme, bar_percent, bar_width)
                     }
-                    BarType::Fancy => Theme::create_fancy_bar(self.theme, mem_percent, bar_width),
+                    BarType::Fancy => Theme::create_fancy_bar(self.theme, bar_percent, bar_width),
                     BarType::FancyGradient => {
-                        Theme::create_fancy_bar(self.theme, mem_percent, bar_width)
+                        Theme::create_fancy_bar(self.theme, bar_percent, bar_width)
                     }
                 };
 
@@ -249,7 +262,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                         || self.theme.process_list_bar_type == BarType::FancyGradient)
                 {
                     if self.theme.use_mem_color {
-                        let mem_color_dim = self.theme.mem_color_dim(mem_percent);
+                        let mem_color_dim = self.theme.mem_color_dim(color_percent);
                         Theme::create_gradient_bar(
                             bar,
                             bar_width,
@@ -291,7 +304,10 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
         // Modern title with sort indicator
         let title_spans = vec![
-            Span::styled(" ", Style::default()),
+            Span::styled(
+                format!(" {}", Theme::icon(&self.theme.process_list_icon)),
+                Style::default().fg(self.theme.primary),
+            ),
             Span::styled(
                 "Processes",
                 Style::default()

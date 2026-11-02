@@ -399,6 +399,25 @@ impl App {
         }
     }
 
+    /// Apply a reloaded theme, or report why it could not be loaded.
+    /// Returns true when the theme changed.
+    pub fn apply_theme_reload(&mut self, result: Result<Theme, String>) -> bool {
+        match result {
+            Ok(theme) => {
+                self.theme = theme;
+                self.set_status(ActionStatusKind::Success, "Theme reloaded");
+                true
+            }
+            Err(err) => {
+                self.set_status(
+                    ActionStatusKind::Error,
+                    format!("Theme not reloaded: {err}"),
+                );
+                false
+            }
+        }
+    }
+
     fn set_status(&mut self, kind: ActionStatusKind, message: impl Into<String>) {
         self.action_status = Some(ActionStatus {
             kind,

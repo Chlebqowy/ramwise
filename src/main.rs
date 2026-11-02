@@ -456,15 +456,17 @@ async fn terminate_signal() {
 }
 
 async fn run_tui(args: &Args) -> Result<()> {
-    // Load the theme before touching the terminal so errors print cleanly
-    let theme = match &args.theme {
-        Some(name) => ui::Theme::from_name(name, &args.custom_theme_file)
+    // Load the theme before touching the terminal so errors print cleanly.
+    // Without -t, follow the Hyprland theme and fall back to dark.
+    let source = match &args.theme {
+        Some(name) => ui::ThemeSource::from_name(name, &args.custom_theme_file)
             .map_err(|err| anyhow::anyhow!("Failed to load theme: {err}"))?,
-        None => ui::Theme::hyprland().unwrap_or_else(|err| {
-            tracing::info!("{err}; using the dark theme");
-            ui::Theme::dark()
-        }),
+        None => ui::ThemeSource::Hyprland {
+            fallback_to_dark: true,
+        },
     };
+    let (mut theme_watcher, theme) = ui::ThemeWatcher::new(source)
+        .map_err(|err| anyhow::anyhow!("Failed to load theme: {err}"))?;
 
     // Setup terminal
     enable_raw_mode().context("Failed to enable raw mode")?;
@@ -491,7 +493,7 @@ async fn run_tui(args: &Args) -> Result<()> {
     });
 
     // Main event loop
-    let result = run_app(&mut terminal, &mut app, &mut rx).await;
+    let result = run_app(&mut terminal, &mut app, &mut rx, &mut theme_watcher).await;
 
     // Cleanup
     disable_raw_mode().context("Failed to disable raw mode")?;
@@ -513,8 +515,9 @@ async fn run_app(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
     rx: &mut mpsc::Receiver<collector::MemorySnapshot>,
+    theme_watcher: &mut ui::ThemeWatcher,
 ) -> Result<()> {
-    let layout = Layout::new(&app.theme);
+    let mut layout = Layout::new(&app.theme);
 
     loop {
         app.prune_transient_state();
@@ -611,6 +614,13 @@ async fn run_app(
 
         if app.should_quit {
             break;
+        }
+
+        // Live reload: pick up edits to the theme file (layout included)
+        if let Some(result) = theme_watcher.poll()
+            && app.apply_theme_reload(result)
+        {
+            layout = Layout::new(&app.theme);
         }
     }
 

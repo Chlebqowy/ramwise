@@ -155,7 +155,11 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         lines.push(Line::from(""));
 
         // Memory section header
-        lines.push(section_header("Memory", self.theme));
+        lines.push(section_header(
+            &self.theme.memory_icon,
+            "Memory",
+            self.theme,
+        ));
 
         // Main memory stats with visual bars
         let total_for_bar = proc.vss.max(proc.rss);
@@ -198,7 +202,11 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         lines.push(Line::from(""));
 
         // Breakdown section
-        lines.push(section_header("Breakdown", self.theme));
+        lines.push(section_header(
+            &self.theme.breakdown_icon,
+            "Breakdown",
+            self.theme,
+        ));
 
         // Two-column layout for breakdown
         lines.push(create_two_col(
@@ -286,9 +294,9 @@ impl<'a> Widget for DetailPanelWidget<'a> {
 }
 
 /// Create a section header with modern styling
-fn section_header<'a>(label: &'a str, theme: &'a Theme) -> Line<'a> {
+fn section_header<'a>(icon: &str, label: &'a str, theme: &'a Theme) -> Line<'a> {
     Line::from(vec![Span::styled(
-        label,
+        format!("{}{label}", Theme::icon(icon)),
         Style::default()
             .fg(theme.primary)
             .add_modifier(Modifier::BOLD),

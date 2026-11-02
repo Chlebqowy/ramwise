@@ -6,8 +6,14 @@ use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
 use ratatui::text::Span;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fs;
 use std::str::FromStr;
+
+use super::theme_source::ThemeSource;
+
+/// Files the Hyprland theme is read from, in lookup order
+pub(crate) fn hyprland_theme_paths() -> Vec<std::path::PathBuf> {
+    hyprland::candidate_paths()
+}
 
 /// Accepts `[r, g, b]`, an ANSI index (`0`-`255`) or a string such as
 /// `"#rrggbb"`, `"red"`, `"lightblue"` or `"12"`.
@@ -321,6 +327,9 @@ pub struct Theme {
     pub border_subtle: Color,
     pub chosen: String,
     pub use_mem_color: bool,
+    /// Process list scale, in % of total RAM: colors reach critical and bars
+    /// fill up at this usage (bars stretch further if a process uses more)
+    pub process_list_scale_percent: f64,
     pub ignored_process_indicator: char,
 
     pub process_list_bar_type: BarType,
@@ -360,6 +369,16 @@ pub struct Theme {
     pub tracing: String,
     pub idle: String,
     pub unknown: String,
+
+    // Title and label icons; an empty string shows no icon
+    pub app_icon: String,
+    pub ram_icon: String,
+    pub swap_icon: String,
+    pub process_list_icon: String,
+    pub insights_icon: String,
+    pub graph_icon: String,
+    pub memory_icon: String,
+    pub breakdown_icon: String,
 
     // Layout
     /// Header height
@@ -498,6 +517,7 @@ impl Theme {
             chosen: "▶".to_string(),
             use_mem_color: true,
             ignored_process_indicator: '-',
+            process_list_scale_percent: 50.0,
 
             //process_list_bar_type: BarType::FancyGradient,
             process_list_bar_type: BarType::Gradient,
@@ -535,6 +555,15 @@ impl Theme {
             tracing: "◻".to_string(),
             idle: "◌".to_string(),
             unknown: "?".to_string(),
+
+            app_icon: String::new(),
+            ram_icon: String::new(),
+            swap_icon: String::new(),
+            process_list_icon: String::new(),
+            insights_icon: String::new(),
+            graph_icon: "◈".to_string(),
+            memory_icon: String::new(),
+            breakdown_icon: String::new(),
 
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
 
@@ -618,6 +647,7 @@ impl Theme {
             chosen: "▶".to_string(),
             use_mem_color: false,
             ignored_process_indicator: '-',
+            process_list_scale_percent: 50.0,
             process_list_bar_type: BarType::Gradient,
             detail_panel_bar_type: BarType::Gradient,
             header_bar_type: BarType::Gradient,
@@ -652,6 +682,15 @@ impl Theme {
             tracing: "◻".to_string(),
             idle: "◌".to_string(),
             unknown: "?".to_string(),
+
+            app_icon: String::new(),
+            ram_icon: String::new(),
+            swap_icon: String::new(),
+            process_list_icon: String::new(),
+            insights_icon: String::new(),
+            graph_icon: "◈".to_string(),
+            memory_icon: String::new(),
+            breakdown_icon: String::new(),
 
             border_subtle: Color::Indexed(Ansi::Red as u8), // Not subtle, but I prefer it
 
@@ -783,6 +822,7 @@ impl Theme {
             chosen: "▶".to_string(),
             use_mem_color: true,
             ignored_process_indicator: '-',
+            process_list_scale_percent: 50.0,
             process_list_bar_type: BarType::Standard,
             detail_panel_bar_type: BarType::Standard,
             header_bar_type: BarType::Standard,
@@ -816,6 +856,15 @@ impl Theme {
             idle: "◌".to_string(),
             unknown: "?".to_string(),
 
+            app_icon: String::new(),
+            ram_icon: String::new(),
+            swap_icon: String::new(),
+            process_list_icon: String::new(),
+            insights_icon: String::new(),
+            graph_icon: "◈".to_string(),
+            memory_icon: String::new(),
+            breakdown_icon: String::new(),
+
             border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
 
             // Layout
@@ -834,16 +883,7 @@ impl Theme {
     /// Look a theme up by name. `custom` loads `custom_theme_file`, `hyprland`
     /// follows the current Hyprland/Omarchy desktop theme.
     pub fn from_name(name: &str, custom_theme_file: &str) -> Result<Self, String> {
-        match name.trim().to_lowercase().as_str() {
-            "dark" => Ok(Theme::dark()),
-            "light" => Ok(Theme::light()),
-            "ansi" => Ok(Theme::ansi4bit()),
-            "custom" => Theme::custom(custom_theme_file.to_string()),
-            "hyprland" | "omarchy" => Theme::hyprland(),
-            other => Err(format!(
-                "unknown theme '{other}' (available: dark, light, ansi, hyprland, custom)"
-            )),
-        }
+        ThemeSource::from_name(name, custom_theme_file)?.load()
     }
 
     /// Theme that follows the current Hyprland desktop theme.
@@ -854,18 +894,10 @@ impl Theme {
     /// `~/.local/state/omarchy/current/theme/colors.toml`,
     /// `~/.config/omarchy/current/theme/colors.toml`.
     pub fn hyprland() -> Result<Self, String> {
-        let candidates = hyprland::candidate_paths();
-        for path in &candidates {
-            if let Ok(contents) = fs::read_to_string(path) {
-                return Theme::from_hyprland_colors(&contents)
-                    .map_err(|e| format!("{}: {e}", path.display()));
-            }
+        ThemeSource::Hyprland {
+            fallback_to_dark: false,
         }
-        let searched: Vec<String> = candidates.iter().map(|p| p.display().to_string()).collect();
-        Err(format!(
-            "no Hyprland theme colors found (searched: {})",
-            searched.join(", ")
-        ))
+        .load()
     }
 
     /// Build a theme from the contents of a Hyprland/Omarchy `colors.toml`
@@ -876,12 +908,7 @@ impl Theme {
 
     /// Load a theme from a TOML file. Missing keys fall back to the dark theme.
     pub fn custom(custom_theme_file: String) -> Result<Self, String> {
-        let theme_file = shellexpand::full(&custom_theme_file)
-            .map_err(|e| format!("{custom_theme_file} expanding failed: {e}"))?;
-        let path = std::path::PathBuf::from(theme_file.into_owned());
-        let contents = fs::read_to_string(&path)
-            .map_err(|e| format!("{custom_theme_file} could not be read: {e}"))?;
-        Self::from_toml(&contents)
+        ThemeSource::Custom(custom_theme_file).load()
     }
 
     /// Parse a theme from TOML. Missing keys fall back to the dark theme.
@@ -892,6 +919,79 @@ impl Theme {
         }
         theme.rebuild_bar_all_chars();
         Ok(theme)
+    }
+
+    /// `icon` followed by a space, or nothing when the icon is empty
+    pub fn icon(icon: &str) -> String {
+        if icon.is_empty() {
+            String::new()
+        } else {
+            format!("{icon} ")
+        }
+    }
+
+    /// Switch every symbol to Nerd Font glyphs and use rounded progress bars.
+    /// Needs a Nerd Font (Omarchy ships JetBrainsMono Nerd Font).
+    pub fn use_nerd_font_symbols(&mut self) {
+        let s = |v: &str| v.to_string();
+
+        // Rounded progress bars (nf-fae-progress glyphs), colored as gradients.
+        // Partial steps (1/3 -> empty, 2/3 -> full) quantise each cell, so a
+        // cell counts as filled once it is at least half full.
+        let empty = '\u{ee01}';
+        let full = '\u{ee04}';
+        self.bar_empty_char = empty.to_string();
+        self.bar_full_char = full.to_string();
+        self.bar_partial_chars = vec![empty, empty, full];
+        self.fancy_bar_chars = ['\u{ee00}', '\u{ee03}', '\u{ee02}', '\u{ee05}'];
+        self.rebuild_bar_all_chars();
+        self.process_list_bar_type = BarType::FancyGradient;
+        self.detail_panel_bar_type = BarType::FancyGradient;
+        self.header_bar_type = BarType::FancyGradient;
+
+        self.rank_top_symbol = s("\u{f01a5} "); // crown
+        self.rank_high_symbol = s("\u{f04ce} "); // star
+        self.chosen = s("\u{f0142}"); // chevron
+        self.ignored_process_indicator = '\u{f009b}'; // bell off
+
+        self.checkmark = s("\u{f05e0}"); // check circle
+        self.triangle = s("\u{f0028}"); // alert circle (critical)
+        self.full_circle = s("\u{f0026}"); // alert (warning)
+        self.empty_circle = s("\u{f02fc}"); // information (info)
+        self.semicircle = s("\u{f0431}"); // puzzle (fragmentation)
+        self.diamond = s("\u{f08c6}"); // application
+        self.empty_diamond = s("\u{f0a6}"); // pointing hand
+        self.arrow_right = s("\u{f0054}");
+        self.loading = s("\u{f051f}"); // hourglass
+
+        self.running = s("\u{f040a}"); // play
+        self.sleeping = s("\u{f04b2}"); // sleep
+        self.disk_wait = s("\u{f02ca}"); // hard disk
+        self.zombie = s("\u{f068c}"); // skull
+        self.stopped = s("\u{f03e4}"); // pause
+        self.tracing = s("\u{f00e4}"); // bug
+        self.idle = s("\u{f0904}"); // power sleep
+        self.unknown = s("\u{f02d7}"); // help circle
+
+        self.app_icon = s("\u{f035b}"); // memory
+        self.ram_icon = s("\u{f2db}"); // microchip
+        self.swap_icon = s("\u{f04e1}"); // swap
+        self.process_list_icon = s("\u{f0ae}"); // tasks
+        self.insights_icon = s("\u{f0335}"); // lightbulb
+        self.graph_icon = s("\u{f012a}"); // line chart
+        self.memory_icon = s("\u{f035b}"); // memory
+        self.breakdown_icon = s("\u{f200}"); // pie chart
+    }
+
+    /// Map a process's share of RAM onto the process list scale (0-100):
+    /// returns (color percent, bar percent). `highest_percent` is the largest
+    /// share of any listed process.
+    pub fn process_list_percents(&self, percent: f64, highest_percent: f64) -> (f64, f64) {
+        let scale = self.process_list_scale_percent.max(0.1);
+        let bar_scale = scale.max(highest_percent);
+        let color = (percent / scale * 100.0).clamp(0.0, 100.0);
+        let bar = (percent / bar_scale * 100.0).clamp(0.0, 100.0);
+        (color, bar)
     }
 
     /// Recompute `bar_all_chars` (empty, partials, full) from the configured bar chars
@@ -1332,6 +1432,9 @@ mod hyprland {
 
             theme.rank_top = yellow;
             theme.rank_high = accent;
+
+            // Omarchy ships a Nerd Font, so use its icons and rounded bars
+            theme.use_nerd_font_symbols();
             theme
         }
     }
@@ -1469,9 +1572,10 @@ mod tests {
         assert_eq!(theme.border, Color::Rgb(0x3a, 0x40, 0x45));
         assert_eq!(theme.selection_fg, Color::Rgb(0xec, 0xef, 0xf0));
         assert_eq!(theme.header_bg, Color::Rgb(0x2c, 0x31, 0x35));
-        // Symbols and bars come from the dark theme
-        assert_eq!(theme.header_bar_type, Theme::dark().header_bar_type);
-        assert_eq!(theme.rank_top_symbol, Theme::dark().rank_top_symbol);
+        // Omarchy ships a Nerd Font: rounded progress bars and icons
+        assert_eq!(theme.header_bar_type, BarType::FancyGradient);
+        assert_eq!(theme.bar_full_char, "\u{ee04}");
+        assert_eq!(theme.app_icon, "\u{f035b}");
     }
 
     #[test]
@@ -1491,14 +1595,59 @@ mod tests {
         assert_eq!(theme.error, Color::Rgb(0xaa, 0, 0));
         assert_eq!(theme.mem_high, Color::Rgb(0xaa, 0, 0));
         assert_eq!(theme.border_focused, Color::Rgb(0, 0, 0xaa));
-        // Light mode starts from the light theme
-        assert_eq!(theme.header_bar_type, Theme::light().header_bar_type);
+        // Light mode starts from the light theme (no green given, so the
+        // memory gradient starts at the light theme's success color)
+        assert_eq!(theme.mem_excellent, Theme::light().success);
     }
 
     #[test]
     fn hyprland_theme_needs_background_and_foreground() {
         assert!(Theme::from_hyprland_colors("accent = \"#ffffff\"").is_err());
         assert!(Theme::from_hyprland_colors("not toml at all ===").is_err());
+    }
+
+    #[test]
+    fn nerd_font_bars_are_quantised_to_whole_cells() {
+        let mut theme = Theme::dark();
+        theme.use_nerd_font_symbols();
+        let (empty, full) = ('\u{ee01}', '\u{ee04}');
+        let bar = |percent: f64| theme.create_sleek_bar(percent, 10);
+        assert_eq!(bar(0.0), empty.to_string().repeat(10));
+        assert_eq!(bar(100.0), full.to_string().repeat(10));
+        // 34% of 10 cells: 3.4 rounds down, 36%: 3.6 rounds up
+        assert_eq!(
+            bar(34.0),
+            format!(
+                "{}{}",
+                full.to_string().repeat(3),
+                empty.to_string().repeat(7)
+            )
+        );
+        assert_eq!(
+            bar(36.0),
+            format!(
+                "{}{}",
+                full.to_string().repeat(4),
+                empty.to_string().repeat(6)
+            )
+        );
+        // Rounded caps follow the fill
+        let fancy: Vec<char> = theme.create_fancy_bar(50.0, 10).chars().collect();
+        assert_eq!(fancy[0], '\u{ee03}');
+        assert_eq!(fancy[9], '\u{ee02}');
+        let fancy_full: Vec<char> = theme.create_fancy_bar(100.0, 10).chars().collect();
+        assert_eq!(fancy_full[9], '\u{ee05}');
+    }
+
+    #[test]
+    fn process_list_scale() {
+        let theme = Theme::dark(); // 50% scale
+        // Highest process below the scale: bars and colors share the 50% scale
+        assert_eq!(theme.process_list_percents(25.0, 30.0), (50.0, 50.0));
+        assert_eq!(theme.process_list_percents(50.0, 50.0), (100.0, 100.0));
+        // Highest process above the scale: bars stretch to it, colors cap out
+        assert_eq!(theme.process_list_percents(80.0, 80.0), (100.0, 100.0));
+        assert_eq!(theme.process_list_percents(20.0, 80.0), (40.0, 25.0));
     }
 
     #[test]

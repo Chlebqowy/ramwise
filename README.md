@@ -169,8 +169,12 @@ The `hyprland` theme reads the desktop theme's `colors.toml` (the format
 ramwise: `accent` becomes the primary color, `background`/`foreground` the base,
 the named colors drive the memory gradient and severity colors, and
 `hyprland_active_border` / `hyprland_inactive_border` become the focused and
-unfocused panel borders. `mode = "light"` themes start from the light theme's
-symbols and bar styles, everything else from the dark theme's.
+unfocused panel borders. `mode = "light"` themes start from the light theme,
+everything else from the dark theme.
+
+Since Omarchy ships JetBrainsMono Nerd Font, this theme uses Nerd Font icons for
+titles, process states and insights, and rounded progress bars whose cells are
+either full or empty (a cell fills once it is at least half used).
 
 The file is looked up in this order:
 1. `$RAMWISE_HYPRLAND_THEME`
@@ -178,9 +182,14 @@ The file is looked up in this order:
 3. `~/.local/state/omarchy/current/theme/colors.toml`
 4. `~/.config/omarchy/current/theme/colors.toml`
 
-Since the theme is read at startup, restart ramwise after switching desktop themes.
 Without `-t`, ramwise uses this theme and quietly falls back to `dark` if no file is found;
 `-t hyprland` reports an error instead.
+
+#### Live reload
+ramwise checks the theme file once a second and applies changes while it runs,
+layout included: switching the desktop theme (`omarchy theme set …`) or saving
+your `theme.toml` updates the UI straight away. If the new file has an error,
+the current theme stays and the error is shown in the status line.
 
 #### Custom theme
 `-t custom` loads a TOML file (`$HOME/.config/ramwise/theme.toml` by default,
@@ -197,7 +206,13 @@ draws (rank markers, bar characters, separators, state icons, arrows, the
 ignored-process indicator, …) can be changed there too. The graph marker
 accepts `dot`, `block`, `bar`, `braille`, `half_block`, `quadrant`, `sextant`,
 `octant` or any single character, bar types are `standard`, `gradient`,
-`fancy` or `fancy_gradient`, and `swap_display` is `bar` or `icon`.
+`fancy` or `fancy_gradient`, and `swap_display` is `bar` or `icon`. Icon keys
+(`app_icon`, `ram_icon`, `insights_icon`, …) take any string; leave them empty
+for no icon.
+
+`process_list_scale_percent` (default `50`) sets the process list's scale as a
+share of total RAM: memory colors reach critical at that usage, and bars are
+full at that usage or at the biggest process, whichever is larger.
 
 ### Layout Customization
 Layout dimensions and panel splits are part of the theme and can be set in a

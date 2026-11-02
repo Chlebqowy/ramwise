@@ -156,7 +156,7 @@ impl<'a> Widget for GraphWidget<'a> {
         let title_line = Line::from(vec![
             Span::styled(" ", Style::default()),
             Span::styled(
-                format!("{ } ", self.theme.diamond.clone()),
+                Theme::icon(&self.theme.graph_icon),
                 Style::default().fg(text_color),
             ),
             Span::styled(
@@ -197,7 +197,7 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
     let title = Line::from(vec![
         Span::styled(" ", Style::default()),
         Span::styled(
-            format!("{} ", theme.diamond),
+            Theme::icon(&theme.graph_icon),
             Style::default().fg(theme.fg_muted),
         ),
         Span::styled(
