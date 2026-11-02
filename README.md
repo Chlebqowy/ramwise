@@ -212,8 +212,8 @@ for no icon.
 
 `process_list_scale_percent` (default `50`) is the share of total RAM at which
 process list bars are full (or at the biggest process, if that uses more).
-Process memory colors turn critical from 15% of RAM, high from 12.8%, moderate
-from 3.2% and good from 1.5% (on 32 GB: about 4.7 GB, 4 GB, 1 GB and 480 MB).
+Process memory colors turn critical from 19.2% of RAM, high from 9.6%, moderate
+from 3.2% and good from 1.5% (on 32 GB: about 6 GB, 3 GB, 1 GB and 480 MB).
 
 ### Layout Customization
 Layout dimensions and panel splits are part of the theme and can be set in a

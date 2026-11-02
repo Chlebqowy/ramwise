@@ -166,7 +166,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
             .iter()
             .enumerate()
             .map(|(idx, proc)| {
-                // Colors use per-process thresholds (critical from 15% of RAM);
+                // Colors use per-process thresholds (critical from 19.2% of RAM);
                 // bars fill up at the theme's scale or the biggest process
                 let percent = share(proc.rss);
                 let bar_percent = self
