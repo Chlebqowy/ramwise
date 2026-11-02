@@ -106,15 +106,22 @@ impl Default for ProcessListState {
 pub struct ProcessListWidget<'a> {
     processes: &'a [ProcessMemory],
     theme: &'a Theme,
+    ignore_list: Vec<i32>,
     focused: bool,
     total_memory: u64,
 }
 
 impl<'a> ProcessListWidget<'a> {
-    pub fn new(processes: &'a [ProcessMemory], theme: &'a Theme, total_memory: u64) -> Self {
+    pub fn new(
+        processes: &'a [ProcessMemory],
+        theme: &'a Theme,
+        ignore_list: Vec<i32>,
+        total_memory: u64,
+    ) -> Self {
         Self {
             processes,
             theme,
+            ignore_list,
             focused: true,
             total_memory,
         }
@@ -162,6 +169,17 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 let ignored = self.theme.ignored_process_indicator.to_string();
                 let ignored_borrowed: &str = &ignored;
 
+                let ignored = if self.ignore_list.contains(&proc.pid) {
+                    self.theme.ignored_process_indicator.to_string()
+                } else {
+                    " ".to_string()
+                };
+                let ignored_style = match idx {
+                    0..=2 => Style::default().fg(self.theme.tertiary),
+                    3..=9 => Style::default().fg(self.theme.secondary),
+                    _ => Style::default().fg(self.theme.secondary_dim),
+                };
+
                 // Truncate name if needed
                 let mut name = if proc.name.len() > name_width {
                     format!("{}…", &proc.name[..name_width.saturating_sub(1)])
@@ -204,7 +222,8 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 let spans = vec![
                     rank_indicator,
                     Span::styled(name, name_style),
-                    Span::raw(" "),
+                    Span::styled(ignored, ignored_style),
+                    Span::raw(""),
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
                     Span::styled(bar, bar_style),
