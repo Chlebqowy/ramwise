@@ -74,7 +74,7 @@ impl<'a> Widget for SystemBarWidget<'a> {
             if (x - area.x) as usize >= bar_width {
                 break;
             }
-            buf.set_string(x, y, "▒", Style::default().fg(self.theme.secondary_dim));
+            buf.set_string(x, y, "▒", Style::default().fg(self.theme.secondary));
             x += 1;
         }
 

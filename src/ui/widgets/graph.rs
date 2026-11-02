@@ -4,7 +4,6 @@ use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::{Modifier, Style},
-    symbols::Marker,
     text::{Line, Span},
     widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Widget},
 };
@@ -45,7 +44,7 @@ impl<'a> GraphWidget<'a> {
 impl<'a> Widget for GraphWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // Determine what to graph
-        let (title, data, y_bounds, y_labels, is_process) = if let Some(pid) = self.selected_pid {
+        let (title, data, y_bounds, y_labels, _is_process) = if let Some(pid) = self.selected_pid {
             let trend = self.history.process_trend(pid);
             if trend.is_empty() {
                 render_empty(area, buf, self.theme, self.focused, "Collecting data…");
@@ -131,16 +130,14 @@ impl<'a> Widget for GraphWidget<'a> {
         let time_span = data.len();
 
         // Choose line color based on context
-        let line_color = if is_process {
-            self.theme.primary
-        } else {
-            self.theme.secondary
-        };
+        let line_color = self.theme.graph_line;
+        //let background_color = self.theme.graph_bg;
+        let text_color = self.theme.primary;
 
         let datasets = vec![
             Dataset::default()
                 .name("Memory")
-                .marker(Marker::Braille)
+                .marker(self.theme.graph_marker)
                 .graph_type(GraphType::Line)
                 .style(Style::default().fg(line_color))
                 .data(&data),
@@ -158,7 +155,10 @@ impl<'a> Widget for GraphWidget<'a> {
         // Modern title
         let title_line = Line::from(vec![
             Span::styled(" ", Style::default()),
-            Span::styled("◈ ", Style::default().fg(line_color)),
+            Span::styled(
+                format!("{ } ", self.theme.diamond.clone()),
+                Style::default().fg(text_color),
+            ),
             Span::styled(
                 title,
                 Style::default()
@@ -178,13 +178,13 @@ impl<'a> Widget for GraphWidget<'a> {
             )
             .x_axis(
                 Axis::default()
-                    .style(Style::default().fg(self.theme.border_subtle))
+                    .style(Style::default().fg(self.theme.graph_border)) // if custom borders commit gets merged, collapse borders here and in y
                     .bounds([0.0, x_max])
                     .labels(x_labels),
             )
             .y_axis(
                 Axis::default()
-                    .style(Style::default().fg(self.theme.border_subtle))
+                    .style(Style::default().fg(self.theme.graph_border))
                     .bounds(y_bounds)
                     .labels(y_labels),
             );

@@ -12,6 +12,8 @@ use crate::collector::ProcessMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
 
+use crate::ui::theme::BarType;
+
 /// Modern detail panel widget
 pub struct DetailPanelWidget<'a> {
     process: Option<&'a ProcessMemory>,
@@ -39,7 +41,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Modern title with icon-like prefix
         let title = match &self.process {
             Some(p) => Line::from(vec![
-                Span::styled(" ◆ ", Style::default().fg(self.theme.primary)),
+                Span::styled(
+                    format!("{ } ", self.theme.diamond.clone()),
+                    Style::default().fg(self.theme.primary),
+                ),
                 Span::styled(
                     &p.name,
                     Style::default()
@@ -90,6 +95,17 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Build content with modern sections
         let mut lines = Vec::new();
 
+        let state_chip = match proc.state {
+            'R' => format!("{} Running", self.theme.running),
+            'S' => format!("{} Sleeping", self.theme.sleeping),
+            'D' => format!("{} Disk Wait", self.theme.disk_wait),
+            'Z' => format!("{} Zombie", self.theme.zombie),
+            'T' => format!("{} Stopped", self.theme.stopped),
+            't' => format!("{} Tracing", self.theme.tracing),
+            'I' => format!("{} Idle", self.theme.idle),
+            _ => format!("{} {}", self.theme.unknown, proc.state),
+        };
+
         // Process info row with status chip
         let state_style = match proc.state {
             'R' => Style::default().fg(self.theme.success),
@@ -100,7 +116,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         };
 
         lines.push(Line::from(vec![
-            Span::styled(state_chip(proc.state), state_style),
+            Span::styled(state_chip, state_style),
             Span::styled("  ", Style::default()),
             Span::styled("PPID ", self.theme.muted_style()),
             Span::styled(
@@ -194,7 +210,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if proc.swap > 0 {
             lines.push(Line::from(""));
             lines.push(Line::from(vec![
-                Span::styled("▲ ", Style::default().fg(self.theme.warning)),
+                Span::styled(
+                    self.theme.triangle.clone(),
+                    Style::default().fg(self.theme.warning),
+                ),
                 Span::styled("Swap: ", self.theme.dim_style()),
                 Span::styled(format_bytes(proc.swap), self.theme.warning_style()),
             ]));
@@ -204,7 +223,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if proc.major_faults > 100 {
             lines.push(Line::from(vec![
                 Span::styled(
-                    "● ",
+                    format!("{ } ", self.theme.full_circle.clone()),
                     Style::default().fg(if proc.major_faults > 1000 {
                         self.theme.warning
                     } else {
@@ -228,7 +247,7 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         if frag_ratio > 5.0 {
             lines.push(Line::from(vec![
                 Span::styled(
-                    "◐ ",
+                    format!("{ } ", self.theme.semicircle.clone()),
                     Style::default().fg(if frag_ratio > 15.0 {
                         self.theme.warning
                     } else {
@@ -279,26 +298,48 @@ fn create_memory_row<'a>(
         0.0
     };
 
-    let bar = create_mini_bar(percent.min(100.0), bar_width);
+    let bar = match theme.detail_panel_bar_type {
+        BarType::Standard => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
+        BarType::Gradient => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
+        BarType::Fancy => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+        BarType::FancyGradient => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+    };
+
+    let mut span_row = vec![];
     let color = if is_primary {
         theme.primary
     } else {
         theme.fg_dim
     };
-
-    Line::from(vec![
-        Span::styled(format!("{:<4}", label), Style::default().fg(color)),
-        Span::styled(bar, Style::default().fg(color)),
-        Span::raw(" "),
-        Span::styled(
-            format!("{:>9}", format_bytes(value)),
-            if is_primary {
-                Style::default().fg(theme.fg).add_modifier(Modifier::BOLD)
-            } else {
-                Style::default().fg(theme.fg_dim)
-            },
-        ),
-    ])
+    let secondary_color = if is_primary {
+        theme.primary_dim
+    } else {
+        theme.fg_muted
+    };
+    span_row.push(Span::styled(
+        format!("{:<4}", label),
+        Style::default().fg(color),
+    ));
+    if theme.detail_panel_bar_type == BarType::Gradient
+        || theme.detail_panel_bar_type == BarType::FancyGradient
+    {
+        Theme::create_gradient_bar(bar, bar_width, color, secondary_color, &mut span_row);
+    } else {
+        let span = Span::styled(bar, Style::default().fg(color));
+        span_row.push(span);
+    };
+    //Span::styled(bar, Style::default().fg(color)),
+    // maybe make the whole sleek_bar optional
+    span_row.push(Span::raw(" "));
+    span_row.push(Span::styled(
+        format!("{:>9}", format_bytes(value)),
+        if is_primary {
+            Style::default().fg(theme.fg).add_modifier(Modifier::BOLD)
+        } else {
+            Style::default().fg(theme.fg_dim)
+        },
+    ));
+    Line::from(span_row)
 }
 
 /// Create a two-column stat row
@@ -316,37 +357,4 @@ fn create_two_col<'a>(left: (&'a str, u64), right: (&'a str, u64), theme: &'a Th
             Style::default().fg(theme.fg_dim),
         ),
     ])
-}
-
-/// Create a mini progress bar
-fn create_mini_bar(percent: f64, width: usize) -> String {
-    let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-    let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-    let full_blocks = total_eighths / 8;
-    let partial = total_eighths % 8;
-
-    let mut bar = "█".repeat(full_blocks.min(width));
-
-    if partial > 0 && bar.chars().count() < width {
-        bar.push(chars[partial]);
-    }
-
-    let remaining = width.saturating_sub(bar.chars().count());
-    bar.push_str(&"░".repeat(remaining));
-
-    bar
-}
-
-/// State chip with icon
-fn state_chip(state: char) -> String {
-    match state {
-        'R' => "● Running".to_string(),
-        'S' => "○ Sleeping".to_string(),
-        'D' => "◐ Disk Wait".to_string(),
-        'Z' => "✕ Zombie".to_string(),
-        'T' => "◼ Stopped".to_string(),
-        't' => "◻ Tracing".to_string(),
-        'I' => "◌ Idle".to_string(),
-        _ => format!("? {}", state),
-    }
 }

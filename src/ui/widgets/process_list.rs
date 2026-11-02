@@ -12,6 +12,8 @@ use crate::collector::ProcessMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
 
+use crate::ui::theme::BarType;
+
 /// Sorting mode for process list
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SortMode {
@@ -143,7 +145,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
         // Column widths
         let name_width = inner_width.saturating_sub(22).min(20);
         let mem_width = 8;
-        let bar_width = inner_width.saturating_sub(name_width + mem_width + 4);
+        let bar_width = inner_width.saturating_sub(name_width + mem_width + 5);
 
         // Build list items with modern styling
         let items: Vec<ListItem> = self
@@ -161,8 +163,14 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Rank indicator for top processes
                 let rank_indicator = match idx {
-                    0 => Span::styled("● ", Style::default().fg(self.theme.rank_top)),
-                    1..=2 => Span::styled("○ ", Style::default().fg(self.theme.rank_high)),
+                    0 => Span::styled(
+                        self.theme.rank_top_symbol.clone(),
+                        Style::default().fg(self.theme.rank_top),
+                    ),
+                    1..=2 => Span::styled(
+                        self.theme.rank_high_symbol.clone(),
+                        Style::default().fg(self.theme.rank_high),
+                    ),
                     _ => Span::styled("  ", Style::default()),
                 };
 
@@ -174,7 +182,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 let ignored_style = match idx {
                     0..=2 => Style::default().fg(self.theme.tertiary),
                     3..=9 => Style::default().fg(self.theme.secondary),
-                    _ => Style::default().fg(self.theme.secondary_dim),
+                    _ => Style::default().fg(self.theme.fg_muted),
                 };
 
                 // Truncate name if needed
@@ -204,27 +212,67 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     Style::default()
                         .fg(self.theme.selection_fg)
                         .add_modifier(Modifier::BOLD)
-                } else {
+                } else if self.theme.use_mem_color {
                     Style::default().fg(mem_color)
+                } else {
+                    Style::default().fg(self.theme.primary)
                 };
 
                 // Sleek usage bar with gradient
-                let bar = create_sleek_bar(mem_percent, bar_width);
-                let bar_style = if is_selected {
-                    Style::default().fg(self.theme.selection_fg)
-                } else {
-                    Style::default().fg(mem_color)
+                let bar = match self.theme.process_list_bar_type {
+                    BarType::Standard => {
+                        Theme::create_sleek_bar(&self.theme, mem_percent, bar_width)
+                    }
+                    BarType::Gradient => {
+                        Theme::create_sleek_bar(&self.theme, mem_percent, bar_width)
+                    }
+                    BarType::Fancy => Theme::create_fancy_bar(&self.theme, mem_percent, bar_width),
+                    BarType::FancyGradient => {
+                        Theme::create_fancy_bar(&self.theme, mem_percent, bar_width)
+                    }
                 };
 
-                let spans = vec![
+                let mut spans = vec![
                     rank_indicator,
                     Span::styled(name, name_style),
                     Span::styled(ignored, ignored_style),
                     Span::raw(""),
                     Span::styled(mem_str, mem_style),
                     Span::raw(" "),
-                    Span::styled(bar, bar_style),
                 ];
+                if !is_selected
+                    && (self.theme.process_list_bar_type == BarType::Gradient
+                        || self.theme.process_list_bar_type == BarType::FancyGradient)
+                {
+                    if self.theme.use_mem_color {
+                        let mem_color_dim = self.theme.mem_color_dim(mem_percent);
+                        Theme::create_gradient_bar(
+                            bar,
+                            bar_width,
+                            mem_color,
+                            mem_color_dim,
+                            &mut spans,
+                        );
+                    } else {
+                        Theme::create_gradient_bar(
+                            bar,
+                            bar_width,
+                            self.theme.primary,
+                            self.theme.primary_dim,
+                            &mut spans,
+                        );
+                    };
+                } else {
+                    let bar_style = if is_selected {
+                        Style::default().fg(self.theme.selection_fg)
+                    } else if self.theme.use_mem_color {
+                        Style::default().fg(mem_color)
+                    } else {
+                        Style::default().fg(self.theme.primary)
+                    };
+                    let span = Span::styled(bar, bar_style);
+                    spans.push(span);
+                };
 
                 ListItem::new(Line::from(spans))
             })
@@ -268,31 +316,8 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
         let list = List::new(items)
             .block(block)
             .highlight_style(self.theme.selected_style())
-            .highlight_symbol("▸ ");
+            .highlight_symbol(self.theme.chosen.as_str());
 
         StatefulWidget::render(list, area, buf, &mut state.list_state);
     }
-}
-
-/// Create a sleek usage bar with partial blocks
-fn create_sleek_bar(percent: f64, width: usize) -> String {
-    if width == 0 {
-        return String::new();
-    }
-
-    let chars = ['▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
-    let total_eighths = ((percent / 100.0) * (width * 8) as f64).round() as usize;
-    let full_blocks = total_eighths / 8;
-    let partial = total_eighths % 8;
-
-    let mut bar = "█".repeat(full_blocks.min(width));
-
-    if partial > 0 && bar.chars().count() < width {
-        bar.push(chars[partial]);
-    }
-
-    let remaining = width.saturating_sub(bar.chars().count());
-    bar.push_str(&"░".repeat(remaining));
-
-    bar
 }

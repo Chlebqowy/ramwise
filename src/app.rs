@@ -91,6 +91,7 @@ impl App {
         let theme = match theme_name.trim().to_lowercase().as_str() {
             "light" => Theme::light(),
             "dark" => Theme::dark(),
+            "ansi" => Theme::ansi4bit(),
             other => {
                 tracing::warn!("Invalid theme: {other}. Using dark as fallback.");
                 Theme::dark()
