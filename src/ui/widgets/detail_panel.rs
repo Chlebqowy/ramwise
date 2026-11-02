@@ -312,10 +312,10 @@ fn create_memory_row<'a>(
     };
 
     let bar = match theme.detail_panel_bar_type {
-        BarType::Standard => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
-        BarType::Gradient => Theme::create_sleek_bar(&theme, percent.min(100.0), bar_width),
-        BarType::Fancy => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
-        BarType::FancyGradient => Theme::create_fancy_bar(&theme, percent.min(100.0), bar_width),
+        BarType::Standard => Theme::create_sleek_bar(theme, percent.min(100.0), bar_width),
+        BarType::Gradient => Theme::create_sleek_bar(theme, percent.min(100.0), bar_width),
+        BarType::Fancy => Theme::create_fancy_bar(theme, percent.min(100.0), bar_width),
+        BarType::FancyGradient => Theme::create_fancy_bar(theme, percent.min(100.0), bar_width),
     };
 
     let mut span_row = vec![];

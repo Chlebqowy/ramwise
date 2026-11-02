@@ -1116,7 +1116,7 @@ impl Theme {
                 'e'
             }
         };
-        let last: usize = width - 1 as usize;
+        let last: usize = width - 1;
         bar[last] = {
             let pos = self.bar_all_chars.iter().position(|&x| x == bar[last]);
             let fpos: f32 = if let Some(pos) = pos {
@@ -1630,7 +1630,7 @@ mod tests {
         let part: f64 = 100.0;
         let chars: usize = 8;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
@@ -1646,7 +1646,7 @@ mod tests {
         let part: f64 = 50.0;
         let chars: usize = 8;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
@@ -1662,7 +1662,7 @@ mod tests {
         let part: f64 = 25.0;
         let chars: usize = 8;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
@@ -1678,7 +1678,7 @@ mod tests {
         let part: f64 = 12.5;
         let chars: usize = 8;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
@@ -1694,7 +1694,7 @@ mod tests {
         let part: f64 = 20.0;
         let chars: usize = 8;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let incorrect_result_a = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
@@ -1704,11 +1704,11 @@ mod tests {
         let incorrect_result_b = theme
             .bar_full_char
             .to_string()
-            .repeat(full_chars as usize + 1 as usize)
+            .repeat(full_chars as usize + 1)
             + &theme
                 .bar_empty_char
                 .to_string()
-                .repeat(empty_chars as usize - 1 as usize);
+                .repeat(empty_chars as usize - 1);
         print!("{}", incorrect_result_b);
         let result = Theme::create_sleek_bar(&theme, part, chars);
         assert_ne!(result, incorrect_result_a);
@@ -1729,7 +1729,7 @@ mod tests {
         let part: f64 = 25.0;
         let chars: usize = 8;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
@@ -1745,7 +1745,7 @@ mod tests {
         let part: f64 = 25.0;
         let chars: usize = 800;
         let full_chars: f64 = chars as f64 * part / 100.0;
-        let empty_chars: f64 = chars as f64 * (1 as f64 - part / 100.0);
+        let empty_chars: f64 = chars as f64 * (1.0 - part / 100.0);
         let correct_result = theme.bar_full_char.to_string().repeat(full_chars as usize)
             + &theme
                 .bar_empty_char
