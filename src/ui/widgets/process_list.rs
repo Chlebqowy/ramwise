@@ -165,9 +165,6 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                     1..=2 => Span::styled("○ ", Style::default().fg(self.theme.rank_high)),
                     _ => Span::styled("  ", Style::default()),
                 };
-                
-                let ignored = self.theme.ignored_process_indicator.to_string();
-                let ignored_borrowed: &str = &ignored;
 
                 let ignored = if self.ignore_list.contains(&proc.pid) {
                     self.theme.ignored_process_indicator.to_string()
@@ -181,12 +178,12 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                 };
 
                 // Truncate name if needed
-                let mut name = if proc.name.len() > name_width {
+                let name = if proc.name.len() > name_width {
                     format!("{}…", &proc.name[..name_width.saturating_sub(1)])
                 } else {
                     format!("{:<width$}", proc.name, width = name_width)
                 };
-                name += ignored_borrowed;
+
                 // Name styling - brighter for selected, dimmer for lower ranks
                 let name_style = if is_selected {
                     Style::default()
