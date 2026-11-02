@@ -831,17 +831,47 @@ impl Theme {
         }
     }
 
-    /// Look a theme up by name. `custom` loads `custom_theme_file`.
+    /// Look a theme up by name. `custom` loads `custom_theme_file`, `hyprland`
+    /// follows the current Hyprland/Omarchy desktop theme.
     pub fn from_name(name: &str, custom_theme_file: &str) -> Result<Self, String> {
         match name.trim().to_lowercase().as_str() {
             "dark" => Ok(Theme::dark()),
             "light" => Ok(Theme::light()),
             "ansi" => Ok(Theme::ansi4bit()),
             "custom" => Theme::custom(custom_theme_file.to_string()),
+            "hyprland" | "omarchy" => Theme::hyprland(),
             other => Err(format!(
-                "unknown theme '{other}' (available: dark, light, ansi, custom)"
+                "unknown theme '{other}' (available: dark, light, ansi, hyprland, custom)"
             )),
         }
+    }
+
+    /// Theme that follows the current Hyprland desktop theme.
+    ///
+    /// Reads the theme's `colors.toml` (Omarchy's format, which also carries
+    /// the Hyprland border colors). Search order:
+    /// `$RAMWISE_HYPRLAND_THEME`, `$XDG_STATE_HOME/omarchy/current/theme/colors.toml`,
+    /// `~/.local/state/omarchy/current/theme/colors.toml`,
+    /// `~/.config/omarchy/current/theme/colors.toml`.
+    pub fn hyprland() -> Result<Self, String> {
+        let candidates = hyprland::candidate_paths();
+        for path in &candidates {
+            if let Ok(contents) = fs::read_to_string(path) {
+                return Theme::from_hyprland_colors(&contents)
+                    .map_err(|e| format!("{}: {e}", path.display()));
+            }
+        }
+        let searched: Vec<String> = candidates.iter().map(|p| p.display().to_string()).collect();
+        Err(format!(
+            "no Hyprland theme colors found (searched: {})",
+            searched.join(", ")
+        ))
+    }
+
+    /// Build a theme from the contents of a Hyprland/Omarchy `colors.toml`
+    pub fn from_hyprland_colors(contents: &str) -> Result<Self, String> {
+        let palette = hyprland::Palette::parse(contents)?;
+        Ok(palette.into_theme())
     }
 
     /// Load a theme from a TOML file. Missing keys fall back to the dark theme.
@@ -1118,6 +1148,195 @@ fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
     )
 }
 
+/// Hyprland / Omarchy desktop theme support
+mod hyprland {
+    use super::{Color, Theme};
+    use std::collections::HashMap;
+    use std::path::PathBuf;
+
+    pub(super) fn candidate_paths() -> Vec<PathBuf> {
+        let mut paths = Vec::new();
+        if let Ok(path) = std::env::var("RAMWISE_HYPRLAND_THEME")
+            && !path.is_empty()
+        {
+            let expanded = shellexpand::tilde(&path).into_owned();
+            paths.push(PathBuf::from(expanded));
+        }
+        let home = std::env::var("HOME").ok().filter(|h| !h.is_empty());
+        let state_home = std::env::var("XDG_STATE_HOME")
+            .ok()
+            .filter(|s| !s.is_empty())
+            .map(PathBuf::from)
+            .or_else(|| home.as_ref().map(|h| PathBuf::from(h).join(".local/state")));
+        if let Some(state) = state_home {
+            paths.push(state.join("omarchy/current/theme/colors.toml"));
+        }
+        if let Some(home) = &home {
+            let fallback =
+                PathBuf::from(home).join(".local/state/omarchy/current/theme/colors.toml");
+            if !paths.contains(&fallback) {
+                paths.push(fallback);
+            }
+            paths.push(PathBuf::from(home).join(".config/omarchy/current/theme/colors.toml"));
+        }
+        paths
+    }
+
+    /// Parse `#rrggbb`, `rgb(rrggbb)`, `rgba(rrggbbaa)` or `0xaarrggbb`
+    pub(super) fn parse_color(value: &str) -> Option<Color> {
+        let value = value.trim();
+        let hex = if let Some(rest) = value.strip_prefix('#') {
+            rest
+        } else if let Some(rest) = value
+            .strip_prefix("rgba(")
+            .and_then(|r| r.strip_suffix(')'))
+        {
+            rest.get(..6)?
+        } else if let Some(rest) = value.strip_prefix("rgb(").and_then(|r| r.strip_suffix(')')) {
+            rest
+        } else {
+            // 0xaarrggbb
+            value.strip_prefix("0x")?.get(2..)?
+        };
+        if hex.len() != 6 {
+            return None;
+        }
+        let channel = |i: usize| u8::from_str_radix(&hex[i..i + 2], 16).ok();
+        Some(Color::Rgb(channel(0)?, channel(2)?, channel(4)?))
+    }
+
+    /// Scale an RGB color towards black
+    pub(super) fn dim(color: Color, mult: f32) -> Color {
+        match color {
+            Color::Rgb(r, g, b) => Color::Rgb(
+                (r as f32 * mult) as u8,
+                (g as f32 * mult) as u8,
+                (b as f32 * mult) as u8,
+            ),
+            other => other,
+        }
+    }
+
+    pub(super) struct Palette {
+        light: bool,
+        colors: HashMap<String, Color>,
+        /// First color of `hyprland_active_border`
+        active_border: Option<Color>,
+        /// First color of `hyprland_inactive_border`
+        inactive_border: Option<Color>,
+    }
+
+    impl Palette {
+        pub(super) fn parse(contents: &str) -> Result<Self, String> {
+            let table: toml::Table = contents
+                .parse()
+                .map_err(|e: toml::de::Error| e.to_string())?;
+            let mut colors = HashMap::new();
+            for (key, value) in &table {
+                if let Some(color) = value.as_str().and_then(parse_color) {
+                    colors.insert(key.clone(), color);
+                }
+            }
+            let first_border_color = |key: &str| {
+                table
+                    .get(key)
+                    .and_then(|v| v.as_str())
+                    .and_then(|v| v.split_whitespace().find_map(parse_color))
+            };
+            let palette = Palette {
+                light: table
+                    .get("mode")
+                    .and_then(|v| v.as_str())
+                    .is_some_and(|m| m.eq_ignore_ascii_case("light")),
+                active_border: first_border_color("hyprland_active_border"),
+                inactive_border: first_border_color("hyprland_inactive_border"),
+                colors,
+            };
+            if palette.get(&["background", "color0"]).is_none()
+                || palette.get(&["foreground", "color15", "color7"]).is_none()
+            {
+                return Err("colors.toml needs at least `background` and `foreground`".into());
+            }
+            Ok(palette)
+        }
+
+        /// First key that is present, checked in order
+        fn get(&self, keys: &[&str]) -> Option<Color> {
+            keys.iter().find_map(|k| self.colors.get(*k).copied())
+        }
+
+        fn pick(&self, keys: &[&str], fallback: Color) -> Color {
+            self.get(keys).unwrap_or(fallback)
+        }
+
+        pub(super) fn into_theme(self) -> Theme {
+            // Symbols, bar styles and layout come from the matching built-in theme
+            let mut theme = if self.light {
+                Theme::light()
+            } else {
+                Theme::dark()
+            };
+            let dim_mult = if self.light { 0.9 } else { 0.75 };
+
+            let bg = self.pick(&["background", "color0"], theme.bg);
+            let fg = self.pick(&["foreground", "color15", "color7"], theme.fg);
+            let accent = self.pick(&["accent", "blue", "color4"], theme.primary);
+            let red = self.pick(&["red", "color1"], theme.error);
+            let green = self.pick(&["green", "color2"], theme.success);
+            let yellow = self.pick(&["yellow", "color3"], theme.warning);
+            let blue = self.pick(&["blue", "color4"], theme.info);
+            let magenta = self.pick(&["magenta", "color5"], theme.tertiary);
+            let cyan = self.pick(&["cyan", "color6"], theme.secondary);
+            let orange = self.pick(&["orange", "bright_red", "color9"], red);
+            let elevated = self.pick(&["lighter_background", "selection", "color8"], bg);
+            let selection_bg = self.pick(
+                &["selection_background", "selection", "lighter_background"],
+                accent,
+            );
+
+            theme.bg = bg;
+            theme.fg = fg;
+            theme.fg_dim = self.pick(&["light_foreground", "color7"], fg);
+            theme.fg_muted = self.pick(&["dark_foreground", "muted", "color8"], theme.fg_dim);
+
+            theme.primary = accent;
+            theme.primary_dim = dim(accent, dim_mult);
+            theme.secondary = cyan;
+            theme.tertiary = magenta;
+
+            theme.error = red;
+            theme.warning = yellow;
+            theme.success = green;
+            theme.info = blue;
+
+            theme.mem_excellent = green;
+            theme.mem_good = self.pick(&["bright_green", "color10"], green);
+            theme.mem_moderate = yellow;
+            theme.mem_high = orange;
+            theme.mem_critical = red;
+            theme.mem_excellent_dim = dim(theme.mem_excellent, dim_mult);
+            theme.mem_good_dim = dim(theme.mem_good, dim_mult);
+            theme.mem_moderate_dim = dim(theme.mem_moderate, dim_mult);
+            theme.mem_high_dim = dim(theme.mem_high, dim_mult);
+            theme.mem_critical_dim = dim(theme.mem_critical, dim_mult);
+
+            theme.border = self.inactive_border.unwrap_or(elevated);
+            theme.border_focused = self.active_border.unwrap_or(accent);
+            theme.border_subtle = red;
+            theme.selection_bg = selection_bg;
+            theme.selection_fg = self.pick(&["selection_foreground", "bright_foreground"], fg);
+            theme.header_bg = elevated;
+
+            theme.graph_line = accent;
+            theme.graph_border = theme.border;
+
+            theme.rank_top = yellow;
+            theme.rank_high = accent;
+            theme
+        }
+    }
+}
+
 impl Default for Theme {
     fn default() -> Self {
         Self::dark()
@@ -1210,6 +1429,88 @@ mod tests {
         assert!(Theme::from_name("ansi", "").is_ok());
         assert!(Theme::from_name("unknown-theme", "").is_err());
         assert!(Theme::from_name("custom", "/nonexistent/ramwise-theme.toml").is_err());
+    }
+
+    const OMARCHY_COLORS: &str = r##"
+        mode = "dark"
+        accent = "#8fbf8f"
+        selection = "#3a4540"
+        selection_background = "#3a4540"
+        selection_foreground = "#eceff0"
+        muted = "#5f676c"
+        background = "#1f2326"
+        lighter_background = "#2c3135"
+        foreground = "#d4d9d6"
+        dark_foreground = "#7d858a"
+        light_foreground = "#b3bab8"
+        red = "#c97064"
+        yellow = "#c9b77a"
+        orange = "#c4906a"
+        green = "#8fbf8f"
+        cyan = "#84b5ad"
+        blue = "#8aa4b8"
+        magenta = "#a99ab8"
+        bright_green = "#aedaae"
+        hyprland_active_border = "rgb(aedaae) rgb(6b757b) 45deg"
+        hyprland_inactive_border = "rgba(3a4045aa)"
+    "##;
+
+    #[test]
+    fn hyprland_theme_maps_omarchy_colors() {
+        let theme = Theme::from_hyprland_colors(OMARCHY_COLORS).unwrap();
+        assert_eq!(theme.bg, Color::Rgb(0x1f, 0x23, 0x26));
+        assert_eq!(theme.fg, Color::Rgb(0xd4, 0xd9, 0xd6));
+        assert_eq!(theme.primary, Color::Rgb(0x8f, 0xbf, 0x8f));
+        assert_eq!(theme.secondary, Color::Rgb(0x84, 0xb5, 0xad));
+        assert_eq!(theme.error, Color::Rgb(0xc9, 0x70, 0x64));
+        assert_eq!(theme.mem_high, Color::Rgb(0xc4, 0x90, 0x6a));
+        assert_eq!(theme.mem_good, Color::Rgb(0xae, 0xda, 0xae));
+        assert_eq!(theme.border_focused, Color::Rgb(0xae, 0xda, 0xae));
+        assert_eq!(theme.border, Color::Rgb(0x3a, 0x40, 0x45));
+        assert_eq!(theme.selection_fg, Color::Rgb(0xec, 0xef, 0xf0));
+        assert_eq!(theme.header_bg, Color::Rgb(0x2c, 0x31, 0x35));
+        // Symbols and bars come from the dark theme
+        assert_eq!(theme.header_bar_type, Theme::dark().header_bar_type);
+        assert_eq!(theme.rank_top_symbol, Theme::dark().rank_top_symbol);
+    }
+
+    #[test]
+    fn hyprland_theme_falls_back_when_keys_are_missing() {
+        // No accent, orange, borders or selection keys; numbered palette only
+        let theme = Theme::from_hyprland_colors(
+            r##"
+            mode = "light"
+            background = "#ffffff"
+            foreground = "#000000"
+            color1 = "#aa0000"
+            color4 = "#0000aa"
+            "##,
+        )
+        .unwrap();
+        assert_eq!(theme.primary, Color::Rgb(0, 0, 0xaa));
+        assert_eq!(theme.error, Color::Rgb(0xaa, 0, 0));
+        assert_eq!(theme.mem_high, Color::Rgb(0xaa, 0, 0));
+        assert_eq!(theme.border_focused, Color::Rgb(0, 0, 0xaa));
+        // Light mode starts from the light theme
+        assert_eq!(theme.header_bar_type, Theme::light().header_bar_type);
+    }
+
+    #[test]
+    fn hyprland_theme_needs_background_and_foreground() {
+        assert!(Theme::from_hyprland_colors("accent = \"#ffffff\"").is_err());
+        assert!(Theme::from_hyprland_colors("not toml at all ===").is_err());
+    }
+
+    #[test]
+    fn hyprland_color_formats() {
+        use super::hyprland::parse_color;
+        let expected = Some(Color::Rgb(0x12, 0x34, 0x56));
+        assert_eq!(parse_color("#123456"), expected);
+        assert_eq!(parse_color("rgb(123456)"), expected);
+        assert_eq!(parse_color("rgba(123456ee)"), expected);
+        assert_eq!(parse_color("0xee123456"), expected);
+        assert_eq!(parse_color("45deg"), None);
+        assert_eq!(parse_color("#12345"), None);
     }
 
     #[test]

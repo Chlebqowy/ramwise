@@ -147,7 +147,10 @@ Action results are shown as in-app status messages (success, warning, or error).
 ### Themes
 ramwise includes built-in themes selectable via `--theme` or `-t`:
 ```bash
-# Dark theme (default)
+# Follow the current Hyprland desktop theme (default)
+ramwise -t hyprland
+
+# Dark theme (used when no Hyprland theme is found)
 ramwise -t dark
 
 # Light theme (Gruvbox Light)
@@ -159,6 +162,25 @@ ramwise -t ansi
 # Your own theme file
 ramwise -t custom
 ```
+
+#### Hyprland theme
+The `hyprland` theme reads the desktop theme's `colors.toml` (the format
+[Omarchy](https://omarchy.org) uses for its Hyprland themes) and maps it onto
+ramwise: `accent` becomes the primary color, `background`/`foreground` the base,
+the named colors drive the memory gradient and severity colors, and
+`hyprland_active_border` / `hyprland_inactive_border` become the focused and
+unfocused panel borders. `mode = "light"` themes start from the light theme's
+symbols and bar styles, everything else from the dark theme's.
+
+The file is looked up in this order:
+1. `$RAMWISE_HYPRLAND_THEME`
+2. `$XDG_STATE_HOME/omarchy/current/theme/colors.toml`
+3. `~/.local/state/omarchy/current/theme/colors.toml`
+4. `~/.config/omarchy/current/theme/colors.toml`
+
+Since the theme is read at startup, restart ramwise after switching desktop themes.
+Without `-t`, ramwise uses this theme and quietly falls back to `dark` if no file is found;
+`-t hyprland` reports an error instead.
 
 #### Custom theme
 `-t custom` loads a TOML file (`$HOME/.config/ramwise/theme.toml` by default,

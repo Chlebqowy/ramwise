@@ -62,9 +62,11 @@ struct Args {
     #[arg(short, long)]
     debug: bool,
 
-    /// Theme: dark, light, ansi or custom (loads --custom-theme-file)
-    #[arg(short, long, default_value = "dark")]
-    theme: String,
+    /// Theme: hyprland (follows the desktop theme), dark, light, ansi or
+    /// custom (loads --custom-theme-file). Defaults to hyprland, falling back
+    /// to dark when no Hyprland theme is found.
+    #[arg(short, long)]
+    theme: Option<String>,
 
     /// TOML file used by the custom theme
     #[arg(long, default_value = "$HOME/.config/ramwise/theme.toml")]
@@ -455,8 +457,14 @@ async fn terminate_signal() {
 
 async fn run_tui(args: &Args) -> Result<()> {
     // Load the theme before touching the terminal so errors print cleanly
-    let theme = ui::Theme::from_name(&args.theme, &args.custom_theme_file)
-        .map_err(|err| anyhow::anyhow!("Failed to load theme: {err}"))?;
+    let theme = match &args.theme {
+        Some(name) => ui::Theme::from_name(name, &args.custom_theme_file)
+            .map_err(|err| anyhow::anyhow!("Failed to load theme: {err}"))?,
+        None => ui::Theme::hyprland().unwrap_or_else(|err| {
+            tracing::info!("{err}; using the dark theme");
+            ui::Theme::dark()
+        }),
+    };
 
     // Setup terminal
     enable_raw_mode().context("Failed to enable raw mode")?;
@@ -740,7 +748,7 @@ mod tests {
             min_rss: 1,
             no_smaps: false,
             debug: false,
-            theme: "dark".into(),
+            theme: Some("dark".into()),
             custom_theme_file: "$HOME/.config/ramwise/theme.toml".to_string(),
             tiny,
             once,
