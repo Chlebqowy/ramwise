@@ -24,16 +24,17 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             packages: ""
-            env: 
+            env:
                 ARCH: x86_64
           - target: x86_64-unknown-linux-musl
             packages: "musl-tools"
-            env: 
+            env:
                 ARCH: x86_64-musl
           - target: aarch64-unknown-linux-gnu
             packages: "gcc-aarch64-linux-gnu"
             env:
-                ARCH: aarch64 CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+                ARCH: aarch64
+                CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
 
     steps:
       - name: Set Release Version
@@ -89,12 +90,12 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             runs-on: ubuntu-26.04
             packages: ""
-            env: 
+            env:
               ARCH: x86_64
           - target: aarch64-unknown-linux-gnu
             runs-on: ubuntu-26.04-arm
             packages: ""
-            env: 
+            env:
               ARCH: aarch64
     runs-on: ${{ matrix.runs-on }}
     steps:
