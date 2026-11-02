@@ -12,11 +12,17 @@ use crate::collector::SystemMemory;
 use crate::ui::Theme;
 use crate::utils::format_bytes;
 
+enum SwapDisplay {
+    BAR,
+    ICON,
+}
+
 /// Modern header bar widget
 pub struct HeaderWidget<'a> {
     system: &'a SystemMemory,
     theme: &'a Theme,
     version: &'static str,
+    swap_type: SwapDisplay,
 }
 
 impl<'a> HeaderWidget<'a> {
@@ -25,6 +31,7 @@ impl<'a> HeaderWidget<'a> {
             system,
             theme,
             version: env!("CARGO_PKG_VERSION"),
+            swap_type: SwapDisplay::BAR,
         }
     }
 }
@@ -63,42 +70,63 @@ impl<'a> Widget for HeaderWidget<'a> {
             ),
         ];
 
-        // Swap usage with status indicator
+        // Swap usage with smooth gradient bar
         let swap_percent = sys.swap_percent();
         let swap = if sys.swap_total > 0 {
-            let swap_color = if swap_percent > 80.0 {
-                self.theme.error
-            } else if swap_percent > 50.0 {
-                self.theme.warning
-            } else {
-                self.theme.fg_dim
-            };
-
-            let status_icon = if swap_percent > 80.0 {
-                "▲"
-            } else if swap_percent > 50.0 {
-                "●"
-            } else {
-                "○"
-            };
-
-            vec![
-                dot.clone(),
-                Span::styled("Swap ", Style::default().fg(self.theme.fg_dim)),
-                Span::styled(status_icon, Style::default().fg(swap_color)),
-                Span::styled(
-                    format!(
-                        " {}/{} ",
-                        format_bytes(sys.swap_used),
-                        format_bytes(sys.swap_total),
+            if matches!(self.swap_type, SwapDisplay::BAR) {
+                // Swap usage with bar
+                let swap_color = self.theme.mem_color_interpolated(swap_percent);
+                let swap_bar = create_sleek_bar(swap_percent, 8);
+                vec![
+                    Span::styled("SWAP ", Style::default().fg(self.theme.fg_dim)),
+                    Span::styled(swap_bar, Style::default().fg(swap_color)),
+                    Span::styled(
+                        format!(
+                            " {}/{} ",
+                            format_bytes(sys.swap_used),
+                            format_bytes(sys.swap_total),
+                        ),
+                        Style::default().fg(self.theme.fg),
                     ),
-                    Style::default().fg(self.theme.fg),
-                ),
-                Span::styled(
-                    format!("{:.0}%", swap_percent),
-                    Style::default().fg(swap_color),
-                ),
-            ]
+                    Span::styled(
+                        format!("{:.0}%", swap_percent),
+                        Style::default().fg(swap_color).add_modifier(Modifier::BOLD),
+                    ),
+                ]
+            } else {
+                // Swap usage with status indicator
+                let swap_color = if swap_percent > 80.0 {
+                    self.theme.error
+                } else if swap_percent > 50.0 {
+                    self.theme.warning
+                } else {
+                    self.theme.fg_dim
+                };
+                let status_icon = if swap_percent > 80.0 {
+                    "▲"
+                } else if swap_percent > 50.0 {
+                    "●"
+                } else {
+                    "○"
+                };
+                vec![
+                    dot.clone(),
+                    Span::styled("Swap ", Style::default().fg(self.theme.fg_dim)),
+                    Span::styled(status_icon, Style::default().fg(swap_color)),
+                    Span::styled(
+                        format!(
+                            " {}/{} ",
+                            format_bytes(sys.swap_used),
+                            format_bytes(sys.swap_total),
+                        ),
+                        Style::default().fg(self.theme.fg),
+                    ),
+                    Span::styled(
+                        format!("{:.0}%", swap_percent),
+                        Style::default().fg(swap_color),
+                    ),
+                ]
+            }
         } else {
             vec![]
         };
