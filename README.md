@@ -221,12 +221,11 @@ custom theme file:
 - `header_height`: Height of the top status bar.
 - `center_height`: Minimum height of the main process/detail panels.
 - `bottom_height`: Height of the insights panel.
-- `left_width_percent`: Width percentage allocated to the process list.
+- `left_width_percent` (default `60`): Width percentage allocated to the process list.
 - `side_vertical_split_percent`: Height percentage allocated to process details vs memory graph.
 - `invert_horizontal_split`: Swap process list and side panels.
 - `invert_side_vertical_split`: Swap detail view and trend graph.
 - `put_insights_on_top`: Place the insights panel at the top instead of at the bottom.
-- `extend_process_list` (default `true`): Let the process list run the full height, with the insights panel in the side column under the graph.
 
 ### Borders
 - `merge_borders` (default `true`): Neighbouring panels share a single border line.

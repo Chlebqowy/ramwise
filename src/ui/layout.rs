@@ -21,9 +21,6 @@ pub struct Layout {
     pub invert_side_vertical_split: bool,
     /// If this value is true, the insights panel will be below the header and above main
     pub put_insights_on_top: bool,
-    /// If true, the process list runs the full height and the insights panel
-    /// sits in the side column
-    pub extend_process_list: bool,
     /// If true, neighbouring panels overlap by one cell so they share a border
     pub merge_borders: bool,
 }
@@ -40,7 +37,6 @@ impl Layout {
             invert_horizontal_split: theme.invert_horizontal_split,
             invert_side_vertical_split: theme.invert_side_vertical_split,
             put_insights_on_top: theme.put_insights_on_top,
-            extend_process_list: theme.extend_process_list,
             merge_borders: theme.merge_borders,
         }
     }
@@ -54,19 +50,10 @@ impl Layout {
             .split(area);
         let (header, body) = (vertical[0], vertical[1]);
 
-        let (left_panel, detail_panel, graph_panel, bottom) = if self.extend_process_list {
-            // Process list | (details, graph and insights)
-            let (left_panel, side) = self.split_columns(body);
-            let (side, bottom) = self.split_insights(side);
-            let (detail_panel, graph_panel) = self.split_side(side);
-            (left_panel, detail_panel, graph_panel, bottom)
-        } else {
-            // (Process list | details and graph) above or below insights
-            let (main, bottom) = self.split_insights(body);
-            let (left_panel, side) = self.split_columns(main);
-            let (detail_panel, graph_panel) = self.split_side(side);
-            (left_panel, detail_panel, graph_panel, bottom)
-        };
+        // (Process list | details and graph) above or below insights
+        let (main, bottom) = self.split_insights(body);
+        let (left_panel, side) = self.split_columns(main);
+        let (detail_panel, graph_panel) = self.split_side(side);
 
         LayoutAreas {
             header,
@@ -175,19 +162,16 @@ mod tests {
     }
 
     #[test]
-    fn default_layout_extends_the_process_list() {
+    fn default_layout() {
         let areas = layout(|_| {});
         assert_eq!(areas.header, Rect::new(0, 0, 100, 1));
-        // Process list runs from below the header to the bottom
-        assert_eq!(areas.left_panel.y, 1);
-        assert_eq!(areas.left_panel.bottom(), 50);
-        // Insights sit at the bottom of the side column
-        assert_eq!(areas.bottom.x, areas.detail_panel.x);
-        assert_eq!(areas.bottom.width, areas.detail_panel.width);
+        // Full-width insights at the bottom
         assert_eq!(areas.bottom.height, 4);
         assert_eq!(areas.bottom.bottom(), 50);
-        assert!(areas.detail_panel.y < areas.graph_panel.y);
-        assert!(areas.graph_panel.y < areas.bottom.y);
+        assert_eq!(areas.bottom.width, 100);
+        // Process list gets the larger share of the width (60%)
+        assert!(areas.left_panel.width > areas.detail_panel.width);
+        assert!(areas.left_panel.x < areas.detail_panel.x);
     }
 
     #[test]
@@ -195,9 +179,10 @@ mod tests {
         let areas = layout(|_| {});
         // Process list and side column share the vertical border
         assert_eq!(areas.left_panel.right() - 1, areas.detail_panel.x);
-        // Detail/graph and graph/insights share horizontal borders
+        // Detail/graph and main/insights share horizontal borders
         assert_eq!(areas.detail_panel.bottom() - 1, areas.graph_panel.y);
         assert_eq!(areas.graph_panel.bottom() - 1, areas.bottom.y);
+        assert_eq!(areas.left_panel.bottom() - 1, areas.bottom.y);
     }
 
     #[test]
@@ -211,11 +196,11 @@ mod tests {
     #[test]
     fn insights_never_overlap_other_panels_content() {
         for merge in [true, false] {
-            for extend in [true, false] {
+            for invert in [true, false] {
                 for top in [true, false] {
                     let areas = layout(|l| {
                         l.merge_borders = merge;
-                        l.extend_process_list = extend;
+                        l.invert_horizontal_split = invert;
                         l.put_insights_on_top = top;
                     });
                     for panel in [areas.left_panel, areas.detail_panel, areas.graph_panel] {
@@ -223,7 +208,7 @@ mod tests {
                         // At most a shared border row or column, never content
                         assert!(
                             shared.is_empty() || shared.height == 1 || shared.width == 1,
-                            "merge={merge} extend={extend} top={top}: {shared:?}"
+                            "merge={merge} invert={invert} top={top}: {shared:?}"
                         );
                     }
                     assert!(!areas.bottom.intersects(areas.header));
@@ -233,11 +218,8 @@ mod tests {
     }
 
     #[test]
-    fn full_width_insights_when_not_extended() {
-        let areas = layout(|l| {
-            l.extend_process_list = false;
-            l.merge_borders = false;
-        });
+    fn separate_borders_give_insights_their_own_rows() {
+        let areas = layout(|l| l.merge_borders = false);
         assert_eq!(areas.bottom, Rect::new(0, 46, 100, 4));
         assert_eq!(areas.left_panel.y, 1);
         assert_eq!(areas.left_panel.bottom(), 46);
@@ -247,7 +229,6 @@ mod tests {
     fn put_insights_on_top_inverts_vertical_order() {
         let areas = layout(|l| {
             l.put_insights_on_top = true;
-            l.extend_process_list = false;
             l.merge_borders = false;
         });
         // Insights (bottom area) should be directly below the header
@@ -274,7 +255,6 @@ mod tests {
     fn side_split_uses_its_own_percentage() {
         let areas = layout(|l| {
             l.merge_borders = false;
-            l.extend_process_list = false;
             l.side_vertical_split_percent = 75;
         });
         let total = f64::from(areas.detail_panel.height + areas.graph_panel.height);

@@ -146,7 +146,7 @@ center_height = 10
 # Insights panel height (lines)
 bottom_height = 4
 # Left panel width percentage
-left_width_percent = 40
+left_width_percent = 60
 # Percentage of the top panel for the right side split (by default contains details and graph)
 side_vertical_split_percent = 60
 
@@ -157,9 +157,6 @@ invert_horizontal_split = false
 invert_side_vertical_split = false
 # If this value is true, the insights panel will be below the header and above main
 put_insights_on_top = false
-# If this value is true, the process list runs the full height and the insights
-# panel sits in the side column (below the graph, or at the top with put_insights_on_top)
-extend_process_list = true
 
 ### BORDERS ###
 

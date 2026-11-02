@@ -420,10 +420,6 @@ pub struct Theme {
     pub invert_side_vertical_split: bool,
     /// If this value is true, the insights panel will be below the header and above main
     pub put_insights_on_top: bool,
-    /// If true, the process list runs the full height and the insights panel
-    /// sits in the side column (below the graph, or above the details with
-    /// put_insights_on_top)
-    pub extend_process_list: bool,
 
     // Borders
     /// Neighbouring panels share one border line instead of drawing two
@@ -606,13 +602,12 @@ impl Theme {
             header_height: 1,
             center_height: 10,
             bottom_height: 4,
-            left_width_percent: 40,
+            left_width_percent: 60,
             side_vertical_split_percent: 60,
 
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
-            extend_process_list: true,
 
             // Borders
             merge_borders: true,
@@ -739,13 +734,12 @@ impl Theme {
             header_height: 1,
             center_height: 10,
             bottom_height: 4,
-            left_width_percent: 40,
+            left_width_percent: 60,
             side_vertical_split_percent: 60,
 
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
-            extend_process_list: true,
 
             // Borders
             merge_borders: true,
@@ -918,13 +912,12 @@ impl Theme {
             header_height: 1,
             center_height: 10,
             bottom_height: 4,
-            left_width_percent: 40,
+            left_width_percent: 60,
             side_vertical_split_percent: 60,
 
             invert_horizontal_split: false,
             invert_side_vertical_split: false,
             put_insights_on_top: false,
-            extend_process_list: true,
 
             // Borders
             merge_borders: true,
