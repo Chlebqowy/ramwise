@@ -4,6 +4,7 @@ use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::{Modifier, Style},
+    symbols::merge::MergeStrategy,
     text::{Line, Span},
     widgets::{Paragraph, Widget, Wrap},
 };
@@ -107,7 +108,12 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
             Line::from(spans)
         };
 
-        let block = self.theme.panel_block(self.focused).title(title);
+        let block = self
+            .theme
+            .panel_block(self.focused)
+            // Own border, never merged with the panels above
+            .merge_borders(MergeStrategy::Replace)
+            .title(title);
 
         let inner = block.inner(area);
         block.render(area, buf);

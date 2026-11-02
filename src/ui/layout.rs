@@ -74,13 +74,14 @@ impl Layout {
     }
 
     /// Split off the insights panel: returns (rest, insights)
+    /// The insights panel always keeps its own border (never shared), so it
+    /// stays a separate rounded box
     fn split_insights(&self, area: Rect) -> (Rect, Rect) {
         let insights = Constraint::Length(self.bottom_height);
         let rest = Constraint::Min(self.center_height);
         let split = |constraints: [Constraint; 2]| {
             RatatuiLayout::default()
                 .direction(Direction::Vertical)
-                .spacing(self.spacing())
                 .constraints(constraints)
                 .split(area)
         };
@@ -179,10 +180,11 @@ mod tests {
         let areas = layout(|_| {});
         // Process list and side column share the vertical border
         assert_eq!(areas.left_panel.right() - 1, areas.detail_panel.x);
-        // Detail/graph and main/insights share horizontal borders
+        // Detail and graph share a horizontal border
         assert_eq!(areas.detail_panel.bottom() - 1, areas.graph_panel.y);
-        assert_eq!(areas.graph_panel.bottom() - 1, areas.bottom.y);
-        assert_eq!(areas.left_panel.bottom() - 1, areas.bottom.y);
+        // Insights keep their own border, right below the panels
+        assert_eq!(areas.graph_panel.bottom(), areas.bottom.y);
+        assert_eq!(areas.left_panel.bottom(), areas.bottom.y);
     }
 
     #[test]
@@ -204,11 +206,10 @@ mod tests {
                         l.put_insights_on_top = top;
                     });
                     for panel in [areas.left_panel, areas.detail_panel, areas.graph_panel] {
-                        let shared = areas.bottom.intersection(panel);
-                        // At most a shared border row or column, never content
+                        // Not even a shared border cell
                         assert!(
-                            shared.is_empty() || shared.height == 1 || shared.width == 1,
-                            "merge={merge} invert={invert} top={top}: {shared:?}"
+                            !areas.bottom.intersects(panel),
+                            "merge={merge} invert={invert} top={top}"
                         );
                     }
                     assert!(!areas.bottom.intersects(areas.header));
