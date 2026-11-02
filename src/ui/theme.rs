@@ -935,19 +935,18 @@ impl Theme {
     pub fn use_nerd_font_symbols(&mut self) {
         let s = |v: &str| v.to_string();
 
-        // Rounded progress bars (nf-fae-progress glyphs), colored as gradients.
-        // Partial steps (1/3 -> empty, 2/3 -> full) quantise each cell, so a
-        // cell counts as filled once it is at least half full.
-        let empty = '\u{ee01}';
-        let full = '\u{ee04}';
+        // Block bars (█░) colored as gradients. Partial steps (1/3 -> empty,
+        // 2/3 -> full) quantise each cell, so a cell counts as filled once it
+        // is at least half full.
+        let empty = '░';
+        let full = '█';
         self.bar_empty_char = empty.to_string();
         self.bar_full_char = full.to_string();
         self.bar_partial_chars = vec![empty, empty, full];
-        self.fancy_bar_chars = ['\u{ee00}', '\u{ee03}', '\u{ee02}', '\u{ee05}'];
         self.rebuild_bar_all_chars();
-        self.process_list_bar_type = BarType::FancyGradient;
-        self.detail_panel_bar_type = BarType::FancyGradient;
-        self.header_bar_type = BarType::FancyGradient;
+        self.process_list_bar_type = BarType::Gradient;
+        self.detail_panel_bar_type = BarType::Gradient;
+        self.header_bar_type = BarType::Gradient;
 
         self.rank_top_symbol = s("\u{f01a5} "); // crown
         self.rank_high_symbol = s("\u{f04ce} "); // star
@@ -1573,8 +1572,8 @@ mod tests {
         assert_eq!(theme.selection_fg, Color::Rgb(0xec, 0xef, 0xf0));
         assert_eq!(theme.header_bg, Color::Rgb(0x2c, 0x31, 0x35));
         // Omarchy ships a Nerd Font: rounded progress bars and icons
-        assert_eq!(theme.header_bar_type, BarType::FancyGradient);
-        assert_eq!(theme.bar_full_char, "\u{ee04}");
+        assert_eq!(theme.header_bar_type, BarType::Gradient);
+        assert_eq!(theme.bar_full_char, "█");
         assert_eq!(theme.app_icon, "\u{f035b}");
     }
 
@@ -1610,7 +1609,7 @@ mod tests {
     fn nerd_font_bars_are_quantised_to_whole_cells() {
         let mut theme = Theme::dark();
         theme.use_nerd_font_symbols();
-        let (empty, full) = ('\u{ee01}', '\u{ee04}');
+        let (empty, full) = ('░', '█');
         let bar = |percent: f64| theme.create_sleek_bar(percent, 10);
         assert_eq!(bar(0.0), empty.to_string().repeat(10));
         assert_eq!(bar(100.0), full.to_string().repeat(10));
@@ -1631,12 +1630,6 @@ mod tests {
                 empty.to_string().repeat(6)
             )
         );
-        // Rounded caps follow the fill
-        let fancy: Vec<char> = theme.create_fancy_bar(50.0, 10).chars().collect();
-        assert_eq!(fancy[0], '\u{ee03}');
-        assert_eq!(fancy[9], '\u{ee02}');
-        let fancy_full: Vec<char> = theme.create_fancy_bar(100.0, 10).chars().collect();
-        assert_eq!(fancy_full[9], '\u{ee05}');
     }
 
     #[test]

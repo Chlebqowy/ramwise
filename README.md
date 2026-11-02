@@ -173,7 +173,7 @@ unfocused panel borders. `mode = "light"` themes start from the light theme,
 everything else from the dark theme.
 
 Since Omarchy ships JetBrainsMono Nerd Font, this theme uses Nerd Font icons for
-titles, process states and insights, and rounded progress bars whose cells are
+titles, process states and insights. Its `█░` bars are quantised: each cell is
 either full or empty (a cell fills once it is at least half used).
 
 The file is looked up in this order:
