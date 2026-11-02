@@ -196,7 +196,10 @@ impl<'a> Widget for GraphWidget<'a> {
 fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, message: &str) {
     let title = Line::from(vec![
         Span::styled(" ", Style::default()),
-        Span::styled("◈ ", Style::default().fg(theme.fg_muted)),
+        Span::styled(
+            format!("{} ", theme.diamond),
+            Style::default().fg(theme.fg_muted),
+        ),
         Span::styled(
             "Memory Trend",
             Style::default().fg(theme.fg).add_modifier(Modifier::BOLD),
@@ -214,8 +217,8 @@ fn render_empty(area: Rect, buf: &mut Buffer, theme: &Theme, focused: bool, mess
     block.render(area, buf);
 
     // Center the message with loading indicator
-    let display = format!("◌ {}", message);
-    let x = inner.x + (inner.width.saturating_sub(display.len() as u16)) / 2;
+    let display = format!("{} {}", theme.loading, message);
+    let x = inner.x + (inner.width.saturating_sub(display.chars().count() as u16)) / 2;
     let y = inner.y + inner.height / 2;
 
     buf.set_string(x, y, display, theme.muted_style());

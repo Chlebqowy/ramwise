@@ -187,7 +187,11 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Truncate name if needed
                 let name = if proc.name.len() > name_width {
-                    format!("{}…", &proc.name[..name_width.saturating_sub(1)])
+                    format!(
+                        "{}{}",
+                        &proc.name[..name_width.saturating_sub(1)],
+                        self.theme.ellipsis
+                    )
                 } else {
                     format!("{:<width$}", proc.name, width = name_width)
                 };

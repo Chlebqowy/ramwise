@@ -81,7 +81,10 @@ impl<'a> Widget for HeaderWidget<'a> {
             swap.push(dot.clone());
             match self.theme.swap_display {
                 SwapDisplay::Bar => {
-                    swap.push(Span::styled("Swap ", Style::default().fg(self.theme.fg_dim)));
+                    swap.push(Span::styled(
+                        "Swap ",
+                        Style::default().fg(self.theme.fg_dim),
+                    ));
                     push_bar(self.theme, swap_percent, SWAP_BAR_WIDTH, &mut swap);
                 }
                 SwapDisplay::Icon => {
@@ -92,7 +95,10 @@ impl<'a> Widget for HeaderWidget<'a> {
                     } else {
                         self.theme.empty_circle.clone()
                     };
-                    swap.push(Span::styled("Swap ", Style::default().fg(self.theme.fg_dim)));
+                    swap.push(Span::styled(
+                        "Swap ",
+                        Style::default().fg(self.theme.fg_dim),
+                    ));
                     swap.push(Span::styled(status_icon, Style::default().fg(swap_color)));
                 }
             }

@@ -5,6 +5,90 @@
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::symbols::Marker;
 use ratatui::text::Span;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fs;
+use std::str::FromStr;
+
+/// Accepts `[r, g, b]`, an ANSI index (`0`-`255`) or a string such as
+/// `"#rrggbb"`, `"red"`, `"lightblue"` or `"12"`.
+fn deserialize_color<'de, D>(deserializer: D) -> Result<Color, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum RawColor {
+        Rgb([u8; 3]),
+        Indexed(u8),
+        Named(String),
+    }
+    match RawColor::deserialize(deserializer)? {
+        RawColor::Rgb([r, g, b]) => Ok(Color::Rgb(r, g, b)),
+        RawColor::Indexed(index) => Ok(Color::Indexed(index)),
+        RawColor::Named(name) => Color::from_str(&name)
+            .map_err(|_| serde::de::Error::custom(format!("invalid color: {name}"))),
+    }
+}
+
+/// Writes colors in a form `deserialize_color` reads back
+fn serialize_color<S>(color: &Color, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match color {
+        Color::Rgb(r, g, b) => serializer.serialize_str(&format!("#{r:02x}{g:02x}{b:02x}")),
+        Color::Indexed(index) => serializer.serialize_u8(*index),
+        other => serializer.serialize_str(&other.to_string().to_lowercase()),
+    }
+}
+
+/// Writes markers in a form `deserialize_marker` reads back
+fn serialize_marker<S>(marker: &Marker, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let name = match marker {
+        Marker::Dot => "dot".to_string(),
+        Marker::Block => "block".to_string(),
+        Marker::Bar => "bar".to_string(),
+        Marker::Braille => "braille".to_string(),
+        Marker::HalfBlock => "half_block".to_string(),
+        Marker::Quadrant => "quadrant".to_string(),
+        Marker::Sextant => "sextant".to_string(),
+        Marker::Octant => "octant".to_string(),
+        Marker::Custom(c) => c.to_string(),
+        _ => "braille".to_string(),
+    };
+    serializer.serialize_str(&name)
+}
+
+/// Accepts a marker name (`dot`, `block`, `bar`, `braille`, `half_block`,
+/// `quadrant`, `sextant`, `octant`) or any single character for a custom marker.
+fn deserialize_marker<'de, D>(deserializer: D) -> Result<Marker, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let name = String::deserialize(deserializer)?;
+    match name.to_lowercase().replace(['-', '_'], "").as_str() {
+        "dot" => Ok(Marker::Dot),
+        "block" => Ok(Marker::Block),
+        "bar" => Ok(Marker::Bar),
+        "braille" => Ok(Marker::Braille),
+        "halfblock" => Ok(Marker::HalfBlock),
+        "quadrant" => Ok(Marker::Quadrant),
+        "sextant" => Ok(Marker::Sextant),
+        "octant" => Ok(Marker::Octant),
+        _ => {
+            let mut chars = name.chars();
+            match (chars.next(), chars.next()) {
+                (Some(c), None) => Ok(Marker::Custom(c)),
+                _ => Err(serde::de::Error::custom(format!(
+                    "invalid graph marker: {name}"
+                ))),
+            }
+        }
+    }
+}
 
 enum Ansi {
     Black = 0,
@@ -25,7 +109,8 @@ enum Ansi {
     White = 15,
 }
 
-#[derive(Debug, Clone, PartialEq)] // not sure what this does but the error told me
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)] // not sure what this does but the error told me
+#[serde(rename_all = "snake_case")]
 pub enum BarType {
     Standard,
     Gradient,
@@ -34,7 +119,8 @@ pub enum BarType {
 }
 
 /// How swap usage is shown in the header
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum SwapDisplay {
     /// A usage bar, drawn like the RAM bar (uses `header_bar_type`)
     Bar,
@@ -43,62 +129,195 @@ pub enum SwapDisplay {
 }
 
 /// Modern color theme - Material Design 3 inspired
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default)]
 pub struct Theme {
     // Base colors - Deep dark with slight blue undertone
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub bg: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub fg: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub fg_dim: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub fg_muted: Color,
 
     // Primary accent - Vibrant purple/violet
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub primary: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub primary_dim: Color,
 
     // Secondary accent - Teal/Cyan
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub secondary: Color,
 
     // Tertiary - Coral/Pink for special highlights (only quit keybind for now)
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub tertiary: Color,
 
     // Semantic colors
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub error: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub warning: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub success: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub info: Color,
 
     // Memory usage gradient (smooth transitions)
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub mem_excellent: Color, // < 30%
-    pub mem_good: Color,      // 30-50%
-    pub mem_moderate: Color,  // 50-70%
-    pub mem_high: Color,      // 70-85%
-    pub mem_critical: Color,  // > 85%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_good: Color, // 30-50%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_moderate: Color, // 50-70%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_high: Color, // 70-85%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_critical: Color, // > 85%
 
     // Memory usage gradient (smooth transitions)
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub mem_excellent_dim: Color, // < 30%
-    pub mem_good_dim: Color,      // 30-50%
-    pub mem_moderate_dim: Color,  // 50-70%
-    pub mem_high_dim: Color,      // 70-85%
-    pub mem_critical_dim: Color,  // > 85%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_good_dim: Color, // 30-50%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_moderate_dim: Color, // 50-70%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_high_dim: Color, // 70-85%
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
+    pub mem_critical_dim: Color, // > 85%
 
     // UI elements
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub border: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub border_focused: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub selection_bg: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub selection_fg: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub header_bg: Color,
 
     // Graph colors
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub graph_line: Color,
     //pub graph_bg: Color, // not implemented in the library, thus unused https://docs.rs/ratatui/latest/ratatui/widgets/struct.Dataset.html#method.style
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub graph_border: Color,
+    #[serde(
+        deserialize_with = "deserialize_marker",
+        serialize_with = "serialize_marker"
+    )]
     pub graph_marker: Marker,
 
     // Process list specific
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub rank_top: Color,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub rank_high: Color,
     pub rank_top_symbol: String,
     pub rank_high_symbol: String,
+    #[serde(
+        deserialize_with = "deserialize_color",
+        serialize_with = "serialize_color"
+    )]
     pub border_subtle: Color,
     pub chosen: String,
     pub use_mem_color: bool,
@@ -113,17 +332,24 @@ pub struct Theme {
     pub bar_partial_chars: Vec<char>,
     pub bar_full_char: String,
     pub bar_empty_char: String,
+    /// Derived from the empty, partial and full bar chars; not read from config
+    #[serde(skip)]
     pub bar_all_chars: Vec<char>,
     pub fancy_bar_chars: [char; 4],
 
     // [Start empty, start full, end empty, end full]
-    pub header_dot: String,   // ·
-    pub checkmark: String,    //  ✓
-    pub triangle: String,     //▲
-    pub full_circle: String,  //●
-    pub empty_circle: String, //○
-    pub semicircle: String,   //◐
-    pub diamond: String,      //◈
+    pub header_dot: String,    // ·
+    pub checkmark: String,     //  ✓
+    pub triangle: String,      //▲
+    pub full_circle: String,   //●
+    pub empty_circle: String,  //○
+    pub semicircle: String,    //◐
+    pub diamond: String,       //◈
+    pub empty_diamond: String, //◇
+    pub arrow_up: String,      //↑
+    pub arrow_right: String,   //→
+    pub ellipsis: String,      //…
+    pub loading: String,       //◌
 
     // Detail panel chars (state_chip)
     pub running: String,
@@ -134,6 +360,24 @@ pub struct Theme {
     pub tracing: String,
     pub idle: String,
     pub unknown: String,
+
+    // Layout
+    /// Header height
+    pub header_height: u16,
+    /// Main panel height
+    pub center_height: u16,
+    /// Bottom panel height
+    pub bottom_height: u16,
+    /// Left panel width percentage
+    pub left_width_percent: u16,
+    /// Percentage of the top panel for the right side split (by default contains details and graph)
+    pub side_vertical_split_percent: u16,
+    /// If this value is true, the left panel will be on the right and the right panel will be on the left.
+    pub invert_horizontal_split: bool,
+    /// If this value is true, the top panel will be on the bottom and the bottom panel will be on the top.
+    pub invert_side_vertical_split: bool,
+    /// If this value is true, the insights panel will be below the header and above main
+    pub put_insights_on_top: bool,
 }
 
 impl Theme {
@@ -276,6 +520,11 @@ impl Theme {
             empty_circle: "○".to_string(),
             semicircle: "◐".to_string(),
             diamond: "◈".to_string(),
+            empty_diamond: "◇".to_string(),
+            arrow_up: "↑".to_string(),
+            arrow_right: "→".to_string(),
+            ellipsis: "…".to_string(),
+            loading: "◌".to_string(),
 
             // Detail panel chars
             running: "●".to_string(),
@@ -288,6 +537,17 @@ impl Theme {
             unknown: "?".to_string(),
 
             border_subtle: Color::Rgb(255, 0, 0), // Not subtle, but I prefer it
+
+            // Layout
+            header_height: 1,
+            center_height: 10,
+            bottom_height: 4,
+            left_width_percent: 40,
+            side_vertical_split_percent: 60,
+
+            invert_horizontal_split: false,
+            invert_side_vertical_split: false,
+            put_insights_on_top: false,
         }
     }
     pub fn ansi4bit() -> Self {
@@ -377,6 +637,11 @@ impl Theme {
             empty_circle: "○".to_string(),
             semicircle: "◐".to_string(),
             diamond: "◈".to_string(),
+            empty_diamond: "◇".to_string(),
+            arrow_up: "↑".to_string(),
+            arrow_right: "→".to_string(),
+            ellipsis: "…".to_string(),
+            loading: "◌".to_string(),
 
             // Detail panel chars
             running: "●".to_string(),
@@ -389,6 +654,17 @@ impl Theme {
             unknown: "?".to_string(),
 
             border_subtle: Color::Indexed(Ansi::Red as u8), // Not subtle, but I prefer it
+
+            // Layout
+            header_height: 1,
+            center_height: 10,
+            bottom_height: 4,
+            left_width_percent: 40,
+            side_vertical_split_percent: 60,
+
+            invert_horizontal_split: false,
+            invert_side_vertical_split: false,
+            put_insights_on_top: false,
         }
     }
     // Paper-like light theme "inspired" (mostly taken 1:1) by GruvBox Light
@@ -524,6 +800,11 @@ impl Theme {
             empty_circle: "○".to_string(),
             semicircle: "◐".to_string(),
             diamond: "◈".to_string(),
+            empty_diamond: "◇".to_string(),
+            arrow_up: "↑".to_string(),
+            arrow_right: "→".to_string(),
+            ellipsis: "…".to_string(),
+            loading: "◌".to_string(),
 
             // Detail panel chars
             running: "●".to_string(),
@@ -536,7 +817,64 @@ impl Theme {
             unknown: "?".to_string(),
 
             border_subtle: Color::Rgb(0xd3, 0x96, 0x9b), // Not subtle, but I prefer it
+
+            // Layout
+            header_height: 1,
+            center_height: 10,
+            bottom_height: 4,
+            left_width_percent: 40,
+            side_vertical_split_percent: 60,
+
+            invert_horizontal_split: false,
+            invert_side_vertical_split: false,
+            put_insights_on_top: false,
         }
+    }
+
+    /// Look a theme up by name. `custom` loads `custom_theme_file`.
+    pub fn from_name(name: &str, custom_theme_file: &str) -> Result<Self, String> {
+        match name.trim().to_lowercase().as_str() {
+            "dark" => Ok(Theme::dark()),
+            "light" => Ok(Theme::light()),
+            "ansi" => Ok(Theme::ansi4bit()),
+            "custom" => Theme::custom(custom_theme_file.to_string()),
+            other => Err(format!(
+                "unknown theme '{other}' (available: dark, light, ansi, custom)"
+            )),
+        }
+    }
+
+    /// Load a theme from a TOML file. Missing keys fall back to the dark theme.
+    pub fn custom(custom_theme_file: String) -> Result<Self, String> {
+        let theme_file = shellexpand::full(&custom_theme_file)
+            .map_err(|e| format!("{custom_theme_file} expanding failed: {e}"))?;
+        let path = std::path::PathBuf::from(theme_file.into_owned());
+        let contents = fs::read_to_string(&path)
+            .map_err(|e| format!("{custom_theme_file} could not be read: {e}"))?;
+        Self::from_toml(&contents)
+    }
+
+    /// Parse a theme from TOML. Missing keys fall back to the dark theme.
+    pub fn from_toml(contents: &str) -> Result<Self, String> {
+        let mut theme: Theme = toml::from_str(contents).map_err(|err| err.to_string())?;
+        if theme.bar_partial_chars.is_empty() {
+            return Err("bar_partial_chars must contain at least one character".to_string());
+        }
+        theme.rebuild_bar_all_chars();
+        Ok(theme)
+    }
+
+    /// Recompute `bar_all_chars` (empty, partials, full) from the configured bar chars
+    pub fn rebuild_bar_all_chars(&mut self) {
+        let mut all = Vec::with_capacity(self.bar_partial_chars.len() + 2);
+        if let Some(empty) = self.bar_empty_char.chars().next() {
+            all.push(empty);
+        }
+        all.extend(self.bar_partial_chars.iter().copied());
+        if let Some(full) = self.bar_full_char.chars().next() {
+            all.push(full);
+        }
+        self.bar_all_chars = all;
     }
 
     /// Get memory color based on percentage (0-100) with smooth gradient
@@ -788,6 +1126,91 @@ impl Default for Theme {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn to_toml_value(theme: &Theme) -> toml::Value {
+        toml::Value::try_from(theme).expect("theme serializes")
+    }
+
+    #[test]
+    fn example_theme_file_lists_every_key_with_dark_defaults() {
+        let file = include_str!("../../theme.toml");
+        let file_keys: std::collections::BTreeSet<String> = file
+            .parse::<toml::Table>()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect();
+        let dark = to_toml_value(&Theme::dark());
+        let theme_keys: std::collections::BTreeSet<String> =
+            dark.as_table().unwrap().keys().cloned().collect();
+        assert_eq!(file_keys, theme_keys);
+
+        let parsed = Theme::from_toml(file).expect("theme.toml parses");
+        assert_eq!(to_toml_value(&parsed), dark);
+        assert_eq!(parsed.bar_all_chars, Theme::dark().bar_all_chars);
+    }
+
+    #[test]
+    fn built_in_themes_round_trip_through_toml() {
+        for theme in [Theme::dark(), Theme::light(), Theme::ansi4bit()] {
+            let text = toml::to_string(&theme).unwrap();
+            let parsed = Theme::from_toml(&text).unwrap();
+            assert_eq!(to_toml_value(&parsed), to_toml_value(&theme));
+            assert_eq!(parsed.bar_all_chars, theme.bar_all_chars);
+        }
+    }
+
+    #[test]
+    fn custom_theme_accepts_every_color_form_and_defaults_the_rest() {
+        let theme = Theme::from_toml(
+            r##"
+            bg = [1, 2, 3]
+            fg = "#0a0b0c"
+            primary = "lightblue"
+            secondary = 12
+            graph_marker = "half_block"
+            header_bar_type = "fancy_gradient"
+            swap_display = "icon"
+            bar_empty_char = "-"
+            ignored_process_indicator = "x"
+            "##,
+        )
+        .unwrap();
+        assert_eq!(theme.bg, Color::Rgb(1, 2, 3));
+        assert_eq!(theme.fg, Color::Rgb(10, 11, 12));
+        assert_eq!(theme.primary, Color::LightBlue);
+        assert_eq!(theme.secondary, Color::Indexed(12));
+        assert_eq!(theme.graph_marker, Marker::HalfBlock);
+        assert_eq!(theme.header_bar_type, BarType::FancyGradient);
+        assert_eq!(theme.swap_display, SwapDisplay::Icon);
+        assert_eq!(theme.ignored_process_indicator, 'x');
+        assert_eq!(theme.bar_all_chars.first(), Some(&'-'));
+        // Untouched keys keep the dark theme's values
+        assert_eq!(theme.error, Theme::dark().error);
+        assert_eq!(theme.header_height, Theme::dark().header_height);
+    }
+
+    #[test]
+    fn custom_theme_rejects_bad_values() {
+        assert!(Theme::from_toml("bg = \"not-a-color\"").is_err());
+        assert!(Theme::from_toml("graph_marker = \"zigzag\"").is_err());
+        assert!(Theme::from_toml("bar_partial_chars = []").is_err());
+    }
+
+    #[test]
+    fn graph_marker_accepts_single_character() {
+        let theme = Theme::from_toml("graph_marker = \"*\"").unwrap();
+        assert_eq!(theme.graph_marker, Marker::Custom('*'));
+    }
+
+    #[test]
+    fn from_name_knows_every_theme() {
+        assert!(Theme::from_name("dark", "").is_ok());
+        assert!(Theme::from_name(" Light ", "").is_ok());
+        assert!(Theme::from_name("ansi", "").is_ok());
+        assert!(Theme::from_name("unknown-theme", "").is_err());
+        assert!(Theme::from_name("custom", "/nonexistent/ramwise-theme.toml").is_err());
+    }
 
     #[test]
     fn check_gradient() {

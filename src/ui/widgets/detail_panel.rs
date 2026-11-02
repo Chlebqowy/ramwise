@@ -51,7 +51,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
                         .fg(self.theme.fg)
                         .add_modifier(Modifier::BOLD),
                 ),
-                Span::styled(" · ", self.theme.muted_style()),
+                Span::styled(
+                    format!(" {} ", self.theme.header_dot),
+                    self.theme.muted_style(),
+                ),
                 Span::styled(
                     format!("PID {}", p.pid),
                     Style::default().fg(self.theme.secondary),
@@ -59,7 +62,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
                 Span::styled(" ", Style::default()),
             ]),
             None => Line::from(vec![
-                Span::styled(" ◇ ", self.theme.muted_style()),
+                Span::styled(
+                    format!(" {} ", self.theme.empty_diamond),
+                    self.theme.muted_style(),
+                ),
                 Span::styled("Select a process", self.theme.muted_style()),
                 Span::styled(" ", Style::default()),
             ]),
@@ -79,7 +85,10 @@ impl<'a> Widget for DetailPanelWidget<'a> {
             let lines = vec![
                 Line::from(""),
                 Line::from(vec![
-                    Span::styled("   ↑ ", self.theme.muted_style()),
+                    Span::styled(
+                        format!("   {} ", self.theme.arrow_up),
+                        self.theme.muted_style(),
+                    ),
                     Span::styled("Use ", self.theme.dim_style()),
                     Span::styled("j/k", Style::default().fg(self.theme.secondary)),
                     Span::styled(" or ", self.theme.dim_style()),
@@ -130,7 +139,11 @@ impl<'a> Widget for DetailPanelWidget<'a> {
         // Command line (styled as code)
         let max_cmd_len = inner.width as usize - 2;
         let cmdline = if proc.cmdline.len() > max_cmd_len {
-            format!("{}…", &proc.cmdline[..max_cmd_len.saturating_sub(1)])
+            format!(
+                "{}{}",
+                &proc.cmdline[..max_cmd_len.saturating_sub(1)],
+                self.theme.ellipsis
+            )
         } else {
             proc.cmdline.clone()
         };

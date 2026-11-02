@@ -50,3 +50,6 @@ install-debug:
 	mkdir -pv $(DESTDIR)/usr/share/licenses/
 	mkdir -pv $(DESTDIR)/usr/share/licenses/ramwise/
 	install -m 0644 LICENSE "$(DESTDIR)/usr/share/licenses/ramwise/LICENSE"
+install-config:
+	mkdir -pv "$$HOME/.config/ramwise"
+	cp -nv theme.toml "$$HOME/.config/ramwise/theme.toml"

@@ -1,0 +1,145 @@
+# ramwise theme
+#
+# Used with `ramwise -t custom` (reads $HOME/.config/ramwise/theme.toml unless
+# --custom-theme-file is given). Every key is optional: anything left out keeps
+# the dark theme's value. The values below are the dark theme's.
+#
+# Colors: [r, g, b], "#rrggbb", a name such as "lightblue", or an ANSI index 0-255.
+
+### COLORS ###
+
+# Base #
+bg = [18, 18, 24]
+fg = [230, 230, 240]
+fg_dim = [160, 160, 175]
+fg_muted = [100, 100, 115]
+
+# Accents #
+primary = [180, 130, 255]
+primary_dim = [140, 90, 200]
+secondary = [80, 220, 200]
+# Tertiary is used for the quit hint and the ignored-process indicator
+tertiary = [255, 140, 120]
+
+# Semantic #
+error = [255, 100, 100]
+warning = [255, 190, 70]
+success = [100, 230, 140]
+info = [100, 180, 255]
+
+# Memory gradient (<30%, 30-50%, 50-70%, 70-85%, >85%) #
+mem_excellent = [100, 230, 140]
+mem_good = [140, 220, 100]
+mem_moderate = [255, 210, 80]
+mem_high = [255, 150, 80]
+mem_critical = [255, 90, 90]
+
+# Dim memory gradient (end color of gradient bars) #
+mem_excellent_dim = [75, 172, 105]
+mem_good_dim = [105, 165, 75]
+mem_moderate_dim = [191, 157, 60]
+mem_high_dim = [191, 112, 60]
+mem_critical_dim = [191, 67, 67]
+
+# UI elements #
+border = [55, 55, 70]
+border_focused = [180, 130, 255]
+border_subtle = [255, 0, 0]
+selection_bg = [60, 40, 90]
+selection_fg = [255, 255, 255]
+header_bg = [28, 28, 36]
+
+# Graph #
+graph_line = [230, 230, 240]
+graph_border = [55, 55, 70]
+# dot, block, bar, braille, half_block, quadrant, sextant, octant or any single character
+graph_marker = "braille"
+
+# Process list #
+rank_top = [255, 190, 70]
+rank_high = [180, 130, 255]
+# Color process names/bars by memory usage
+use_mem_color = true
+
+### BARS ###
+
+# standard, gradient, fancy or fancy_gradient
+# (fancy bars use fancy_bar_chars; the defaults need a Nerd Font)
+process_list_bar_type = "gradient"
+detail_panel_bar_type = "gradient"
+header_bar_type = "gradient"
+# How swap is shown in the header: bar or icon
+swap_display = "bar"
+
+### SYMBOLS ###
+
+# Bar characters #
+# Partial blocks, from smallest to largest
+bar_partial_chars = ["▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"]
+bar_full_char = "█"
+bar_empty_char = "░"
+# [start empty, start full, end empty, end full]
+fancy_bar_chars = ["", "", "", ""]
+
+# Process list #
+rank_top_symbol = "● "
+rank_high_symbol = "⊗ "
+# Marker for the selected row
+chosen = "▶"
+# Shown next to processes hidden from insights (toggle with `i`)
+ignored_process_indicator = "-"
+
+# General #
+# Separator between header and title items
+header_dot = "·"
+checkmark = "✓"
+# Critical insights / high swap
+triangle = "▲"
+# Warning insights / medium swap
+full_circle = "●"
+# Info insights / low swap
+empty_circle = "○"
+semicircle = "◐"
+# Panel title icon
+diamond = "◈"
+# Detail panel title with no process selected
+empty_diamond = "◇"
+arrow_up = "↑"
+# Prefix for insight suggestions
+arrow_right = "→"
+# Marks truncated text
+ellipsis = "…"
+# Shown while the graph collects data
+loading = "◌"
+
+# Process states (detail panel) #
+running = "●"
+sleeping = "○"
+disk_wait = "◐"
+zombie = "✕"
+stopped = "◼"
+tracing = "◻"
+idle = "◌"
+unknown = "?"
+
+### LAYOUT ###
+
+# Numbers #
+# Header height (lines)
+header_height = 1
+# Main panel height (minimal lines)
+center_height = 10
+# Insights panel height (lines)
+bottom_height = 4
+# Left panel width percentage
+left_width_percent = 40
+# Percentage of the top panel for the right side split (by default contains details and graph)
+side_vertical_split_percent = 60
+
+# Bools #
+# If this value is true, the left panel will be on the right and the right panel will be on the left.
+invert_horizontal_split = false
+# If this value is true, the top panel will be on the bottom and the bottom panel will be on the top.
+invert_side_vertical_split = false
+# If this value is true, the insights panel will be below the header and above main
+put_insights_on_top = false

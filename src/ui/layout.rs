@@ -1,8 +1,9 @@
 //! Layout management for the UI
 
+use crate::ui::Theme;
 use ratatui::layout::{Constraint, Direction, Layout as RatatuiLayout, Rect};
-
 /// Main layout manager
+#[derive(Debug, Clone)]
 pub struct Layout {
     /// Header height
     pub header_height: u16,
@@ -23,17 +24,17 @@ pub struct Layout {
 }
 
 impl Layout {
-    pub fn new() -> Self {
+    pub fn new(theme: &Theme) -> Self {
         Self {
-            header_height: 1,
-            center_height: 10,
-            bottom_height: 4,
-            left_width_percent: 40,
-            side_vertical_split_percent: 60,
+            header_height: theme.header_height,
+            center_height: theme.center_height,
+            bottom_height: theme.bottom_height,
+            left_width_percent: theme.left_width_percent,
+            side_vertical_split_percent: theme.side_vertical_split_percent,
 
-            invert_horizontal_split: false,
-            invert_side_vertical_split: false,
-            put_insights_on_top: false,
+            invert_horizontal_split: theme.invert_horizontal_split,
+            invert_side_vertical_split: theme.invert_side_vertical_split,
+            put_insights_on_top: theme.put_insights_on_top,
         }
     }
 
@@ -104,7 +105,7 @@ impl Layout {
 
 impl Default for Layout {
     fn default() -> Self {
-        Self::new()
+        Self::new(&Theme::dark())
     }
 }
 
@@ -129,7 +130,7 @@ mod tests {
 
     #[test]
     fn default_layout_calculation() {
-        let layout = Layout::new();
+        let layout = Layout::new(&Theme::dark());
         let area = Rect::new(0, 0, 100, 50);
         let areas = layout.calculate(area);
 
@@ -145,7 +146,7 @@ mod tests {
 
     #[test]
     fn put_insights_on_top_inverts_vertical_order() {
-        let mut layout = Layout::new();
+        let mut layout = Layout::new(&Theme::dark());
         layout.put_insights_on_top = true;
         let area = Rect::new(0, 0, 100, 50);
         let areas = layout.calculate(area);
@@ -161,7 +162,7 @@ mod tests {
 
     #[test]
     fn invert_horizontal_and_side_split() {
-        let mut layout = Layout::new();
+        let mut layout = Layout::new(&Theme::dark());
         layout.invert_horizontal_split = true;
         layout.invert_side_vertical_split = true;
         let area = Rect::new(0, 0, 100, 50);

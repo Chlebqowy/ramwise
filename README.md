@@ -80,6 +80,9 @@ ramwise --debug
 
 # Use light mode
 ramwise -t light
+
+# Use a custom theme file (default: $HOME/.config/ramwise/theme.toml)
+ramwise -t custom --custom-theme-file ~/my-theme.toml
 ```
 
 ### Capture snapshots
@@ -121,7 +124,7 @@ remain on stdout only when `-` is used.
 | `X` | Confirm and send `SIGKILL` to selected process |
 | `?` | Toggle help overlay |
 | `q` | Quit |
-| `i` | Blacklist/unblacklist the process from appearing in insights
+| `i` | Blacklist/unblacklist the process from appearing in insights |
 
 Notes:
 - `SIGKILL` requires confirmation in-app (`Enter` confirm, `Esc` cancel).
@@ -144,17 +147,39 @@ Action results are shown as in-app status messages (success, warning, or error).
 ### Themes
 ramwise includes built-in themes selectable via `--theme` or `-t`:
 ```bash
-# Launch with dark theme (default)
+# Dark theme (default)
 ramwise -t dark
 
-# Launch with light theme (Gruvbox Light)
+# Light theme (Gruvbox Light)
 ramwise -t light
+
+# 16-color theme that uses your terminal's ANSI palette
+ramwise -t ansi
+
+# Your own theme file
+ramwise -t custom
 ```
 
-Custom themes can be added to `src/ui/theme.rs` and registered in `App::new` (`src/app.rs`).
+#### Custom theme
+`-t custom` loads a TOML file (`$HOME/.config/ramwise/theme.toml` by default,
+or `--custom-theme-file <path>`). Any key you leave out keeps the dark theme's
+value, so the file only needs the parts you want to change. `theme.toml` in this
+repository lists every key with its default value; copy it with:
+```bash
+make install-config
+```
+
+Colors can be written as `[r, g, b]`, `"#rrggbb"`, a color name such as
+`"lightblue"`, or an ANSI palette index (`0`-`255`). Every symbol the UI
+draws (rank markers, bar characters, separators, state icons, arrows, the
+ignored-process indicator, …) can be changed there too. The graph marker
+accepts `dot`, `block`, `bar`, `braille`, `half_block`, `quadrant`, `sextant`,
+`octant` or any single character, bar types are `standard`, `gradient`,
+`fancy` or `fancy_gradient`, and `swap_display` is `bar` or `icon`.
 
 ### Layout Customization
-Layout dimensions and panel splits can be customized in `src/ui/layout.rs` (`Layout::new`):
+Layout dimensions and panel splits are part of the theme and can be set in a
+custom theme file:
 - `header_height`: Height of the top status bar.
 - `center_height`: Minimum height of the main process/detail panels.
 - `bottom_height`: Height of the insights panel.
@@ -163,7 +188,6 @@ Layout dimensions and panel splits can be customized in `src/ui/layout.rs` (`Lay
 - `invert_horizontal_split`: Swap process list and side panels.
 - `invert_side_vertical_split`: Swap detail view and trend graph.
 - `put_insights_on_top`: Place the insights panel below the header instead of at the bottom.
-
 
 ## Insight Rules
 

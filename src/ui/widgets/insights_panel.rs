@@ -48,7 +48,10 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
                         .fg(self.theme.fg)
                         .add_modifier(Modifier::BOLD),
                 ),
-                Span::styled(" · ", self.theme.muted_style()),
+                Span::styled(
+                    format!(" {} ", self.theme.header_dot),
+                    self.theme.muted_style(),
+                ),
                 Span::styled("All clear", Style::default().fg(self.theme.success)),
                 Span::styled(" ", Style::default()),
             ])
@@ -168,9 +171,14 @@ impl<'a> Widget for InsightsPanelWidget<'a> {
                 let suggestion = if remaining > 10 {
                     let sug = &insight.suggestion;
                     if sug.len() > remaining {
-                        format!("→ {}…", &sug[..remaining.saturating_sub(3)])
+                        format!(
+                            "{} {}{}",
+                            self.theme.arrow_right,
+                            &sug[..remaining.saturating_sub(3)],
+                            self.theme.ellipsis
+                        )
                     } else {
-                        format!("→ {}", sug)
+                        format!("{} {}", self.theme.arrow_right, sug)
                     }
                 } else {
                     String::new()

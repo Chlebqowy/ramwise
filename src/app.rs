@@ -86,17 +86,18 @@ pub struct App {
 }
 
 impl App {
-    /// Create a new application
-    pub fn new(theme_name: &str) -> Self {
-        let theme = match theme_name.trim().to_lowercase().as_str() {
-            "light" => Theme::light(),
-            "dark" => Theme::dark(),
-            "ansi" => Theme::ansi4bit(),
-            other => {
-                tracing::warn!("Invalid theme: {other}. Using dark as fallback.");
-                Theme::dark()
-            }
-        };
+    /// Create a new application, falling back to the dark theme if the
+    /// requested theme cannot be loaded
+    pub fn new(theme_name: &str, custom_theme_file: &str) -> Self {
+        let theme = Theme::from_name(theme_name, custom_theme_file).unwrap_or_else(|err| {
+            tracing::warn!("{err}. Using dark as fallback.");
+            Theme::dark()
+        });
+        Self::with_theme(theme)
+    }
+
+    /// Create a new application with an already loaded theme
+    pub fn with_theme(theme: Theme) -> Self {
         Self {
             should_quit: false,
             focus: Focus::ProcessList,
@@ -409,7 +410,7 @@ impl App {
 
 impl Default for App {
     fn default() -> Self {
-        Self::new("dark")
+        Self::new("dark", "") // custom file is only read for the custom theme
     }
 }
 
@@ -457,13 +458,13 @@ mod tests {
 
     #[test]
     fn app_theme_selection() {
-        let app_light = App::new("light");
+        let app_light = App::new("light", "");
         assert_eq!(app_light.theme.bg, Theme::light().bg);
 
-        let app_dark = App::new("dark");
+        let app_dark = App::new("dark", "");
         assert_eq!(app_dark.theme.bg, Theme::dark().bg);
 
-        let app_fallback = App::new("unknown-theme");
+        let app_fallback = App::new("unknown-theme", "");
         assert_eq!(app_fallback.theme.bg, Theme::dark().bg);
     }
 }
