@@ -327,8 +327,8 @@ pub struct Theme {
     pub border_subtle: Color,
     pub chosen: String,
     pub use_mem_color: bool,
-    /// Process list scale, in % of total RAM: colors reach critical and bars
-    /// fill up at this usage (bars stretch further if a process uses more)
+    /// Process list bars fill up at this share of total RAM (in %), or at the
+    /// biggest process if that uses more
     pub process_list_scale_percent: f64,
     pub ignored_process_indicator: char,
 
@@ -982,15 +982,39 @@ impl Theme {
         self.breakdown_icon = s("\u{f200}"); // pie chart
     }
 
-    /// Map a process's share of RAM onto the process list scale (0-100):
-    /// returns (color percent, bar percent). `highest_percent` is the largest
-    /// share of any listed process.
-    pub fn process_list_percents(&self, percent: f64, highest_percent: f64) -> (f64, f64) {
-        let scale = self.process_list_scale_percent.max(0.1);
-        let bar_scale = scale.max(highest_percent);
-        let color = (percent / scale * 100.0).clamp(0.0, 100.0);
-        let bar = (percent / bar_scale * 100.0).clamp(0.0, 100.0);
-        (color, bar)
+    /// Bar fill (0-100) for a process using `percent` of RAM: full at
+    /// `process_list_scale_percent`, or at `highest_percent` (the biggest
+    /// listed process) if that is larger
+    pub fn process_list_bar_percent(&self, percent: f64, highest_percent: f64) -> f64 {
+        let bar_scale = self
+            .process_list_scale_percent
+            .max(0.1)
+            .max(highest_percent);
+        (percent / bar_scale * 100.0).clamp(0.0, 100.0)
+    }
+
+    /// Memory color for a single process's share of RAM. A process rarely
+    /// uses much of the system, so the steps are far lower than `mem_color`'s:
+    /// critical from 15%, high from 12%, moderate from 9%, good from 5%.
+    pub fn process_mem_color(&self, percent: f64) -> Color {
+        match process_mem_level(percent) {
+            4 => self.mem_critical,
+            3 => self.mem_high,
+            2 => self.mem_moderate,
+            1 => self.mem_good,
+            _ => self.mem_excellent,
+        }
+    }
+
+    /// Dim variant of `process_mem_color` (end color of gradient bars)
+    pub fn process_mem_color_dim(&self, percent: f64) -> Color {
+        match process_mem_level(percent) {
+            4 => self.mem_critical_dim,
+            3 => self.mem_high_dim,
+            2 => self.mem_moderate_dim,
+            1 => self.mem_good_dim,
+            _ => self.mem_excellent_dim,
+        }
     }
 
     /// Recompute `bar_all_chars` (empty, partials, full) from the configured bar chars
@@ -1237,6 +1261,12 @@ impl Theme {
         fancy_bar
     }
 }
+/// Color step for a process using `percent` of RAM: 0 (excellent) to 4 (critical)
+fn process_mem_level(percent: f64) -> usize {
+    const STEPS: [f64; 4] = [5.0, 9.0, 12.0, 15.0]; // good, moderate, high, critical
+    STEPS.iter().filter(|&&step| percent >= step).count()
+}
+
 /// Linear interpolation between two RGB colors
 fn lerp_rgb(from: (u8, u8, u8), to: (u8, u8, u8), t: f64) -> (u8, u8, u8) {
     let t = t.clamp(0.0, 1.0);
@@ -1634,13 +1664,20 @@ mod tests {
 
     #[test]
     fn process_list_scale() {
-        let theme = Theme::dark(); // 50% scale
-        // Highest process below the scale: bars and colors share the 50% scale
-        assert_eq!(theme.process_list_percents(25.0, 30.0), (50.0, 50.0));
-        assert_eq!(theme.process_list_percents(50.0, 50.0), (100.0, 100.0));
-        // Highest process above the scale: bars stretch to it, colors cap out
-        assert_eq!(theme.process_list_percents(80.0, 80.0), (100.0, 100.0));
-        assert_eq!(theme.process_list_percents(20.0, 80.0), (40.0, 25.0));
+        let theme = Theme::dark();
+        // Colors: critical from 15% of RAM
+        assert_eq!(theme.process_mem_color(15.0), theme.mem_critical);
+        assert_eq!(theme.process_mem_color(40.0), theme.mem_critical);
+        assert_eq!(theme.process_mem_color(12.0), theme.mem_high);
+        assert_eq!(theme.process_mem_color(9.0), theme.mem_moderate);
+        assert_eq!(theme.process_mem_color(5.0), theme.mem_good);
+        assert_eq!(theme.process_mem_color(4.9), theme.mem_excellent);
+        assert_eq!(theme.process_mem_color_dim(15.0), theme.mem_critical_dim);
+
+        // Bars: full at 50%, or at the biggest process if that uses more
+        assert_eq!(theme.process_list_bar_percent(25.0, 30.0), 50.0);
+        assert_eq!(theme.process_list_bar_percent(50.0, 50.0), 100.0);
+        assert_eq!(theme.process_list_bar_percent(20.0, 80.0), 25.0);
     }
 
     #[test]

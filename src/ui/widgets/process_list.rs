@@ -166,11 +166,12 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
             .iter()
             .enumerate()
             .map(|(idx, proc)| {
-                // Colors use the theme's process list scale; bars fill up at
-                // that scale or at the biggest process, whichever is larger
-                let (color_percent, bar_percent) = self
+                // Colors use per-process thresholds (critical from 15% of RAM);
+                // bars fill up at the theme's scale or the biggest process
+                let percent = share(proc.rss);
+                let bar_percent = self
                     .theme
-                    .process_list_percents(share(proc.rss), highest_percent);
+                    .process_list_bar_percent(percent, highest_percent);
 
                 let is_selected = state.list_state.selected() == Some(idx);
 
@@ -224,7 +225,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
 
                 // Memory value with color based on usage
                 let mem_str = format!("{:>8}", format_bytes(proc.rss));
-                let mem_color = self.theme.mem_color(color_percent);
+                let mem_color = self.theme.process_mem_color(percent);
                 let mem_style = if is_selected {
                     Style::default()
                         .fg(self.theme.selection_fg)
@@ -262,7 +263,7 @@ impl<'a> StatefulWidget for ProcessListWidget<'a> {
                         || self.theme.process_list_bar_type == BarType::FancyGradient)
                 {
                     if self.theme.use_mem_color {
-                        let mem_color_dim = self.theme.mem_color_dim(color_percent);
+                        let mem_color_dim = self.theme.process_mem_color_dim(percent);
                         Theme::create_gradient_bar(
                             bar,
                             bar_width,

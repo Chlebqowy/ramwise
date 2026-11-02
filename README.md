@@ -210,9 +210,10 @@ accepts `dot`, `block`, `bar`, `braille`, `half_block`, `quadrant`, `sextant`,
 (`app_icon`, `ram_icon`, `insights_icon`, …) take any string; leave them empty
 for no icon.
 
-`process_list_scale_percent` (default `50`) sets the process list's scale as a
-share of total RAM: memory colors reach critical at that usage, and bars are
-full at that usage or at the biggest process, whichever is larger.
+`process_list_scale_percent` (default `50`) is the share of total RAM at which
+process list bars are full (or at the biggest process, if that uses more).
+Process memory colors turn critical from 15% of RAM (high from 12%, moderate
+from 9%, good from 5%).
 
 ### Layout Customization
 Layout dimensions and panel splits are part of the theme and can be set in a

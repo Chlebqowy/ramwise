@@ -60,8 +60,8 @@ rank_top = [255, 190, 70]
 rank_high = [180, 130, 255]
 # Color process names/bars by memory usage
 use_mem_color = true
-# Process list scale, in % of total RAM: memory colors reach critical and bars
-# fill up at this usage (bars stretch further if a process uses more)
+# Process list bars fill up at this share of total RAM (in %), or at the
+# biggest process if that uses more
 process_list_scale_percent = 50.0
 
 ### BARS ###
